@@ -23,7 +23,7 @@ SLE, is created by me, Andrés, better known on the internet as Slushi, I'm the 
 and last but not least, I have also received help from my good friend, [Trock](https://github.com/Gametrock), he is the one who made WinSL a reality!
 without more to say, this IS Slushi Engine. an engine that not only uses FNF as a base, but also the beautiful Slushi, from [Chikn Nuggit](https://twitter.com/chikn_nuggit?t=YohD2quSHtamaiJyzT-FOA&s=09).
 
-SLE has a [wiki](https://github.com/Slushi-Github/Slushi-Engine-Files/blob/docs/development/SLELua/) in spanish, of its Lua so you can see all that this engine can do through such a simple language hehe
+SLE has a [wiki](https://github.com/Slushi-Github/Slushi-Engine/tree/main/docs/development/SLELuaSpanish) in spanish, of its Lua so you can see all that this engine can do through such a simple language hehe
 
 ### Build Instructions:
 
