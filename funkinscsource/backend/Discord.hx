@@ -11,7 +11,7 @@ import hxdiscord_rpc.Types;
 class DiscordClient
 {
   public static var isInitialized:Bool = false;
-  private inline static final _defaultID:String = "1112118075517575169";
+  private inline static final _defaultID:String = "1112119299239334049";
   public static var clientID(default, set):String = _defaultID;
   private static var presence:DiscordPresence = new DiscordPresence();
   // hides this field from scripts and reflection in general
