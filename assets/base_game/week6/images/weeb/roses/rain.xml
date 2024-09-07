@@ -1,0 +1,50 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TextureAtlas imagePath="rain.png">
+	<!-- Created with Adobe Animate version 22.0.6.202 -->
+	<!-- http://www.adobe.com/products/animate.html -->
+	<SubTexture name="rain0000" x="5" y="5" width="550" height="470"/>
+	<SubTexture name="rain0001" x="5" y="5" width="550" height="470"/>
+	<SubTexture name="rain0002" x="5" y="5" width="550" height="470"/>
+	<SubTexture name="rain0003" x="560" y="5" width="550" height="470"/>
+	<SubTexture name="rain0004" x="560" y="5" width="550" height="470"/>
+	<SubTexture name="rain0005" x="560" y="5" width="550" height="470"/>
+	<SubTexture name="rain0006" x="1115" y="5" width="550" height="470"/>
+	<SubTexture name="rain0007" x="1115" y="5" width="550" height="470"/>
+	<SubTexture name="rain0008" x="1115" y="5" width="550" height="470"/>
+	<SubTexture name="rain0009" x="1670" y="5" width="550" height="470"/>
+	<SubTexture name="rain0010" x="1670" y="5" width="550" height="470"/>
+	<SubTexture name="rain0011" x="1670" y="5" width="550" height="470"/>
+	<SubTexture name="rain0012" x="2225" y="5" width="550" height="470"/>
+	<SubTexture name="rain0013" x="2225" y="5" width="550" height="470"/>
+	<SubTexture name="rain0014" x="2225" y="5" width="550" height="470"/>
+	<SubTexture name="rain0015" x="2780" y="5" width="550" height="470"/>
+	<SubTexture name="rain0016" x="2780" y="5" width="550" height="470"/>
+	<SubTexture name="rain0017" x="2780" y="5" width="550" height="470"/>
+	<SubTexture name="rain0018" x="3335" y="5" width="550" height="470"/>
+	<SubTexture name="rain0019" x="3335" y="5" width="550" height="470"/>
+	<SubTexture name="rain0020" x="3335" y="5" width="550" height="470"/>
+	<SubTexture name="rain0021" x="5" y="480" width="550" height="470"/>
+	<SubTexture name="rain0022" x="5" y="480" width="550" height="470"/>
+	<SubTexture name="rain0023" x="5" y="480" width="550" height="470"/>
+	<SubTexture name="rain0024" x="560" y="480" width="550" height="470"/>
+	<SubTexture name="rain0025" x="560" y="480" width="550" height="470"/>
+	<SubTexture name="rain0026" x="560" y="480" width="550" height="470"/>
+	<SubTexture name="rain0027" x="1115" y="480" width="550" height="470"/>
+	<SubTexture name="rain0028" x="1115" y="480" width="550" height="470"/>
+	<SubTexture name="rain0029" x="1115" y="480" width="550" height="470"/>
+	<SubTexture name="rain0030" x="1670" y="480" width="550" height="470"/>
+	<SubTexture name="rain0031" x="1670" y="480" width="550" height="470"/>
+	<SubTexture name="rain0032" x="1670" y="480" width="550" height="470"/>
+	<SubTexture name="rain0033" x="2225" y="480" width="550" height="470"/>
+	<SubTexture name="rain0034" x="2225" y="480" width="550" height="470"/>
+	<SubTexture name="rain0035" x="2225" y="480" width="550" height="470"/>
+	<SubTexture name="rain0036" x="2780" y="480" width="550" height="470"/>
+	<SubTexture name="rain0037" x="2780" y="480" width="550" height="470"/>
+	<SubTexture name="rain0038" x="2780" y="480" width="550" height="470"/>
+	<SubTexture name="rain0039" x="3335" y="480" width="550" height="470"/>
+	<SubTexture name="rain0040" x="3335" y="480" width="550" height="470"/>
+	<SubTexture name="rain0041" x="3335" y="480" width="550" height="470"/>
+	<SubTexture name="rain0042" x="5" y="955" width="550" height="470"/>
+	<SubTexture name="rain0043" x="5" y="955" width="550" height="470"/>
+	<SubTexture name="rain0044" x="5" y="955" width="550" height="470"/>
+</TextureAtlas>

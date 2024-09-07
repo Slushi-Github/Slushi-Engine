@@ -1,0 +1,54 @@
+{
+  "directory": "week5",
+  "defaultZoom": 0.8,
+  "isPixelStage": false,
+
+  "boyfriend": [970, 100],
+  "girlfriend": [400, 130],
+  "opponent": [100, 100],
+
+  "hide_girlfriend": false,
+
+  "camera_boyfriend": [0, -100],
+  "camera_opponent": [0, 0],
+  "camera_girlfriend": [0, 0],
+  "camera_speed": 1,
+
+  "ratingSkin": ["", ""],
+  "countDownAssets": ["ready", "set", "go"],
+  "introSoundsSuffix": "",
+  "introSoundsPrefix": "",
+
+  "preload": {
+    "images": [
+      "christmas/bgWalls",
+      "christmas/upperBop",
+      "christmas/bottomBop",
+      "christmas/bgEscalator",
+      "christmas/christmasTree",
+      "christmas/fgSnow",
+      "christmas/santa"
+    ],
+    "images_low": [
+      "christmas/bgWalls",
+      "christmas/bottomBop",
+      "christmas/christmasTree",
+      "christmas/fgSnow",
+      "christmas/santa"
+    ]
+  },
+
+  "_editorMeta": {
+    "dad": "parents-christmas",
+    "boyfriend": "bf-christmas",
+    "gf": "gf-christmas"
+  },
+
+  "_extraData": {
+    "_cameraMovement": {
+      "player": [50, 48],
+      "opponent": [50, 48],
+      "girlfriend": [50, 48]
+    }
+  }
+}

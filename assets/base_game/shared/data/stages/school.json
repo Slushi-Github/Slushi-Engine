@@ -1,0 +1,57 @@
+{
+  "directory": "week6",
+  "defaultZoom": 1.05,
+  "isPixelStage": true,
+
+  "boyfriend": [970, 320],
+  "girlfriend": [580, 430],
+  "opponent": [100, 100],
+
+  "hide_girlfriend": false,
+
+  "camera_boyfriend": [-100, -100],
+  "camera_opponent": [0, 0],
+  "camera_girlfriend": [0, 0],
+  "camera_speed": 1,
+
+  "ratingSkin": ["pixelUI/", "-pixel"],
+  "countDownAssets": [
+    "pixelUI/ready-pixel",
+    "pixelUI/set-pixel",
+    "pixelUI/date-pixel"
+  ],
+  "introSoundsSuffix": "-pixel",
+  "introSoundsPrefix": "",
+
+  "preload": {
+    "images": [
+      "weeb/weebSky",
+      "weeb/weebSchool",
+      "weeb/weebStreet",
+      "weeb/weebTreesBack",
+      "weeb/weebTrees",
+      "weeb/petals",
+      "weeb/bgFreaks"
+    ],
+    "images_low": [
+      "weeb/weebSky",
+      "weeb/weebSchool",
+      "weeb/weebStreet",
+      "weeb/weebTrees"
+    ]
+  },
+
+  "_editorMeta": {
+    "dad": "senpai",
+    "boyfriend": "bf-pixel",
+    "gf": "gf-pixel"
+  },
+
+  "_extraData": {
+    "_cameraMovement": {
+      "player": [20, 25],
+      "opponent": [20, 25],
+      "girlfriend": [20, 25]
+    }
+  }
+}

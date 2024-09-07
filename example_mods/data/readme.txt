@@ -1,0 +1,1 @@
+Put your custom charts in songs folder

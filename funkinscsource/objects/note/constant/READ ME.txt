@@ -1,0 +1,2 @@
+Constants such a forever things.
+Constants for "3D" strums and notes a set here and susTrail cause they can use "3D".

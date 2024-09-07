@@ -1,0 +1,6 @@
+Here we add song scripts, for lua and HScript for Psych
+If you wanna be more advanced with songs use the advanced folder (only accepts HScript from CodeNameEngine)
+No lua allowed in that folder.
+
+With no advanced: "song/script"
+With advanced: "song/advanced/script"

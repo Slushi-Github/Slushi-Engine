@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextureAtlas imagePath="no.png">
+	<!-- Created with Adobe Animate version 21.0.9.42677 -->
+	<!-- http://www.adobe.com/products/animate.html -->
+	<SubTexture name="no_Downs0000" x="0" y="0" width="20" height="20"/>
+	<SubTexture name="no_Down_MISS0000" x="0" y="0" width="20" height="20" frameX="-1" frameY="0" frameWidth="963" frameHeight="995"/>
+	<SubTexture name="no_Idle0000" x="0" y="0" width="20" height="20" frameX="0" frameY="-33" frameWidth="961" frameHeight="903"/>
+	<SubTexture name="no_Leftp0014" x="0" y="0" width="20" height="20" frameX="-42" frameY="0" frameWidth="1055" frameHeight="922"/>
+	<SubTexture name="no_Left_MISS0000" x="0" y="0" width="20" height="20" frameX="0" frameY="-8" frameWidth="1055" frameHeight="922"/>
+	<SubTexture name="no_Rightk0000" x="0" y="0" width="20" height="20"/>
+	<SubTexture name="no_Right_MISS0000" x="0" y="0" width="20" height="20" frameX="0" frameY="-26" frameWidth="961" frameHeight="900"/>
+	<SubTexture name="no_Upw0000" x="0" y="0" width="20" height="20"/>
+	<SubTexture name="no_Up_MISS0000" x="0" y="0" width="20" height="20" frameX="-1" frameY="-37" frameWidth="972" frameHeight="1028"/>
+</TextureAtlas>

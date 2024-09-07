@@ -1,0 +1,13 @@
+{
+	"customHUDName": "FNF",
+	"HealthBar": "healthBar",
+
+	"countDownStyle": ["ready", "set", "go"],
+	"countDownSounds": ["intro3", "intro2", "intro1", "introGo"],
+
+	"ratingType": ["", ""],
+
+	"ratingOffset": [0, 0],
+
+	"GameoverType": "bf-dead"
+}

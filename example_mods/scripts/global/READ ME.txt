@@ -1,0 +1,3 @@
+Here we add scripts, for lua and SScript (HScript for Psych)
+If you wanna be more advanced with scripts use the advanced folder (only accepts HScript from CodeNameEngine)
+No lua allowed in that folder.

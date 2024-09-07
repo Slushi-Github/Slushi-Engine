@@ -1,0 +1,3 @@
+Here we add stage scripts, for lua and HScript for Psych
+If you wanna be more advanced with stages use the advanced folder (only accepts HScript from CodeNameEngine)
+No lua allowed in that folder.

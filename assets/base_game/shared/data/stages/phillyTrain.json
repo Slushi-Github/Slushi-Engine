@@ -1,0 +1,52 @@
+{
+  "directory": "week3",
+  "defaultZoom": 1.05,
+  "isPixelStage": false,
+
+  "boyfriend": [770, 100],
+  "girlfriend": [400, 130],
+  "opponent": [100, 100],
+
+  "hide_girlfriend": false,
+
+  "camera_boyfriend": [0, 0],
+  "camera_opponent": [0, 0],
+  "camera_girlfriend": [0, 0],
+  "camera_speed": 1,
+
+  "ratingSkin": ["", ""],
+  "countDownAssets": ["ready", "set", "go"],
+  "introSoundsSuffix": "",
+  "introSoundsPrefix": "",
+
+  "preload": {
+    "images": [
+      "philly/city",
+      "philly/street",
+      "philly/train",
+      "philly/window",
+      "philly/behindTrain",
+      "philly/sky"
+    ],
+    "images_low": [
+      "philly/city",
+      "philly/street",
+      "philly/train",
+      "philly/window"
+    ]
+  },
+
+  "_editorMeta": {
+    "dad": "pico",
+    "boyfriend": "bf",
+    "gf": "gf"
+  },
+
+  "_extraData": {
+    "_cameraMovement": {
+      "player": [30, 30],
+      "opponent": [30, 30],
+      "girlfriend": [30, 30]
+    }
+  }
+}
