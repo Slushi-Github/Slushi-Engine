@@ -7,7 +7,7 @@ In addition, SLE takes some inspiration from [NotITG](https://www.noti.tg/) and 
 
 You can do things like this, or even better things!
 
-![](https://github.com/Slushi-Github/Slushi-Engine/blob/main/docs/readmeImages/VideoDemonstration1.gif)
+![](https://github.com/Slushi-Github/Slushi-Engine/blob/main/docs/readmeImages/VideoDemonstration0.gif)
 [video of this](https://youtu.be/lT-9rTg6f_o?si=8srv0LmbzZ6avGgb)
 
 The limit is in your mind, and of course, the OS where you run the engine hehe.
