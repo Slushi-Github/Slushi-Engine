@@ -18,12 +18,13 @@ class SlushiMain
 	public static var buildNumber:String = "07092024";
 	public static var sceGitCommit:String = "99701c5";
 	public static var slushiColor = FlxColor.fromRGB(143, 217, 209); // 0xff8FD9D1 0xffd6f3de
-	public static var slushiEngineVersion:String = '0.3.3';
+	public static var slushiEngineVersion:String = '0.3.4';
 	public static var winSLVersion:String = '1.3';
 
 	public static function loadSlushiEngineFunctions()
 	{
 		#if windows
+		preventAdminExecution();
 		CppAPI._setWindowLayered();
 		CppAPI.centerWindow();
 		WindowsFuncs.resetAllCPPFunctions();
@@ -104,22 +105,23 @@ class SlushiMain
 		#end
 	}
 
-	public static function getBuildVer():String
+	public static function getBuildVer()
 	{
 		if (ClientPrefs.data.checkForUpdates)
 		{
 			Debug.logSLEInfo('Checking for new version...');
-			var http = new haxe.Http("https://raw.githubusercontent.com/Slushi-Github/Slushi-Engine/main/gitVersion.json");
+			var http = new haxe.Http("https://github.com/Slushi-Github/Slushi-Engine/blob/main/gitVersion.json");
 			var jsonData:Dynamic = null;
 
 			http.onData = function(data:String)
 			{
-				try {
+				try
+				{
 					jsonData = Json.parse(data);
 				}
-				catch (e) {
+				catch (e)
+				{
 					Debug.logSLEError('Error parsing JSON or JSON does not exist: $e');
-					return "";
 				}
 
 				var currentVersion = slushiEngineVersion;
@@ -128,28 +130,33 @@ class SlushiMain
 				if (gitVersion != currentVersion)
 				{
 					Debug.logSLEWarn('Versions arent matching!');
-					return gitVersion;
+					slushi.states.SlushiTitleState.gitVersion.needUpdate = true;
+					slushi.states.SlushiTitleState.gitVersion.newVersion = gitVersion;
 				}
-				else {
+				else
+				{
 					Debug.logSLEInfo('Versions are matching!');
-					return "";
 				}
-					
-
-				return "";
 			}
 
 			http.onError = function(error)
 			{
 				Debug.logError('Error requesting JSON: $error');
-				return "";
 			}
 
 			http.request();
-
-			return "";
 		}
 
 		return "";
+	}
+
+	private static function preventAdminExecution()
+	{
+		#if windows
+		if(WindowsCPP.isRunningAsAdmin()){
+			CppAPI.showMessageBox("SLE is running as an administrator, please don't do that.", "Slushi Engine: HEY!", MSG_WARNING);
+			Sys.exit(0);
+		}
+		#end
 	}
 }

@@ -43,7 +43,7 @@ jobs:
       - name: Uploading artifact (entire build)
         uses: actions/upload-artifact@v4.3.4
         with:
-          name: SC-SP-Engine
+          name: Linux64_SlushiEngine
           path: export/release/linux/bin
       - name: Clearing already existing cache
         uses: actions/github-script@v7.0.1

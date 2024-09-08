@@ -37,6 +37,11 @@ class SlushiTitleState extends MusicBeatState
 	var particlesUP = new FlxTypedGroup<FlxEmitter>();
 	var particlesDOWN = new FlxTypedGroup<FlxEmitter>();
 
+	public static var gitVersion = {
+		needUpdate: false,
+		newVersion: ""
+	};
+
 	override public function create()
 	{
 		super.create();
@@ -65,24 +70,26 @@ class SlushiTitleState extends MusicBeatState
 		Assets.cache.enabled = true;
 		WindowSizeUtil.setScreenResolutionOnStart();
 
-		var newVersion:String = SlushiMain.getBuildVer();
-		if(newVersion != "") {
-			var finalText:FlxText = new FlxText(0, 0, 0, "Hey! You are using an old version of Slushi Engine\nVersion: " + newVersion + " > " + SlushiMain.slushiEngineVersion + "\nPlease download the latest version\nThanks for use SLE :3", 12);
+		SlushiMain.getBuildVer();
+
+
+		if(gitVersion.needUpdate) {
+			var finalText:FlxText = new FlxText(0, 0, 0, "Hey! You are using an old version of Slushi Engine\n\nVersion: " + gitVersion.newVersion + " > " + SlushiMain.slushiEngineVersion + "\n\nPlease download the latest version\nThanks for use SLE :3", 12);
 			finalText.scrollFactor.set();
 			finalText.setFormat("VCR OSD Mono", 35, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 			finalText.screenCenter();
 			finalText.y -= 20;
 			add(finalText);
-			finalText.alpha = 0;
+			// finalText.alpha = 0;
 			FlxTween.tween(finalText, {alpha: 1}, 0.3, {ease: FlxEase.quadOut});
-			FlxTween.tween(finalText, {y: 320}, 0.3, {ease: FlxEase.quadOut});
-
-			new FlxTimer().start(3, function(twn:FlxTimer)
-			{
-				FlxTween.tween(finalText, {alpha: 0}, 2, {ease: FlxEase.quadOut, onComplete: function(twn:FlxTween) {
-					finalText.destroy();
-				}});
-			});
+			FlxTween.tween(finalText, {y: finalText.y + 20}, 0.3, {ease: FlxEase.quadOut, onComplete: function(twn:FlxTween) {
+				new FlxTimer().start(3, function(twn:FlxTimer)
+					{
+						FlxTween.tween(finalText, {alpha: 0}, 2, {ease: FlxEase.quadOut, onComplete: function(twn:FlxTween) {
+							finalText.destroy();
+						}});
+					});
+			}});
 		}
 
 		grayGrad = FlxGradient.createGradientFlxSprite(FlxG.width, 400, [0x0, SlushiMain.slushiColor]);
@@ -227,6 +234,8 @@ class SlushiTitleState extends MusicBeatState
 			}
 			else
 			{
+				gitVersion.needUpdate = false;
+				gitVersion.newVersion = "";
 				MusicBeatState.switchState(new slushi.states.SlushiMainMenuState());
 			}
 		}

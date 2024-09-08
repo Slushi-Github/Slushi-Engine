@@ -84,3 +84,4 @@ Slushi, is neither my original character (OC) nor a character owned by me. She i
 - New shaders, available only in SLE
 - An extensive number of new Lua functions for you to experiment with when creating your songs or mods
 - Based on the newest versions of SC Engine
+- Result screen of FNF' V-SLICE (From [P-Slice](https://github.com/mikolka9144/P-Slice))

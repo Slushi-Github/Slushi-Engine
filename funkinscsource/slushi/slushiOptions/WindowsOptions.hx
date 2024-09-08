@@ -1,5 +1,5 @@
-#if windows
 package slushi.slushiOptions;
+#if windows
 
 import options.Option;
 
@@ -46,7 +46,7 @@ class WindowsOptions extends options.BaseOptionsMenu
 		
 		var option:Option = new Option('Window Alpha', 
 		'If unchecked, disables Window Alpha Functions \n(this has no effect with respect to the animation when you close the window)', 
-		'WinAlpha', 
+		'windowAlpha', 
 		BOOL);
 		addOption(option);
 		windowAlphaOption = optionsArray.length - 1;
