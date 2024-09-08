@@ -147,17 +147,19 @@ class WindowFuncs
 	public static function resetWindowParameters()
 	{
 		#if windows
-		if (!Application.current.window.maximized)
-		{
-			CppAPI.centerWindow();
-		}
 		WindowsFuncs.setSlushiColorToWindow();
 		#end
-		if (!Application.current.window.maximized)
+
+		if (!Application.current.window.maximized || !Application.current.window.fullscreen)
 		{
-			windowDimWidth(ClientPrefs.data.windowAndGameResolution[0]);
-			windowDimHeight(ClientPrefs.data.windowAndGameResolution[1]);
+			#if windows
+			CppAPI.centerWindow();
+			#else
+			setWinPositionInX(Std.int((getScreenSizeInWidth() - getWindowSizeInWidth()) / 2));
+			setWinPositionInY(Std.int((getScreenSizeInHeight() - getWindowSizeInHeight()) / 2));
+			#end
 		}
+
 		if (!Application.current.window.resizable)
 		{
 			windowResizable(true);

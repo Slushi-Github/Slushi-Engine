@@ -126,41 +126,6 @@ function setOtherWindowLayeredMode(window)
     ]]--
 end
 
-function getDesktopIconsCount()
-    --[[
-    Devuelve la cantidad de iconos existentes en el escritorio de Windows.
-    ]]--
-end
-
-function getDesktopIconPosition(mode, iconIndex)
-    --[[
-    Obten la posicion X o Y de un icono en especifico del escritorio de Windows.
-    mode: Dirección para obtener ("X", "Y").
-    iconIndex: el numnero del icono.
-    ]]--
-end
-
-function setDesktopIconPosition(mode, iconIndex, value)
-    --[[
-    Establece la posicion X o Y de un icono en especifico del escritorio de Windows.
-    mode: Dirección en la que mover el icono ("X", "Y").
-    iconIndex: el numnero del icono.
-    value: Valor de la nueva posicion.
-    ]]--
-end
-
-function tweenDesktopIconPosition(mode, iconIndex, toValue, duration, ease)
-    --[[
-    Realiza un tween a un icono del escritorio de Windows.
-    mode: Dirección del tween ("X", "Y", "XY").
-    iconIndex: el numnero del icono.
-    toValue: Valor final del tween.
-    duration: Duración del tween.
-    ease: Tipo de easing.
-    ]]--
-end
-
-
 ---------------------------------------------------------------
 
 function windowsEffectModifier(tag, gdiEffect, activeEffect)

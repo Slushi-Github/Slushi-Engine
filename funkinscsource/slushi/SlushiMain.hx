@@ -18,7 +18,7 @@ class SlushiMain
 	public static var buildNumber:String = "08092024";
 	public static var sceGitCommit:String = "99701c5";
 	public static var slushiColor = FlxColor.fromRGB(143, 217, 209); // 0xff8FD9D1 0xffd6f3de
-	public static var slushiEngineVersion:String = '0.3.4';
+	public static var slushiEngineVersion:String = '0.3.5';
 	public static var winSLVersion:String = '1.3';
 
 	public static function loadSlushiEngineFunctions()

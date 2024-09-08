@@ -19,9 +19,7 @@ class DebugSubState extends MusicBeatSubState
 	var alltexts:Array<String> = [
 		'[In Gameplay] F3 + B: Active Botplay',
 		'[In Gameplay] F3 + P: Active Practice mode',
-		#if windows
 		'F3 + C: Center the window',
-		#end
 		'F3 + F: Force crash',
 	];
 
@@ -152,12 +150,15 @@ class DebugSubState extends MusicBeatSubState
 			});
 		}
 
-		#if windows
 		if (FlxG.keys.pressed.F3 && FlxG.keys.pressed.C && !Application.current.window.maximized)
 		{
+			#if windows
 			CppAPI.centerWindow();
+			#else
+			setWinPositionInX(Std.int((getScreenSizeInWidth() - getWindowSizeInWidth()) / 2));
+			setWinPositionInY(Std.int((getScreenSizeInHeight() - getWindowSizeInHeight()) / 2));
+			#end
 		}
-		#end
 
 		if (FlxG.keys.justReleased.F3)
 		{

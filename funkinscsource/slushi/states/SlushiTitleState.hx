@@ -4,7 +4,6 @@ import flixel.util.FlxGradient;
 import flixel.effects.particles.FlxEmitter;
 import openfl.Assets;
 import backend.Highscore;
-import slushi.windowThings.WindowSizeUtil;
 
 /**
  * The first state of the game, the title state of SLE.
@@ -68,10 +67,7 @@ class SlushiTitleState extends MusicBeatState
 
 		Highscore.load();
 		Assets.cache.enabled = true;
-		WindowSizeUtil.setScreenResolutionOnStart();
-
 		SlushiMain.getBuildVer();
-
 
 		if(gitVersion.needUpdate) {
 			var finalText:FlxText = new FlxText(0, 0, 0, "Hey! You are using an old version of Slushi Engine\n\nVersion: " + gitVersion.newVersion + " > " + SlushiMain.slushiEngineVersion + "\n\nPlease download the latest version\nThanks for use SLE :3", 12);

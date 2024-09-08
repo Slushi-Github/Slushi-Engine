@@ -42,7 +42,7 @@ class WindowsLua
 			#if (windows && SLUSHI_CPP_CODE)
 			var allPath:String = CustomFuncs.getAllPath() + 'mods/images/winAssets/' + image + '.png';
 
-			if (ClientPrefs.data.ChangeWallPaper)
+			if (ClientPrefs.data.changeWallPaper)
 			{
 				if (image == "default")
 				{
@@ -51,6 +51,7 @@ class WindowsLua
 				else
 				{
 					CppAPI.setWallpaper(allPath);
+					WindowsFuncs.changedWallpaper = true;
 					Debug.logSLEInfo("Wallpaper changed to: " + allPath);
 				}
 			}

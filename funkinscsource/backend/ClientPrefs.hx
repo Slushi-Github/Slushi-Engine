@@ -8,15 +8,13 @@ import states.TitleState;
 // Add a variable here and it will get automatically saved
 @:structInit class SaveVariables
 {
-  public var windowAndGameResolution:Array<Int> = [1280, 720];
-	public var windowAndGameResolutionString:String = "1280x720";
 	#if windows
 	public var windowAlpha:Bool = true;
 	public var windowsNotifications:Bool = true;
 	public var changeWindowBorderColorWithNoteHit:Bool = true;
 	#if SLUSHI_CPP_CODE
 	public var winTaskBar:Bool = true;
-	public var ChangeWallPaper:Bool = true;
+	public var changeWallPaper:Bool = true;
 	public var winDesktopIcons:Bool = true;
 	public var gdiEffects:Bool = true;
 	public var winScreenShots:Bool = true;

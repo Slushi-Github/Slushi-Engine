@@ -65,7 +65,7 @@ class WindowsOptions extends options.BaseOptionsMenu
 
 		var option:Option = new Option('Change wallpaper', 
 		'If unchecked, disable the ability to change your desktop wallpaper \n(may cause lag)', 
-		'ChangeWallPaper',
+		'changeWallPaper',
 		BOOL);
 		addOption(option);
 

@@ -14,12 +14,15 @@ class WindowsFuncs
 	@:noPrivateAccess // Yeah, it's private, you can't use @:privateAccess like in HScript for get this :3
 	private static var _windowsWallpaperPath:String = null;
 
+	public static var changedWallpaper:Bool = false;
+
 	public static function changeWindowsWallpaper(path:String)
 	{
 		#if windows
 		var allPath:String = Sys.getCwd() + 'assets/' + path;
 		allPath = allPath.split("\\").join("/");
 		CppAPI.setWallpaper(allPath);
+		changedWallpaper = true;
 		Debug.logSLEInfo("Wallpaper changed to: " + allPath);
 		#end
 	}
@@ -92,6 +95,13 @@ class WindowsFuncs
 		CppAPI.moveDesktopWindowsInXY(0, 0);
 		CppAPI.setTaskBarAlpha(1);
 		CppAPI.setDesktopWindowsAlpha(1);
+
+		if (ClientPrefs.data.changeWallPaper) {
+			if (changedWallpaper) {
+				setOldWindowsWallpaper();
+				changedWallpaper = false;
+			}
+		}
 		#end
 	}
 

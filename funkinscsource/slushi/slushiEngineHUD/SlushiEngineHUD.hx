@@ -57,7 +57,7 @@ class SlushiEngineHUD extends FlxSprite
 	static var rightNoteColor:Array<Int> = [249, 58, 63];
 	static var slushiWindowColor:Array<Int> = [214, 243, 222];
 	public var canChangeWindowColorWithNoteHit:Bool = true;
-	static var tweenDuration:Float = 0.2;
+	static var tweenDuration:Float = 0.3;
 	static var windowColorNumTween:NumTween;
 	static var forward:Bool = false;
 
@@ -527,7 +527,6 @@ class SlushiEngineHUD extends FlxSprite
 	#end
 
 	//////////////////////////////////////////////////////////////////////////////////////////////
-	#if SLUSHI_LUA
 	public function moveSLELogoX(xValue:Float, time:Float, ease:String)
 	{
 		FlxTween.tween(slushiSprite, {x: xValue}, time, {ease: LuaUtils.getTweenEaseByString(ease)});
@@ -577,5 +576,4 @@ class SlushiEngineHUD extends FlxSprite
 			FlxTween.tween(blackGraphic, {alpha: SLELogo.blackAlpha}, time, {ease: FlxEase.quadInOut});
 		}
 	}
-	#end
 }
