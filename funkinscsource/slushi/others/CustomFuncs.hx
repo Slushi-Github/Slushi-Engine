@@ -45,10 +45,12 @@ class CustomFuncs
 	}
 
 	public static function setWinBorderColorFromInt(color:Int):Void {
+		#if windows
 		var red:Int = (color >> 16) & 0xFF;
 		var green:Int = (color >> 8) & 0xFF;
 		var blue:Int = color & 0xFF;
 		var rgb:Array<Int> = [red, green, blue];
 		WindowsFuncs.setWindowBorderColor(rgb);
+		#end
 	}
 }

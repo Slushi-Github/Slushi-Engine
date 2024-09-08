@@ -37,7 +37,11 @@ class SLEFlxShaderUtil extends FlxShader
                 var message = (type == gl.VERTEX_SHADER) ? "Can\'t compile [VERTEX] shader:\n" : "Can\'t compile [FRAGMENT] shader:\n";
                     message += shaderInfoLog;
                 if (compileStatus == 0) {
+                    #if windows
                     CppAPI.showMessageBox(message, "Slushi Engine: Error compiling shader!", MSG_ERROR);
+                    #else
+                    WindowFuncs.windowAlert(message, "Slushi Engine: Error compiling shader!");
+                    #end
                     Debug.logError("Error compiling shader: \n" + message + "\n");
                 }
                 else if (hasInfoLog){

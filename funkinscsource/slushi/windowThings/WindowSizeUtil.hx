@@ -68,7 +68,12 @@ class WindowSizeUtil
         // if(!Application.current.window.fullscreen && !Application.current.window.maximized) {
             FlxG.resizeGame(getScreenResolutions(newResolution)[0], getScreenResolutions(newResolution)[1]);
             Application.current.window.resize(getScreenResolutions(newResolution)[0], getScreenResolutions(newResolution)[1]);
+            #if windows
             CppAPI.centerWindow();
+            #else
+            Application.current.window.x = Std.int((Application.current.window.display.bounds.width - Application.current.window.width) / 2);
+            Application.current.window.y = Std.int((Application.current.window.display.bounds.width - Application.current.window.height) / 2);
+            #end
         // }
 
         Debug.logSLEInfo("Set resolution to: " + newResolution);
@@ -82,7 +87,12 @@ class WindowSizeUtil
         if(ClientPrefs.data.windowAndGameResolutionString != "1280x720" && !Application.current.window.fullscreen && !Application.current.window.maximized) {
             FlxG.resizeGame(ClientPrefs.data.windowAndGameResolution[0], ClientPrefs.data.windowAndGameResolution[1]);
             Application.current.window.resize(ClientPrefs.data.windowAndGameResolution[0], ClientPrefs.data.windowAndGameResolution[1]);
+            #if windows
             CppAPI.centerWindow();
+            #else
+            Application.current.window.x = Std.int((Application.current.window.display.bounds.width - Application.current.window.width) / 2);
+            Application.current.window.y = Std.int((Application.current.window.display.bounds.width - Application.current.window.height) / 2);
+            #end
             Debug.logSLEInfo("Set resolution to: " + ClientPrefs.data.windowAndGameResolutionString);
         }
     }

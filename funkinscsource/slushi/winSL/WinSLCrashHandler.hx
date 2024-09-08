@@ -56,14 +56,14 @@ class WinSLCrashHandler {
 			#if windows
 			CppAPI.showMessageBox(finalText, "WinSL: Critical Error", MSG_ERROR);
 			#else
-			WindowFuncs.winAlert(finalText, "WinSL: Critical Error");
+			WindowFuncs.windowAlert(finalText, "WinSL: Critical Error");
 			#end
 		}
 		else {
 			#if windows
 			CppAPI.showMessageBox(finalText, "WinSL: STOPED TERMINAL.", MSG_ERROR);
 			#else
-			WindowFuncs.winAlert(finalText, "WinSL: STOPED TERMINAL.");
+			WindowFuncs.windowAlert(finalText, "WinSL: STOPED TERMINAL.");
 			#end
 		}
 

@@ -41,7 +41,9 @@ class EngineMacros
         #if windows
         Sys.println('Compiling for \x1b[38;5;4mWindows\x1b[0m');
         #elseif linux
-        Sys.println('Compiling for \x1b[38;5;5mmLinux\x1b[0m');
+        Sys.println('Compiling for \x1b[38;5;5mLinux\x1b[0m');
+        #elseif macos
+        Sys.println('Compiling for MacOS');
         #end
 
         Sys.println('-----------');

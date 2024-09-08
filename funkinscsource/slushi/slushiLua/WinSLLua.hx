@@ -9,6 +9,7 @@ class WinSLLua
 {
 	public static function loadWinSLLua(funkLua:FunkinLua)
 	{
+		#if windows
 		Debug.logSLEInfo("WinSL Console Lua initialized");
 
 		funkLua.set("winSL_console_getVersion", function()
@@ -106,5 +107,6 @@ class WinSLLua
 		{
 			WinConsoleUtils.centerConsoleWindow();
 		});
+		#end
 	}
 }

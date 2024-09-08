@@ -131,7 +131,9 @@ class ResultState extends MusicBeatSubState
     if (FlxG.sound.music != null) FlxG.sound.music.stop();
 
     WindowFuncs.winTitle("default");
+    #if windows
     WindowsFuncs.setWindowBorderColor([253, 198, 95]);
+    #end
 
     // We need multiple cameras so we can put one at an angle.
     cameraScroll.angle = -3.8;

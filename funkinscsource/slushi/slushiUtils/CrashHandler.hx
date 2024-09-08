@@ -52,7 +52,7 @@ class CrashHandler
 		#if windows
 		CppAPI.showMessageBox(mainText + message, "Slushi Engine [C++]: Crash Handler", MSG_ERROR);
 		#else
-		WindowFuncs.winAlert(mainText + message, "Slushi Engine [C++]: Crash Handler");
+		WindowFuncs.windowAlert(mainText + message, "Slushi Engine [C++]: Crash Handler");
 		#end
 		#end
 	}
@@ -326,7 +326,7 @@ class CrashHandler
 					"Loop in Crash Handler Mode", MSG_ERROR);
 				Sys.exit(1);
 				#else
-				WindowFuncs.winAlert("several crashes were detected while the crash handler was already running, the game will be terminated to end the loop.",
+				WindowFuncs.windowAlert("several crashes were detected while the crash handler was already running, the game will be terminated to end the loop.",
 					"Loop in Crash Handler Mode");
 				Sys.exit(1);
 				#end

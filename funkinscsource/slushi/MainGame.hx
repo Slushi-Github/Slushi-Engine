@@ -66,7 +66,9 @@ class MainGame extends FlxGame
 			FlxG.state.openSubState(new DebugSubState());
 		}
 
+		#if windows
 		WindowsCPP.reDefineEngineWindowTitle(Application.current.window.title);
+		#end
 
 		try
 		{
