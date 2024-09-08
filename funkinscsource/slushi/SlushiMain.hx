@@ -15,7 +15,7 @@ import slushi.states.SlushiTitleState;
  */
 class SlushiMain
 {
-	public static var buildNumber:String = "07092024";
+	public static var buildNumber:String = "08092024";
 	public static var sceGitCommit:String = "99701c5";
 	public static var slushiColor = FlxColor.fromRGB(143, 217, 209); // 0xff8FD9D1 0xffd6f3de
 	public static var slushiEngineVersion:String = '0.3.4';
@@ -110,7 +110,7 @@ class SlushiMain
 		if (ClientPrefs.data.checkForUpdates)
 		{
 			Debug.logSLEInfo('Checking for new version...');
-			var http = new haxe.Http("https://github.com/Slushi-Github/Slushi-Engine/blob/main/gitVersion.json");
+			var http = new haxe.Http("https://raw.githubusercontent.com/Slushi-Github/Slushi-Engine/main/gitVersion.json");
 			var jsonData:Dynamic = null;
 
 			http.onData = function(data:String)
@@ -121,7 +121,7 @@ class SlushiMain
 				}
 				catch (e)
 				{
-					Debug.logSLEError('Error parsing JSON or JSON does not exist: $e');
+					Debug.logSLEError('Error parsing JSON: $e');
 				}
 
 				var currentVersion = slushiEngineVersion;
@@ -130,8 +130,8 @@ class SlushiMain
 				if (gitVersion != currentVersion)
 				{
 					Debug.logSLEWarn('Versions arent matching!');
-					slushi.states.SlushiTitleState.gitVersion.needUpdate = true;
-					slushi.states.SlushiTitleState.gitVersion.newVersion = gitVersion;
+					SlushiTitleState.gitVersion.needUpdate = true;
+					SlushiTitleState.gitVersion.newVersion = gitVersion;
 				}
 				else
 				{
