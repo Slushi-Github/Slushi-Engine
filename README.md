@@ -10,6 +10,13 @@
 
 ![Slushi Engine Logo](https://github.com/Slushi-Github/Slushi-Engine/blob/main/docs/readmeImages/SlushiEngineLogo.png)
 
+![Windows Workflow Status](https://img.shields.io/github/actions/workflow/status/Slushi-Github/Slushi-Engine/.github%2Fworkflows%2Fwindows.yml?label=Windows)
+![Linux Workflow Status](https://img.shields.io/github/actions/workflow/status/Slushi-Github/Slushi-Engine/.github%2Fworkflows%2Flinux.yml?label=Linux)
+![MacOS Workflow Status](https://img.shields.io/github/actions/workflow/status/Slushi-Github/Slushi-Engine/.github%2Fworkflows%2Fmacos.yml?label=MacOS)
+![GitHub Downloads](https://img.shields.io/github/downloads/Slushi-Github/Slushi-Engine/total) 
+![GitHub repo size](https://img.shields.io/github/repo-size/Slushi-Github/Slushi-Engine)
+
+
 Slushi Engine is an FNF' engine that allows you to make modcharts with [Modcharting Tools](https://github.com/EdwhakKB/FNF-Modcharting-Tools) and other [SC Engine](https://github.com/EdwhakKB/SC-SP-ENGINE) utilities, while also being able to make a unique kind of modchart that uses Windows functions!
 In addition, SLE takes some inspiration from [NotITG](https://www.noti.tg/) and [HITMANS: THE ANNIHILATE AND DESTROY PROJECT](https://gamebanana.com/mods/453997)
 
