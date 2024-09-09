@@ -75,6 +75,8 @@ En un futuro cercano, puedes esperar encontrar todo el código C++ de SLE dispon
 
 Slushi, no es ni mi personaje original (OC) ni un personaje que me pertenezca. Ella es de la serie web [Chikn Nuggit](https://twitter.com/chikn_nuggit?t=YohD2quSHtamaiJyzT-FOA&s=09), de Kyra Kupetsky. No tengo permiso directo para usar a Slushi en este motor, todos los derechos sobre el personaje pertenecen a ellos.
 
+Slushi Engine usa codigo de [Codename Engine](https://github.com/FNF-CNE-Devs/CodenameEngine) (SC Engine tambien, pero solo me quiero referir al codigo que use en SLE) y de [HITMANS: THE ANNIHILATE AND DESTROY PROJECT](https://gamebanana.com/mods/453997)
+
 [SC Engine](https://github.com/EdwhakKB/SC-SP-ENGINE), es solo la base de SLE, no es mío, es de [EdwhakKB](https://github.com/EdwhakKB), tengo su permiso completo para usar SLE en este maravilloso motor.
 
 ----
