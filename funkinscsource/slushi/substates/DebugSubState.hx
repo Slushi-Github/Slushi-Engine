@@ -150,13 +150,13 @@ class DebugSubState extends MusicBeatSubState
 			});
 		}
 
-		if (FlxG.keys.pressed.F3 && FlxG.keys.pressed.C && !Application.current.window.maximized)
+		if (FlxG.keys.pressed.F3 && FlxG.keys.pressed.C && !Application.current.window.maximized && !Application.current.window.fullscreen)
 		{
 			#if windows
 			CppAPI.centerWindow();
 			#else
-			setWinPositionInX(Std.int((getScreenSizeInWidth() - getWindowSizeInWidth()) / 2));
-			setWinPositionInY(Std.int((getScreenSizeInHeight() - getWindowSizeInHeight()) / 2));
+			WindowFuncs.setWinPositionInX(Std.int((WindowFuncs.getScreenSizeInWidth() - WindowFuncs.getWindowSizeInWidth()) / 2));
+			WindowFuncs.setWinPositionInY(Std.int((WindowFuncs.getScreenSizeInHeight() - WindowFuncs.getWindowSizeInHeight()) / 2));
 			#end
 		}
 
