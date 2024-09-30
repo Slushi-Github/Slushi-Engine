@@ -577,11 +577,11 @@ class ShaderFunctions
   {
     if (ClientPrefs.data.shaders)
     {
-      if (value != null)
-      {
-        @:privateAccess
-        value = value.replace("#pragma header", FlxRuntimeShader.BASE_FRAGMENT_HEADER).replace("#pragma body", FlxRuntimeShader.BASE_FRAGMENT_BODY);
-      }
+      // if (value != null)
+      // {
+      //   @:privateAccess
+      //   value = value.replace("#pragma header", FlxRuntimeShader.BASE_FRAGMENT_HEADER).replace("#pragma body", FlxRuntimeShader.BASE_FRAGMENT_BODY);
+      // }
       return value;
     }
     return value;
