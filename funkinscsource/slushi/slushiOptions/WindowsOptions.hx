@@ -69,6 +69,10 @@ class WindowsOptions extends options.BaseOptionsMenu
 		BOOL);
 		addOption(option);
 
+		var option:Option = new Option('Save wallpaper', 'If unchecked, disable the ability to save a copy of your desktop wallpaper (You ensure that you can always set the original background \nyou had when you opened the game.)',
+			'useSavedWallpaper', BOOL);
+		addOption(option);
+
 		var option:Option = new Option('Send Notifications', 
 		"Do you allow the game to send notifications? (may cause lag)",
 		'windowsNotifications', 

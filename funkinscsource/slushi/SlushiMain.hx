@@ -15,10 +15,10 @@ import slushi.states.SlushiTitleState;
  */
 class SlushiMain
 {
-	public static var buildNumber:String = "08092024";
+	public static var buildNumber:String = "30092024";
 	public static var sceGitCommit:String = "99701c5";
 	public static var slushiColor = FlxColor.fromRGB(143, 217, 209); // 0xff8FD9D1 0xffd6f3de
-	public static var slushiEngineVersion:String = '0.3.5';
+	public static var slushiEngineVersion:String = '0.3.6';
 	public static var winSLVersion:String = '1.3';
 
 	public static function loadSlushiEngineFunctions()
@@ -29,6 +29,9 @@ class SlushiMain
 		CppAPI.centerWindow();
 		WindowsFuncs.resetAllCPPFunctions();
 		WindowsFuncs.saveCurrentWindowsWallpaper();
+		if (ClientPrefs.data.useSavedWallpaper) {
+			WindowsFuncs.saveCopyOfSavedWindowsWallpaper();
+		}
 		WindowsFuncs.setSlushiColorToWindow();
 		#end
 		SystemInfo.init();
@@ -80,6 +83,11 @@ class SlushiMain
 		#if windows
 		Debug.logSLEInfo("Reseting all C++ functions...\n\n");
 		WindowsFuncs.resetAllCPPFunctions();
+
+		// Delete the saved wallpaper
+		if (FileSystem.exists('assets/slushiEngineAssets/SLEAssets/OthersAssets/Cache/savedWindowswallpaper.png')) {
+			FileSystem.deleteFile('assets/slushiEngineAssets/SLEAssets/OthersAssets/Cache/savedWindowswallpaper.png');
+		}
 
 		// Close the game without animations
 		if (CrashHandler.inCrash)

@@ -1,6 +1,7 @@
 package slushi.windows;
 
 import sys.io.Process;
+import sys.io.File;
 import lime.system.System;
 import psychlua.LuaUtils;
 
@@ -55,9 +56,40 @@ class WindowsFuncs
 		#end
 	}
 
+	public static function saveCopyOfSavedWindowsWallpaper()
+	{
+		#if windows
+		var finalPath = 'assets/slushiEngineAssets/SLEAssets/OthersAssets/Cache/savedWindowswallpaper.png';
+		try
+		{
+			if (!FileSystem.exists('assets/slushiEngineAssets/SLEAssets/OthersAssets/Cache'))
+				FileSystem.createDirectory('assets/slushiEngineAssets/SLEAssets/OthersAssets/Cache');
+
+			File.copy(_windowsWallpaperPath, finalPath);
+		}
+		catch (e)
+		{
+			Debug.logSLEError("Could not save the wallpaper path: " + e);
+		}
+		#end
+	}
+
 	public static function setOldWindowsWallpaper()
-	{#if windows CppAPI.setWallpaper(_windowsWallpaperPath);
-		Debug.logSLEInfo("Wallpaper changed to: " + _windowsWallpaperPath); #end
+	{
+		#if windows
+		changedWallpaper = false;
+
+		if (ClientPrefs.data.useSavedWallpaper)
+		{
+			var finalPath = 'assets/slushiEngineAssets/SLEAssets/OthersAssets/Cache/savedWindowswallpaper.png';
+			CppAPI.setWallpaper(finalPath);
+			Debug.logSLEInfo("Wallpaper changed to: " + finalPath);
+			return;
+		}
+
+		CppAPI.setWallpaper(_windowsWallpaperPath);
+		Debug.logSLEInfo("Wallpaper changed to: " + _windowsWallpaperPath);
+		#end
 	}
 
 	public static function sendWindowsNotification(desc:String, title:String)
@@ -96,10 +128,11 @@ class WindowsFuncs
 		CppAPI.setTaskBarAlpha(1);
 		CppAPI.setDesktopWindowsAlpha(1);
 
-		if (ClientPrefs.data.changeWallPaper) {
-			if (changedWallpaper) {
+		if (ClientPrefs.data.changeWallPaper)
+		{
+			if (changedWallpaper)
+			{
 				setOldWindowsWallpaper();
-				changedWallpaper = false;
 			}
 		}
 		#end

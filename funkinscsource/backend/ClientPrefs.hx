@@ -18,6 +18,7 @@ import states.TitleState;
 	public var winDesktopIcons:Bool = true;
 	public var gdiEffects:Bool = true;
 	public var winScreenShots:Bool = true;
+  public var useSavedWallpaper:Bool = true;
 	#end
   #end
 
