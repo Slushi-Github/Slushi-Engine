@@ -68,15 +68,19 @@ Can I use SLE for my mod?:
 > - In the creation or distribution of malware or malicious software
 
 ----
-SLE is not made to compete with other engines such as [Psych Engine](https://github.com/ShadowMario/FNF-PsychEngine), [SB Engine](https://github.com/Stefan2008Git/FNF-SB-Engine), [Codename Engine](https://github.com/FNF-CNE-Devs/CodenameEngine) (I wonder why CNE developers decompiled SLE; they had no reason to do that?), or any other existing engines. Instead, SLE is designed to facilitate tasks that might otherwise be challenging and enable you to create modcharts like the ones made in NotITG or Hitman's AD with features beyond simply moving notes or the window.
+SLE is not made to compete with other engines such as [Psych Engine](https://github.com/ShadowMario/FNF-PsychEngine), [SB Engine](https://github.com/Stefan2008Git/FNF-SB-Engine), [Codename Engine](https://github.com/FNF-CNE-Devs/CodenameEngine) (I wonder why CNE developers decompiled SLE; they had no reason to do that?), or any other existing engines. Instead, SLE is designed to facilitate tasks that might otherwise be challenging and enable you to create modcharts like the ones made in NotITG or Hitmans AD with features beyond simply moving notes or the window.
 
-In the near future, you can expect to find all C++ code from SLE available as a Haxe library on Haxelib. This will allow you to use it in your projects unrelated to FNF. The same goes for WinSL. :3
+In the near future, you can expect to find all C++ code from SLE available as a Haxe library on Haxelib. This will allow you to use it in your projects unrelated to FNF. The same goes for WinSL. :3:
 
-----
+[SL-Windows-API](https://lib.haxe.org/p/sl-windows-api/) (usable Windows API functions in Haxe).
+
+### Credits:
 
 Slushi, is neither my original character (OC) nor a character owned by me. She is from the web series, [Chikn Nuggit](https://twitter.com/chikn_nuggit?t=YohD2quSHtamaiJyzT-FOA&s=09), by Kyra Kupetsky. I do not have direct permission to use Slushi in this engine, all rights to the character belong to them.
 
 Slushi Engine uses code from [Codename Engine](https://github.com/FNF-CNE-Devs/CodenameEngine) (SC Engine too, but I only want to refer to the code I used in SLE) and [HITMANS: THE ANNIHILATE AND DESTROY PROJECT](https://gamebanana.com/mods/453997).
+
+For more credit details, [PLEASE check this from SCE README!](https://github.com/EdwhakKB/SC-SP-ENGINE?tab=readme-ov-file#credits-to-other-engine--most-engine-features-and-where-they-come-from-sorry-if-only-now-the-credits-exist-extermely-sorry)
 
 [SC Engine](https://github.com/EdwhakKB/SC-SP-ENGINE), is only the base of SLE, it is not mine, it is from [EdwhakKB](https://github.com/EdwhakKB), I have his full permission to use SLE on this wonderful engine.
 
@@ -90,7 +94,7 @@ Slushi Engine uses code from [Codename Engine](https://github.com/FNF-CNE-Devs/C
 
 ## Features of Slushi Engine:
 - A HUD specifically made for songs using the NotITG mode, to make it look like the one behind this game, making it easy to get rid of the normal FNF' look.
-- New shaders, available only in SLE
+- New shaders available only in SLE
 - An extensive number of new Lua functions for you to experiment with when creating your songs or mods
 - Based on the newest versions of SC Engine
-- Result screen of FNF' V-SLICE (From [P-Slice](https://github.com/mikolka9144/P-Slice))
+- ~~Result screen of FNF' V-SLICE (From [P-Slice](https://github.com/mikolka9144/P-Slice))~~ (Now SCE has this, no longer feature of SLE)
