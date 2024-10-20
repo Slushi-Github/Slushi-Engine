@@ -4,6 +4,7 @@ import sys.io.Process;
 import sys.io.File;
 import lime.system.System;
 import psychlua.LuaUtils;
+import slushi.windows.ProgramRespondingUtil;
 
 /*
  * This file is one that facilitates the use of Windows functions that come from WindowsCPP.hx within SLE. 
@@ -203,7 +204,7 @@ class WindowsFuncs
 	{
 		#if windows
 		Sys.println("[slushi.windows.WindowsFuncs.initThreadForWindowRespondingHandler] - Starting thread for window responding handler...");
-		slushi.windows.ProgramRespondingUtil.initThread();
+		ProgramRespondingUtil.initThread();
 		#end
 	}
 

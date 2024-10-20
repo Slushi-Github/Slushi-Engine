@@ -1,5 +1,6 @@
 package slushi.windows;
 
+#if windows
 @:cppFileCode('
 #include <windows.h>
 #include <thread>
@@ -41,8 +42,10 @@ void CheckIfWindowResponsive(HWND hwnd) {
     }
 }
 ')
+#end
 class ProgramRespondingUtil
 {
+    #if windows
 	@:functionCode('
         HWND hwnd = GetActiveWindow();
 
@@ -53,4 +56,5 @@ class ProgramRespondingUtil
 	public static function initThread()
 	{
 	}
+    #end
 }
