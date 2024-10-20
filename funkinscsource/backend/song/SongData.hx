@@ -15,7 +15,7 @@ typedef OptionsData =
    */
   @:optional
   @:default(false)
-  var disableNoteQuantRGB:Bool;
+  var disableNoteCustomRGB:Bool;
 
   /**
    * Disables the Strums RGB Shader.
@@ -62,13 +62,6 @@ typedef OptionsData =
   var notITG:Bool;
 
   /**
-   * Enabled if the song can use SLE HUD.
-   */
-  @:optional
-  @:default(false)
-  var sleHUD:Bool;
-
-  /**
    * Changes the usage of if certain items are in camHUD or in their own camera.
    */
   @:optional
@@ -102,6 +95,10 @@ typedef OptionsData =
   @:optional
   @:default(false)
   var blockOpponentMode:Bool;
+
+  @:optional
+  @:default(false)
+  var sleHUD:Bool;
 
   /**
    * The arrow skin used for the notes.
@@ -203,7 +200,7 @@ class SongOptionsData
    */
   @:optional
   @:default(false)
-  public var disableNoteQuantRGB:Bool = false;
+  public var disableNoteCustomRGB:Bool = false;
 
   /**
    * Disables the Strums RGB Shader.
@@ -489,6 +486,7 @@ typedef SwagSection =
   @:optional var changeBPM:Bool;
   @:optional var bpm:Float;
   @:optional var dType:Int;
+  @:optional var index:Int;
 }
 
 typedef SwagSong =
@@ -502,6 +500,11 @@ typedef SwagSong =
    * The internal name of the song, as used in the file system.
    */
   var songId:String;
+
+  /**
+   * Variable used to display a name.
+   */
+  var ?displayName:String;
 
   var notes:Array<SwagSection>;
   var events:Array<Dynamic>;
@@ -519,4 +522,9 @@ typedef SwagSong =
   var ?options:OptionsData;
   var ?gameOverData:GameOverData;
   var ?characters:CharacterData;
+
+  /**
+   * Using this, you can create custom data inside the song Json. But data only you can use for whatever else.
+   */
+  var ?_extraData:Dynamic;
 }

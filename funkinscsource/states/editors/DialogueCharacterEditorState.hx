@@ -587,8 +587,8 @@ class DialogueCharacterEditorState extends MusicBeatState implements PsychUIEven
         {
           offsetLoopText.text = 'Loop: ' + animShit.loop_offsets;
           offsetIdleText.text = 'Idle: ' + animShit.idle_offsets;
-          ghostLoop.offset.set(animShit.loop_offsets[0] * ghostLoop.scale.x, animShit.loop_offsets[1] * ghostLoop.scale.y);
-          ghostIdle.offset.set(animShit.idle_offsets[0] * ghostLoop.scale.x, animShit.idle_offsets[1] * ghostLoop.scale.y);
+          ghostLoop.offset.set(animShit.loop_offsets[0], animShit.loop_offsets[1]);
+          ghostIdle.offset.set(animShit.idle_offsets[0], animShit.idle_offsets[1]);
         }
       }
 

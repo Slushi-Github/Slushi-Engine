@@ -4,61 +4,16 @@ import flixel.system.FlxAssets.FlxShader;
 import flixel.math.FlxMath;
 import flixel.group.FlxSpriteGroup.FlxTypedSpriteGroup;
 import backend.Conductor;
+import shaders.CircleEffect;
 
 using flixel.util.FlxSpriteUtil;
-
-class CircleShader extends FlxShader
-{
-  @:glFragmentSource('
-        #pragma header
-
-        float PI = 3.14159265358;
-        uniform float percent;
-
-        vec2 rotate(vec2 v, float a) {
-            float s = sin(a);
-            float c = cos(a);
-            mat2 m = mat2(c, -s, s, c);
-            return m * v;
-        }
-
-        void main()
-        {
-            vec2 uv = openfl_TextureCoordv;
-            vec4 spritecolor = flixel_texture2D(bitmap, openfl_TextureCoordv);
-
-            //rotate uv so circle matches properly
-            uv -= vec2(0.5, 0.5);
-            uv = rotate(uv, PI*0.5);
-            uv += vec2(0.5, 0.5);
-
-            float percentAngle = (percent*360.0) / (180.0/PI);
-
-            vec2 center = vec2(0.5, 0.5);
-            float radius = 0.5;
-            float angle = atan(uv.y - center.y, uv.x - center.x);
-            float distance = length(uv - center);
-
-            if ((angle + (PI)) > percentAngle)
-            {
-                spritecolor = vec4(0.0,0.0,0.0,0.0);
-            }
-
-            gl_FragColor = spritecolor;
-        }
-    ')
-  public function new()
-  {
-    super();
-  }
-}
 
 class NoteTimer extends FlxTypedSpriteGroup<FlxSprite>
 {
   private var instance:PlayState;
   private var timerText:FlxText;
   private var timerCircle:FlxSprite;
-  private var circleShader:CircleShader = new CircleShader();
+  private var circleShader:CircleEffect = new CircleEffect();
 
   public function new(instance:PlayState)
   {
@@ -67,7 +22,7 @@ class NoteTimer extends FlxTypedSpriteGroup<FlxSprite>
 
     timerCircle = new FlxSprite().loadGraphic(Paths.image("circleThing"));
     timerCircle.antialiasing = true;
-    timerCircle.shader = circleShader;
+    timerCircle.shader = circleShader.shader;
     timerCircle.scale *= 0.75;
     timerCircle.updateHitbox();
     add(timerCircle);
@@ -78,7 +33,7 @@ class NoteTimer extends FlxTypedSpriteGroup<FlxSprite>
     timerCircle.screenCenter();
     timerText.screenCenter();
 
-    circleShader.percent.value = [0.0];
+    circleShader.percent = 0.0;
 
     // alpha = 0;
   }
@@ -98,16 +53,16 @@ class NoteTimer extends FlxTypedSpriteGroup<FlxSprite>
         for (daNote in instance.notes)
           if (daNote.mustPress) // check notes for closest
           {
-            var timeDiff = daNote.strumTime - Conductor.songPosition;
+            final timeDiff = daNote.strumTime - Conductor.songPosition;
             if (timeDiff < timeTillNextNote) timeTillNextNote = timeDiff;
           }
 
         if (timeTillNextNote == FlxMath.MAX_VALUE_FLOAT) // now check unspawnNotes if not found anything
         {
-          for (daNote in instance.unspawnNotes)
+          for (daNote in instance.unspawnNotes.members)
             if (daNote.mustPress)
             {
-              var timeDiff = daNote.strumTime - Conductor.songPosition;
+              final timeDiff = daNote.strumTime - Conductor.songPosition;
               if (timeDiff < timeTillNextNote)
               {
                 timeTillNextNote = timeDiff;
@@ -133,11 +88,11 @@ class NoteTimer extends FlxTypedSpriteGroup<FlxSprite>
           {
             lastStartTime = FlxMath.MAX_VALUE_FLOAT; // reset
             timerText.text = "";
-            circleShader.percent.value = [0.0];
+            circleShader.percent = 0.0;
           }
           else
           {
-            circleShader.percent.value = [percent];
+            circleShader.percent = percent;
             timerText.text = "" + secsLeft;
           }
           updatePosition();

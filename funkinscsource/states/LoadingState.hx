@@ -23,7 +23,7 @@ class LoadingState extends MusicBeatState
 
   static var originalBitmapKeys:Map<String, String> = [];
   static var requestedBitmaps:Map<String, BitmapData> = [];
-  static var mutex:Mutex = new Mutex();
+  static var mutex:Mutex;
 
   function new(target:FlxState, stopMusic:Bool)
   {
@@ -136,6 +136,7 @@ class LoadingState extends MusicBeatState
     MusicBeatState.switchState(target);
     transitioning = true;
     finishedLoading = true;
+    mutex = null;
   }
 
   public static function checkLoaded():Bool
@@ -158,7 +159,7 @@ class LoadingState extends MusicBeatState
     var weekDir:String = StageData.forceNextDirectory;
     StageData.forceNextDirectory = null;
 
-    if (weekDir != null && weekDir.length > 0 && weekDir != '') directory = weekDir;
+    if (weekDir != null && weekDir.length > 0) directory = weekDir;
 
     Paths.setCurrentLevel(directory);
     Debug.logInfo('Setting asset folder to ' + directory);
@@ -200,7 +201,7 @@ class LoadingState extends MusicBeatState
 
   static var Stage:Stage;
 
-  public static function prepareToSong(song:SwagSong)
+  public static function prepareToSong()
   {
     imagesToPrepare = [];
     soundsToPrepare = [];
@@ -221,7 +222,8 @@ class LoadingState extends MusicBeatState
       }
     }
 
-    var folder:String = Paths.formatToSongPath(song.songId);
+    final song:SwagSong = PlayState.SONG;
+    final folder:String = Paths.formatToSongPath(Song.loadedSongName);
     Thread.create(() -> {
       // LOAD NOTE IMAGE
       var noteSkin:String = Note.defaultNoteSkin;
@@ -307,7 +309,7 @@ class LoadingState extends MusicBeatState
     Thread.create(() -> {
       if (song.stage == null || song.stage.length < 1) song.stage = StageData.vanillaSongStage(folder);
 
-      var stageData:StageFile = StageData.getStageFile(song.stage);
+      final stageData:StageFile = StageData.getStageFile(song.stage);
       if (stageData != null)
       {
         var imgs:Array<String> = [];
@@ -459,6 +461,7 @@ class LoadingState extends MusicBeatState
 
   public static function startThreads()
   {
+    mutex = new Mutex();
     loadMax = imagesToPrepare.length + soundsToPrepare.length + musicToPrepare.length + songsToPrepare.length;
     loaded = 0;
 
@@ -472,60 +475,7 @@ class LoadingState extends MusicBeatState
 
     // for images, they get to have their own thread
     for (image in imagesToPrepare)
-      Thread.create(() -> {
-        try
-        {
-          var requestKey:String = 'images/$image';
-          #if TRANSLATIONS_ALLOWED requestKey = Language.getFileTranslation(requestKey); #end
-          if (requestKey.lastIndexOf('.') < 0) requestKey += '.png';
-
-          if (!Paths.currentTrackedAssets.exists(requestKey))
-          {
-            var bitmap:BitmapData = null;
-            var file:String = Paths.getPath(requestKey, IMAGE);
-            if (#if sys FileSystem.exists(file) || #end OpenFlAssets.exists(file, IMAGE))
-            {
-              #if sys
-              bitmap = BitmapData.fromFile(file);
-              #else
-              if (OpenFlAssets.cache.enabled && OpenFlAssets.cache.hasBitmapData(file))
-              {
-                bitmap = OpenFlAssets.cache.getBitmapData(file);
-                if (!OpenFlAssets.isValidBitmapData(bitmap))
-                {
-                  bitmap = null;
-                }
-              }
-
-              if (bitmap == null)
-              {
-                bitmap = OpenFlAssets.getBitmapData(file, false);
-              }
-              #end
-
-              mutex.acquire();
-              #if !sys
-              if (OpenFlAssets.cache.enabled)
-              {
-                OpenFlAssets.cache.setBitmapData(file, bitmap);
-              }
-              #end
-              requestedBitmaps.set(file, bitmap);
-              originalBitmapKeys.set(file, requestKey);
-              mutex.release();
-            }
-            else
-              Debug.logError('no such image $image exists');
-          }
-        }
-        catch (e:haxe.Exception)
-        {
-          Debug.logError('ERROR! fail on preloading image $image');
-        }
-        mutex.acquire();
-        loaded++;
-        mutex.release();
-      });
+      initThread(() -> preloadGraphic(image), 'image $image');
   }
 
   static function initThread(func:Void->Dynamic, traceData:String)
@@ -601,62 +551,66 @@ class LoadingState extends MusicBeatState
   }
 
   // thread safe sound loader
-  static function preloadSound(key:String, ?path:String, ?modsAllowed:Bool = true, ?beepOnNull:Bool = true)
+  static function preloadSound(key:String, ?path:String, ?modsAllowed:Bool = true, ?beepOnNull:Bool = true):Null<Sound>
   {
     var file:String = Paths.getPath(Language.getFileTranslation(key) + '.${Paths.SOUND_EXT}', SOUND, path, modsAllowed);
 
     // trace('precaching sound: $file');
     if (!Paths.currentTrackedSounds.exists(file))
     {
-      #if sys
-      if (FileSystem.exists(file))
+      if (#if sys FileSystem.exists(file) || #end OpenFlAssets.exists(file, SOUND))
       {
-        var sound = Sound.fromFile(file);
+        var sound:Sound = #if sys Sound.fromFile(file) #else OpenFlAssets.getSound(file, false) #end;
         mutex.acquire();
         Paths.currentTrackedSounds.set(file, sound);
         mutex.release();
       }
-      #else
-      if (OpenFlAssets.exists(file, SOUND))
+      else if (beepOnNull)
       {
-        var sound = null;
-
-        // useCache is set to false because of thread safety
-        if (OpenFlAssets.cache.enabled && OpenFlAssets.cache.hasSound(file))
-        {
-          sound = OpenFlAssets.cache.getSound(file);
-          if (!OpenFlAssets.isValidSound(sound))
-          {
-            sound = null;
-          }
-        }
-
-        if (sound == null)
-        {
-          sound = OpenFlAssets.getSound(file, false);
-        }
-
-        mutex.acquire();
-        if (OpenFlAssets.cache.enabled)
-        {
-          OpenFlAssets.cache.setSound(file, sound);
-        }
-        Paths.currentTrackedSounds.set(file, sound);
-        mutex.release();
+        Debug.logError('SOUND NOT FOUND: $key, PATH: $path');
+        return FlxAssets.getSound('flixel/sounds/beep');
       }
-      #end
-    else if (beepOnNull)
-    {
-      trace('SOUND NOT FOUND: $key, PATH: $path');
-      FlxG.log.error('SOUND NOT FOUND: $key, PATH: $path');
-      return FlxAssets.getSound('flixel/sounds/beep');
-    }
     }
     mutex.acquire();
     Paths.localTrackedAssets.push(file);
     mutex.release();
 
     return Paths.currentTrackedSounds.get(file);
+  }
+
+  // thread safe sound loader
+  static function preloadGraphic(key:String):Null<BitmapData>
+  {
+    try
+    {
+      var requestKey:String = 'images/$key';
+      #if TRANSLATIONS_ALLOWED requestKey = Language.getFileTranslation(requestKey); #end
+      if (requestKey.lastIndexOf('.') < 0) requestKey += '.png';
+
+      if (!Paths.currentTrackedAssets.exists(requestKey))
+      {
+        var file:String = Paths.getPath(requestKey, IMAGE);
+        if (#if sys FileSystem.exists(file) || #end OpenFlAssets.exists(file, IMAGE))
+        {
+          var bitmap:BitmapData = #if sys BitmapData.fromFile(file) #else OpenFlAssets.getBitmapData(file, false) #end;
+          mutex.acquire();
+          requestedBitmaps.set(file, bitmap);
+          originalBitmapKeys.set(file, requestKey);
+          mutex.release();
+          return bitmap;
+        }
+        else
+          Debug.logWarn('no such image $key exists');
+      }
+
+      return Paths.currentTrackedAssets.get(requestKey).bitmap;
+    }
+    catch (e:haxe.Exception)
+    {
+      Debug.logError('ERROR! fail on preloading image $key');
+    }
+
+    return null;
   }
   /*public static function cacheStage(stage:String)
     {

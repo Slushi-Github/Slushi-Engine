@@ -283,6 +283,14 @@ class PauseSubState extends MusicBeatSubState
         }
     }
 
+    if (FlxG.keys.justPressed.F5 && !inCountDown)
+    {
+      FlxTransitionableState.skipNextTransIn = true;
+      FlxTransitionableState.skipNextTransOut = true;
+      PlayState.nextReloadAll = true;
+      MusicBeatState.resetState();
+    }
+
     if ((controls.ACCEPT && (cantUnpause <= 0 || !controls.controllerMode)) && !inCountDown)
     {
       // Finally
@@ -407,14 +415,16 @@ class PauseSubState extends MusicBeatSubState
         game.practiceMode = !game.practiceMode;
         PlayState.changedDifficulty = true;
         practiceText.visible = game.practiceMode;
-      case "Restart Song":
+      case "Restart Song", "Leave Charting Mode", "Leave ModChart Mode":
         LoadingState.loadAndSwitchState(new PlayState());
-      case "Leave Charting Mode":
-        LoadingState.loadAndSwitchState(new PlayState());
-        PlayState.chartingMode = false;
-      case "Leave ModChart Mode":
-        LoadingState.loadAndSwitchState(new PlayState());
-        PlayState.modchartMode = false;
+
+        switch (daSelected)
+        {
+          case "Leave Charting Mode":
+            PlayState.chartingMode = false;
+          case "Leave ModChart Mode":
+            PlayState.modchartMode = false;
+        }
       case 'Skip Time':
         if (curTime < Conductor.songPosition)
         {
@@ -444,7 +454,7 @@ class PauseSubState extends MusicBeatSubState
       case 'End Song':
         close();
         game.notes.clear();
-        game.unspawnNotes = [];
+        game.unspawnNotes.clear();
         game.finishSong(true);
       case "Exit to menu":
         #if DISCORD_ALLOWED DiscordClient.resetClientID(); #end
@@ -453,9 +463,24 @@ class PauseSubState extends MusicBeatSubState
 
         Mods.loadTopMod();
 
-        if (PlayState.isStoryMode) MusicBeatState.switchState(new StoryMenuState());
+        if (ClientPrefs.data.behaviourType != 'VSLICE')
+        {
+          if (PlayState.isStoryMode) MusicBeatState.switchState(new StoryMenuState());
+          else
+            MusicBeatState.switchState(new states.freeplay.FreeplayState());
+        }
+        #if BASE_GAME_FILES
         else
-          MusicBeatState.switchState(new states.freeplay.FreeplayState());
+        {
+          if (PlayState.isStoryMode)
+          {
+            PlayState.storyPlaylist = [];
+            openSubState(new vslice.transition.StickerSubState(null, (sticker) -> new StoryMenuState(sticker)));
+          }
+          else
+            openSubState(new vslice.transition.StickerSubState(null, (sticker) -> new states.freeplay.FreeplayState(sticker)));
+        }
+        #end
 
         game.canResync = false;
         FlxG.sound.playMusic(SlushiMain.getSLEPath("Musics/SLE_HackNet_Resonance.ogg"));
@@ -525,12 +550,12 @@ class PauseSubState extends MusicBeatSubState
       {
         introAlts = introAssets.get(value);
 
-        if (game.stageIntroSoundsSuffix != '' || game.stageIntroSoundsSuffix != null || game.stageIntroSoundsSuffix != "")
+        if (game.stageIntroSoundsSuffix != null && game.stageIntroSoundsSuffix.length > 0)
           game.introSoundsSuffix = game.stageIntroSoundsSuffix;
         else
           game.introSoundsSuffix = '';
 
-        if (game.stageIntroSoundsPrefix != '' || game.stageIntroSoundsPrefix != null || game.stageIntroSoundsPrefix != "")
+        if (game.stageIntroSoundsPrefix != null && game.stageIntroSoundsPrefix.length > 0)
           game.introSoundsPrefix = game.stageIntroSoundsPrefix;
         else
           game.introSoundsPrefix = '';

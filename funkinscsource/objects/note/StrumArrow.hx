@@ -30,8 +30,8 @@ class StrumArrow extends ModchartArrow
 
   public var rgbShader:RGBShaderReference;
   public var noteData:Int = 0;
-  public var direction(default, set):Float; // plan on doing scroll directions soon -bb
-  public var downScroll:Bool = false; // plan on doing scroll directions soon -bb
+  public var direction(default, set):Float;
+  public var downScroll:Bool = false;
   public var sustainReduce:Bool = true;
   public var daStyle = 'style';
   public var player:Int;
@@ -66,7 +66,7 @@ class StrumArrow extends ModchartArrow
 
   public var useRGBShader:Bool = true;
 
-  public var quantizedNotes:Bool = false;
+  public var customColoredNotes:Bool = false;
 
   public var strumPathLib:String = null;
 
@@ -93,14 +93,14 @@ class StrumArrow extends ModchartArrow
 
   public var inEditor:Bool = false;
 
-  public function new(x:Float, y:Float, leData:Int, player:Int, ?style:String, ?quantizedNotes:Bool, ?inEditor:Bool)
+  public function new(x:Float, y:Float, leData:Int, player:Int, ?style:String, ?customColoredNotes:Bool, ?inEditor:Bool)
   {
     direction = 90;
-    rgbShader = new RGBShaderReference(this, !quantizedNotes ? Note.initializeGlobalRGBShader(leData) : Note.initializeGlobalQuantRGBShader(leData));
+    rgbShader = new RGBShaderReference(this, !customColoredNotes ? Note.initializeGlobalRGBShader(leData) : Note.initializeGlobalQuantRGBShader(leData));
     rgbShader.enabled = false;
     if (PlayState.SONG != null && PlayState.SONG.options.disableStrumRGB) useRGBShader = false;
 
-    var arr:Array<FlxColor> = !quantizedNotes ? ClientPrefs.data.arrowRGB[leData] : ClientPrefs.data.arrowRGBQuantize[leData];
+    var arr:Array<FlxColor> = !customColoredNotes ? ClientPrefs.data.arrowRGB[leData] : ClientPrefs.data.arrowRGBQuantize[leData];
     if (texture.contains('pixel') || style.contains('pixel') || containsPixelTexture) arr = ClientPrefs.data.arrowRGBPixel[leData];
 
     if (leData <= arr.length)
@@ -117,7 +117,7 @@ class StrumArrow extends ModchartArrow
     this.player = player;
     this.noteData = leData;
     this.daStyle = style;
-    this.quantizedNotes = quantizedNotes;
+    this.customColoredNotes = customColoredNotes;
     this.inEditor = inEditor;
     super(x, y);
 
@@ -145,6 +145,7 @@ class StrumArrow extends ModchartArrow
       animation.callback = onAnimationFrame;
       animation.finishCallback = onAnimationFinished;
     }
+    playAnim('static');
   }
 
   #if SCEModchartingTools
@@ -268,9 +269,9 @@ class StrumArrow extends ModchartArrow
 
   public dynamic function addAnims(?pixel:Bool = false)
   {
-    var notesAnim:Array<String> = quantizedNotes ? ['UP', 'UP', 'UP', 'UP', 'UP', 'UP', 'UP', 'UP'] : ['LEFT', 'DOWN', 'UP', 'RIGHT'];
-    var pressAnim:Array<String> = quantizedNotes ? ['up', 'up', 'up', 'up', 'up', 'up', 'up', 'up'] : ['left', 'down', 'up', 'right'];
-    var colorAnims:Array<String> = quantizedNotes ? ['green', 'green', 'green', 'green', 'green', 'green', 'green',
+    var notesAnim:Array<String> = customColoredNotes ? ['UP', 'UP', 'UP', 'UP', 'UP', 'UP', 'UP', 'UP'] : ['LEFT', 'DOWN', 'UP', 'RIGHT'];
+    var pressAnim:Array<String> = customColoredNotes ? ['up', 'up', 'up', 'up', 'up', 'up', 'up', 'up'] : ['left', 'down', 'up', 'right'];
+    var colorAnims:Array<String> = customColoredNotes ? ['green', 'green', 'green', 'green', 'green', 'green', 'green',
       'green'] : ['purple', 'blue', 'green', 'red'];
 
     if (pixel)
@@ -317,9 +318,9 @@ class StrumArrow extends ModchartArrow
     bgLane.updateHitbox();
   }
 
-  public dynamic function postAddedToGroup()
+  public dynamic function playerPosition()
   {
-    playAnim('static');
+    // if (ClientPrefs.data.vanillaStrumAnimations) this.active = false;
     x += Note.swagWidth * noteData;
     x += 50;
     x += ((FlxG.width / 2) * player);
@@ -380,6 +381,7 @@ class StrumArrow extends ModchartArrow
   public dynamic function holdConfirm():Void
   {
     if (!ClientPrefs.data.vanillaStrumAnimations) return;
+    // this.active = true;
     if (getLastAnimationPlayed() == "confirm-hold")
     {
       return;
@@ -404,9 +406,13 @@ class StrumArrow extends ModchartArrow
 
     _lastPlayedAnimation = anim;
 
-    if ((anim.toLowerCase() == 'confirm' || anim.toLowerCase() == 'confirm-hold') && force)
+    if (ClientPrefs.data.vanillaStrumAnimations)
     {
-      confirmHoldTimer = (player != 0) ? -1 : 0;
+      // if (force)
+      // {
+      //   this.active = anim != 'static';
+      // }
+      if (anim.toLowerCase() == 'confirm' && force) confirmHoldTimer = (player != 0) ? -1 : 0;
     }
 
     animation.play(anim, force, reverse, frame);

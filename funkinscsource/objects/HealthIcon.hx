@@ -57,7 +57,7 @@ class HealthIcon extends FunkinSCSprite
 
   public var characterId:String = "";
 
-  public var stopBop:Bool = false;
+  public var stopBop:Null<Bool> = null;
 
   private var animName:String = 'normal';
   private var changedComplete:Bool = true;
@@ -68,7 +68,7 @@ class HealthIcon extends FunkinSCSprite
     this.isPlayer = isPlayer;
     changeIcon(char, allowGPU);
     scrollFactor.set();
-    stopBop = (FlxG.state is states.editors.ChartingState);
+    if (stopBop == null) stopBop = (FlxG.state is states.editors.ChartingState);
   }
 
   public dynamic function changeIcon(char:String, ?allowGPU:Bool = true)
@@ -81,7 +81,7 @@ class HealthIcon extends FunkinSCSprite
       iconSuffix = '';
     }
 
-    if (iconSuffix != '')
+    if (iconSuffix.length > 0)
     {
       name = name + char;
       if (!Paths.fileExists('images/' + name + '.png', IMAGE)) name = 'icons/' + iconSuffix + 'face';
@@ -129,26 +129,10 @@ class HealthIcon extends FunkinSCSprite
       return;
     }
 
-    isOneSized = (graphic.height == 150 && graphic.width == 150);
-
-    for (size in ableSizes)
-      if (graphic.width == size && graphic.height == 150) needAutoSize = false;
-
-    switch (graphic.width)
-    {
-      case 450:
-        choosenDivisionMult = 3;
-      case 600:
-        choosenDivisionMult = 4;
-      case 750:
-        choosenDivisionMult = 5;
-      case 900:
-        choosenDivisionMult = 6;
-    }
-
-    if (graphic.width == 300 && graphic.height == 150) alreadySized = true;
-    else
-      alreadySized = false;
+    choosenDivisionMult = Math.round(graphic.width / 150);
+    isOneSized = (choosenDivisionMult == 1);
+    alreadySized = (choosenDivisionMult == 2);
+    needAutoSize = (graphic.height == 150 && choosenDivisionMult <= 0);
 
     // Fixed icons that don't use perfect height and width with these!
     if (!isOneSized)
@@ -176,39 +160,14 @@ class HealthIcon extends FunkinSCSprite
       loadGraphic(graphic, true, Math.floor(graphic.width / divisionMult), Math.floor(graphic.height));
     iconOffset[0] = (width - 150) / divisionMult;
     iconOffset[1] = (height - 150) / divisionMult;
-    if (divisionMult == 2)
-    {
-      hasWinning = false;
-      defaultSize = true;
-    }
-    else if (divisionMult >= 3) hasWinning = true;
+
+    hasWinning = (divisionMult >= 3);
+    defaultSize = (divisionMult == 2);
 
     offset.set(iconOffset[0], iconOffset[1]);
     updateHitbox();
 
-    var animArray:Array<Int> = [];
-
-    if (hasWinning) animArray = [0, 1, 2];
-    else if (divisionMult > 3)
-    {
-      switch (divisionMult)
-      {
-        case 4:
-          animArray = [0, 1, 2, 3];
-        case 5:
-          animArray = [0, 1, 2, 3, 4];
-        case 6:
-          animArray = [0, 1, 2, 3, 4, 5];
-      }
-    }
-    else
-    {
-      if (defaultSize) animArray = [0, 1];
-      else
-        animArray = [0];
-    }
-
-    animation.add(char, animArray, 0, false, isPlayer);
+    animation.add(char, [for (i in 0...frames.frames.length) i], 0, false, isPlayer);
     animation.play(char);
 
     antialiasing = (ClientPrefs.data.antialiasing && !char.endsWith('-pixel'));
@@ -220,14 +179,14 @@ class HealthIcon extends FunkinSCSprite
 
     frames = Paths.getSparrowAtlas(path);
 
-    animatedIcon = true;
-
     if (frames == null)
     {
       frames = null;
       animatedIcon = false;
       return;
     }
+
+    animatedIcon = true;
 
     scale.set(1, 1);
     updateHitbox();
@@ -360,13 +319,7 @@ class HealthIcon extends FunkinSCSprite
           animName = ((percent20or80 && hasWinningAnimated) ? 'winning' : ((percent80or20 && hasLosingAnimated) ? 'losing' : 'normal'));
         }
 
-        if (animatedIcon)
-        {
-          if (animation.curAnim.finished || (animName != animation.curAnim.name))
-          {
-            playAnim(animName, true);
-          }
-        }
+        if (animatedIcon) if (animation.curAnim.finished || (animName != animation.curAnim.name)) playAnim(animName, true);
       }
     }
   }

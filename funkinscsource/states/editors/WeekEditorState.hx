@@ -810,15 +810,15 @@ class WeekEditorFreeplayState extends MusicBeatState implements PsychUIEventHand
     else
     {
       ClientPrefs.toggleVolumeKeys(true);
-      if(FlxG.keys.justPressed.ESCAPE) {
+      if (FlxG.keys.justPressed.ESCAPE)
+      {
         if (!WeekEditorState.unsavedProgress)
         {
           MusicBeatState.switchState(new MasterEditorMenu());
           FlxG.sound.playMusic(SlushiMain.getSLEPath("Musics/SLE_HackNet_Resonance.ogg"));
         }
-        else {
+        else
           openSubState(new ExitConfirmationPrompt());
-        }
       }
 
       if (controls.UI_UP_P) changeSelection(-1);

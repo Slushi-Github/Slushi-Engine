@@ -133,29 +133,29 @@ class HoldCoverSprite extends FunkinSCSprite
     rgbShader.copyValues(tempShader);
   }
 
-  public dynamic function affectSplash(splashStep:String, ?noteData:Int = -1, ?note:Note = null)
+  public dynamic function affectSplash(splashStep:HoldCoverStep, ?noteData:Int = -1, ?note:Note = null)
   {
     if (noteData == -1 && note == null) return;
     switch (splashStep)
     {
       // Stop
-      case 'Stop':
+      case STOP:
         shaderCopy(noteData, note);
         isPlaying = boom = visible = false;
         animation.stop();
       // Done
-      case 'Done':
+      case DONE:
         isPlaying = boom = visible = false;
       // While Holding
-      case 'Holding':
+      case HOLDING:
         shaderCopy(noteData, note);
         visible = true;
-        if (!isPlaying) animation.play(Std.string(noteData));
+        if (!isPlaying) playAnim(Std.string(noteData));
       // When splash happens
-      case 'Splashing':
+      case SPLASHING:
         isPlaying = false;
         boom = true;
-        animation.play(Std.string(noteData) + 'p');
+        playAnim(Std.string(noteData) + 'p');
     }
   }
 }

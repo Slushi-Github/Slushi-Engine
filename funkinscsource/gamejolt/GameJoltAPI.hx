@@ -20,7 +20,7 @@ class GameJoltAPI // Connects to hxgamejolt.GameJolt
    * @return Is it available?
    */
   public static function hasGameInfo():Bool
-    return GJKeys.id != 0 && GJKeys.key != '';
+    return GJKeys.id != 0 && GJKeys.key.length > 0;
 
   /**
    * Inline variable to see if the user has logged in.

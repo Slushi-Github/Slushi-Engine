@@ -2,13 +2,14 @@ package options;
 
 import objects.note.Note;
 import objects.note.StrumArrow;
+import objects.note.NoteSplash;
 import objects.Alphabet;
 
 class VisualsSettingsSubState extends BaseOptionsMenu
 {
   var noteOptionID:Int = -1;
   var notes:FlxTypedGroup<StrumArrow>;
-  var notesTween:Array<FlxTween> = [];
+  var splashes:FlxTypedGroup<NoteSplash>;
   var noteY:Float = 90;
   var stringedNote:String = '';
 
@@ -17,8 +18,9 @@ class VisualsSettingsSubState extends BaseOptionsMenu
     title = 'Visuals and UI';
     rpcTitle = Language.getPhrase('visuals_menu', 'Visuals Settings'); // for Discord Rich Presence
 
-    // for note skins
+    // for note skins and splash skin
     notes = new FlxTypedGroup<StrumArrow>();
+    splashes = new FlxTypedGroup<NoteSplash>();
     for (i in 0...Note.colArray.length)
     {
       stringedNote = (OptionsState.onPlayState ? (PlayState.isPixelStage ? 'pixelUI/noteSkins/NOTE_assets' + Note.getNoteSkinPostfix() : 'noteSkins/NOTE_assets'
@@ -35,6 +37,18 @@ class VisualsSettingsSubState extends BaseOptionsMenu
       note.bgLane.updateHitbox();
       note.bgLane.scrollFactor.set();
       notes.add(note);
+
+      var splash:NoteSplash = new NoteSplash();
+      splash.noteData = i;
+      splash.setPosition(note.x, noteY);
+      splash.loadSplash();
+      splash.visible = false;
+      splash.alpha = ClientPrefs.data.splashAlpha;
+      splash.animation.finishCallback = function(name:String) splash.visible = false;
+      splashes.add(splash);
+
+      Note.initializeGlobalRGBShader(i % Note.colArray.length);
+      splash.rgbShader.copyValues(Note.globalRgbShaders[i % Note.colArray.length]);
     }
 
     // options
@@ -61,6 +75,7 @@ class VisualsSettingsSubState extends BaseOptionsMenu
       noteSplashes.insert(0, ClientPrefs.defaultData.splashSkin); // Default skin always comes first
       var option:Option = new Option('Note Splashes:', "Select your prefered Note Splash variation or turn it off.", 'splashSkin', STRING, noteSplashes);
       addOption(option);
+      option.onChange = onChangeSplashSkin;
     }
 
     var option:Option = new Option('Note Splash Opacity', 'How much transparent should the Note Splashes be.', 'splashAlpha', PERCENT);
@@ -70,6 +85,7 @@ class VisualsSettingsSubState extends BaseOptionsMenu
     option.changeValue = 0.1;
     option.decimals = 1;
     addOption(option);
+    option.onChange = playNoteSplashes;
 
     var option:Option = new Option('Note Lanes Opacity', 'How much transparent should the lanes under the notes be?', 'laneTransparency', PERCENT);
     option.scrollSpeed = 1.6;
@@ -169,7 +185,7 @@ class VisualsSettingsSubState extends BaseOptionsMenu
     addOption(option);
 
     var option:Option = new Option('Note Splashes Option', "Different options on how the splashes show.", 'splashOption', STRING,
-      ['Player', 'Opponent', 'Both']);
+      ['None', 'Player', 'Opponent', 'Both']);
     addOption(option);
 
     var option:Option = new Option('Hold Cover Animation And Splash', "If checked, A Splash and Hold Note animation wil show.", 'holdCoverPlay', BOOL);
@@ -178,8 +194,13 @@ class VisualsSettingsSubState extends BaseOptionsMenu
     var option:Option = new Option('Vanilla Strum Animations', "If checked, Strums animations play like vanilla FNF.", 'vanillaStrumAnimations', BOOL);
     addOption(option);
 
+    var option:Option = new Option('Color Notes A Way', 'What kinda of RGB note coloring !(only if RGB shader is active)!', 'colorNoteType', STRING,
+      ['None', 'Quant', 'Rainbow']);
+    addOption(option);
+
     super();
     add(notes);
+    add(splashes);
   }
 
   function onChangediscord()
@@ -189,26 +210,35 @@ class VisualsSettingsSubState extends BaseOptionsMenu
       DiscordClient.shutdown();
   }
 
+  var notesShown:Bool = false;
+
   override function changeSelection(change:Int = 0)
   {
     super.changeSelection(change);
 
-    if (noteOptionID < 0) return;
-
-    for (i in 0...Note.colArray.length)
+    switch (curOption.variable)
     {
-      var note:StrumArrow = notes.members[i];
-      if (notesTween[i] != null) notesTween[i].cancel();
-      if (curSelected == noteOptionID)
-      {
-        notesTween[i] = FlxTween.tween(note, {y: ClientPrefs.data.downScroll ? 420 : noteY}, Math.abs(note.y / (200 + noteY)) / 3, {ease: FlxEase.quadInOut});
-        note.visible = true;
-      }
-      else
-      {
-        notesTween[i] = FlxTween.tween(note, {y: ClientPrefs.data.downScroll ? 760 : -200}, Math.abs(note.y / (200 + noteY)) / 3, {ease: FlxEase.quadInOut});
-        note.visible = false;
-      }
+      case 'noteSkin', 'splashSkin', 'splashAlpha':
+        if (!notesShown)
+        {
+          for (note in notes.members)
+          {
+            FlxTween.cancelTweensOf(note);
+            FlxTween.tween(note, {y: noteY}, Math.abs(note.y / (200 + noteY)) / 3, {ease: FlxEase.quadInOut});
+          }
+        }
+        notesShown = true;
+        if (curOption.variable.startsWith('splash') && Math.abs(notes.members[0].y - noteY) < 25) playNoteSplashes();
+      default:
+        if (notesShown)
+        {
+          for (note in notes.members)
+          {
+            FlxTween.cancelTweensOf(note);
+            FlxTween.tween(note, {y: -200}, Math.abs(note.y / (200 + noteY)) / 3, {ease: FlxEase.quadInOut});
+          }
+        }
+        notesShown = false;
     }
   }
 
@@ -240,6 +270,32 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 
     note.reloadNote(skin);
     note.playAnim('static');
+  }
+
+  function onChangeSplashSkin()
+  {
+    for (splash in splashes)
+      splash.loadSplash();
+    playNoteSplashes();
+  }
+
+  function playNoteSplashes()
+  {
+    for (splash in splashes)
+    {
+      var anim:String = splash.playDefaultAnim();
+      splash.visible = true;
+      splash.alpha = ClientPrefs.data.splashAlpha;
+
+      var conf = splash.config.animations.get(anim);
+      var offsets:Array<Float> = [0, 0];
+      if (conf != null) offsets = conf.offsets;
+      if (offsets != null)
+      {
+        splash.centerOffsets();
+        splash.offset.set(offsets[0], offsets[1]);
+      }
+    }
   }
 
   override function destroy()

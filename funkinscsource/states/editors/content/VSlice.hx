@@ -22,6 +22,7 @@ typedef VSliceNote =
   var d:Int; // Note data
   @:optional var l:Null<Float>; // Sustain Length
   @:optional var k:String; // Note type
+  @:optional var p:Array<String>;
 }
 
 typedef VSliceEvent =
@@ -58,7 +59,8 @@ typedef VSliceCharacters =
   var player:String;
   var girlfriend:String;
   var opponent:String;
-  var ?secondOpponent:String;
+  @:optional var instrumental:String;
+  @:optional var altInstrumentals:String;
 }
 
 typedef VSliceTimeChange =
@@ -228,6 +230,7 @@ class VSlice
 
         var psychNote:Array<Dynamic> = [note.t, note.d, (note.l != null ? note.l : 0)];
         if (note.k != null && note.k.length > 0 && note.k != 'normal') psychNote.push(note.k);
+        else if (note.p != null && note.p.length > 0 && note.p != []) psychNote.push(note.p);
 
         if (sectionData[noteSec] != null) sectionData[noteSec].sectionNotes.push(psychNote);
       }
@@ -236,6 +239,7 @@ class VSlice
         {
           song: metadata.songName,
           songId: metadata.songName,
+          displayName: metadata.songName,
           notes: sectionData,
           events: [],
           bpm: songBpm,
@@ -246,11 +250,16 @@ class VSlice
           notITG: false,
           sleHUD: false,
 
-          characters: metadata.playData.characters,
+          characters:
+            {
+              opponent: metadata.playData.characters.opponent,
+              girlfriend: metadata.playData.characters.girlfriend,
+              player: metadata.playData.characters.player
+            },
           options:
             {
               disableNoteRGB: false,
-              disableNoteQuantRGB: false,
+              disableNoteCustomRGB: false,
               disableStrumRGB: false,
               disableSplashRGB: false,
               disableHoldCoversRGB: false,
@@ -286,6 +295,40 @@ class VSlice
           stage: stage,
           format: 'psych_v1_convert'
         }
+      var instrumentalVariation:String = metadata.playData.characters.instrumental;
+      if (instrumentalVariation != null && instrumentalVariation.length > 0)
+      {
+        swagSong._extraData =
+          {
+            _instSettings:
+              {
+                song: metadata.songName,
+                prefix: "",
+                suffix: "",
+                externVocal: instrumentalVariation,
+                character: "",
+                difficulty: ""
+              },
+            _vocalSettings:
+              {
+                song: metadata.songName,
+                prefix: "",
+                suffix: "",
+                externVocal: instrumentalVariation,
+                character: metadata.playData.characters.player != null ? metadata.playData.characters.player : "bf",
+                difficulty: ""
+              },
+            _vocalOppSettings:
+              {
+                song: metadata.songName,
+                prefix: "",
+                suffix: "",
+                externVocal: instrumentalVariation,
+                character: metadata.playData.characters.opponent != null ? metadata.playData.characters.opponent : "dad",
+                difficulty: ""
+              }
+          }
+      }
 
       Reflect.setField(swagSong, 'artist', metadata.artist);
       Reflect.setField(swagSong, 'charter', metadata.charter);
@@ -330,9 +373,7 @@ class VSlice
         }
         while (fields.length < 14)
           fields.push('');
-
-        fields.insert(0, event.e);
-        fileEvents.push([event.t, [fields]]);
+        fileEvents.push([event.t, [[event.e, fields]]]);
       }
       fileEvents.sort(sortByTime);
       pack.events = {events: fileEvents, format: 'psych_v1_convert'};
@@ -421,7 +462,7 @@ class VSlice
     events.sort(sortByTime);
     notes.sort(sortByTime);
 
-    if (timeChanges.length < 1) timeChanges.push({t: 0, bpm: bpm}); // failsafe
+    timeChanges.push({t: 0, bpm: bpm}); // so there was first bpm issue (if the song has multiplier bpm)
 
     // try to find composer despite it not being a value on psych charts
     var composer:String = 'Unknown';
@@ -457,7 +498,7 @@ class VSlice
     }
 
     // Build package
-    var chart:VSliceChart =
+    final chart:VSliceChart =
       {
         scrollSpeed: scrollSpeed,
         events: events,
@@ -466,7 +507,7 @@ class VSlice
         version: chartVersion // idk what "version" does on V-Slice, but it seems to break without it
       };
 
-    var metadata:VSliceMetadata =
+    final metadata:VSliceMetadata =
       {
         songName: songData.song,
         artist: composer,
@@ -474,7 +515,14 @@ class VSlice
         playData:
           {
             difficulties: diffs,
-            characters: songData.characters,
+            characters:
+              {
+                opponent: songData.characters.opponent,
+                player: songData.characters.player,
+                girlfriend: songData.characters.girlfriend,
+                instrumental: "",
+                altInstrumentals: ""
+              },
             noteStyle: !PlayState.isPixelStage ? 'funkin' : 'pixel',
             stage: songData.stage
           },

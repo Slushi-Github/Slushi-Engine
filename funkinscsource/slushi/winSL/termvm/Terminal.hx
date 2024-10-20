@@ -93,12 +93,16 @@ class Terminal
                         var module:CommandModule = commandModules.get(commandRoot);
                         module.execute(this, commandRoot, args, metadata);
                     } else {
+						#if (fuzzaldrin && WINSL_SUGGEST_COMMAND)
                         var candidates = extractCommandNames(commandModules);
 						var results = Fuzzaldrin.filter(candidates, commandRoot);
 						if (results.length > 0)
 							stdout.writeString("Command " + commandRoot + " not found. Did you mean: \"" + results[0] + "\"?\n");
 						else
 							stdout.writeString("Command " + commandRoot + " not found.\n");
+						#else
+						stdout.writeString("Command " + commandRoot + " not found.\n");
+						#end
                     }
                 }
                 stdout.flush();
@@ -234,7 +238,7 @@ class ResetVMModule {
 
         terminal.stdout.writeString("Resetting VM and exiting of WinSL terminal...\n");
         Sys.sleep(2);
-        slushi.others.CustomFuncs.realResetGame();
+		CustomFuncs.realResetGame();
         Sys.exit(0);
     }
 }

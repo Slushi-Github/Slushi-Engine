@@ -17,7 +17,7 @@ function onBeatHit()
     end
     if curBeat == 231 then
         setShaderProperty("chromAB", "strength", 0.025)
-        tweenShaderProperty("firstShaderTween", "chromAB", "strength", 0, 0.2, "linear")
+        tweenShaderFloat("firstShaderTween", "chromAB", "strength", 0, 0.2, "linear")
         setWindowPos("X", getWindowPos("X") + 20)
         setWindowPos("Y", getWindowPos("Y") + 20)
         doTweenWinPos("X", "windowTweenX", getWindowPos("X") - 20, 0.6, "linear")
@@ -26,7 +26,7 @@ function onBeatHit()
 
     if curBeat == 247 then
         setShaderProperty("chromAB", "strength", 0.025)
-        tweenShaderProperty("shaderTween2", "chromAB", "strength", 0, 0.2, "linear")
+        tweenShaderFloat("shaderTween2", "chromAB", "strength", 0, 0.2, "linear")
         setWindowPos("X", getWindowPos("X") - 20)
         doTweenWinPos("X", "windowTweenX", getWindowPos("X") + 20, 0.6, "linear")
     end

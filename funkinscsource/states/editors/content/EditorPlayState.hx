@@ -2,11 +2,9 @@ package states.editors.content;
 
 import backend.song.Song;
 import backend.song.SongData;
+import backend.CustomArrayGroup;
 import backend.Rating;
-import objects.note.Note;
-import objects.note.NoteSplash;
-import objects.note.StrumArrow;
-import objects.note.Strumline;
+import objects.note.*;
 import flixel.util.FlxSort;
 import flixel.util.FlxStringUtil;
 import flixel.animation.FlxAnimationController;
@@ -27,7 +25,7 @@ class EditorPlayState extends MusicBeatSubState
   var inst:FlxSound;
 
   var notes:FlxTypedGroup<Note>;
-  var unspawnNotes:Array<Note> = [];
+  var unspawnNotes:CustomArrayGroup<Note> = new CustomArrayGroup<Note>();
 
   var strumLineNotes:Strumline;
   var opponentStrums:Strumline;
@@ -59,6 +57,11 @@ class EditorPlayState extends MusicBeatSubState
 
   public function new(noteList:Array<Note>, allVocals:Array<FlxSound>)
   {
+    unspawnNotes.validTime = function(rate:Float = 1, ?ignoreMultSpeed:Bool = false):Bool {
+      final firstMember:Note = unspawnNotes.members[0];
+      if (firstMember != null) return (unspawnNotes.length > 0 && firstMember.validTime(rate, ignoreMultSpeed));
+      return false;
+    }
     super();
 
     /* setting up some important data */
@@ -163,29 +166,24 @@ class EditorPlayState extends MusicBeatSubState
         if (timeDiff > 1000 * playbackRate) Conductor.songPosition = Conductor.songPosition + 1000 * FlxMath.signOf(timeDiff);
       }
     }
-    if (unspawnNotes[0] != null)
+    if (unspawnNotes.isFirstValid())
     {
-      var time:Float = unspawnNotes[0].spawnTime * playbackRate;
-      if (songSpeed < 1) time /= songSpeed;
-      if (unspawnNotes[0].multSpeed < 1) time /= unspawnNotes[0].multSpeed;
-      while (unspawnNotes.length > 0 && unspawnNotes[0].strumTime - Conductor.songPosition < time)
+      while (unspawnNotes.validTime(playbackRate))
       {
-        var dunceNote:Note = unspawnNotes[0];
+        var dunceNote:Note = unspawnNotes.byIndex(0);
         notes.insert(0, dunceNote);
         dunceNote.spawned = true;
-        var index:Int = unspawnNotes.indexOf(dunceNote);
-        unspawnNotes.splice(index, 1);
+        unspawnNotes.spliceIndexOf(dunceNote, 1);
       }
     }
     keysCheck();
     if (notes.length > 0)
     {
-      var fakeCrochet:Float = (60 / PlayState.SONG.bpm) * 1000;
       notes.forEachAlive(function(daNote:Note) {
         var strumGroup:FlxTypedGroup<StrumArrow> = playerStrums;
         if (!daNote.mustPress) strumGroup = opponentStrums;
         var strum:StrumArrow = strumGroup.members[daNote.noteData];
-        daNote.followStrumArrow(strum, fakeCrochet, daNote.noteScrollSpeed / playbackRate);
+        daNote.followStrumArrow(strum, daNote.noteScrollSpeed / playbackRate);
         if (!daNote.mustPress && daNote.wasGoodHit && !daNote.hitByOpponent && !daNote.ignoreNote) opponentNoteHit(daNote);
         if (daNote.isSustainNote && strum.sustainReduce) daNote.clipToStrumArrow(strum);
         // Kill extremely late notes and cause misses
@@ -271,7 +269,14 @@ class EditorPlayState extends MusicBeatSubState
     opponentStrums.scrollSpeed = songSpeed;
     playerStrums.scrollSpeed = songSpeed;
 
+    unspawnNotes.setMembers(createNotes());
+    unspawnNotes.resort('strumTime');
+  }
+
+  public function createNotes():Array<Note>
+  {
     var oldNote:Note = null;
+    var unspawnNotes:Array<Note> = [];
     for (note in _noteList)
     {
       if (note == null || note.strumTime < startPos) continue;
@@ -294,23 +299,43 @@ class EditorPlayState extends MusicBeatSubState
         }
       }
 
-      var swagNote:Note = new Note(note.strumTime, note.noteData, false, PlayState.SONG.options.arrowSkin, oldNote, this, songSpeed,
-        note.mustPress ? playerStrums : opponentStrums, false);
+      final swagNote:Note = new Note(
+        {
+          strumTime: note.strumTime,
+          noteData: note.noteData,
+          isSustainNote: false,
+          noteSkin: PlayState.SONG.options.arrowSkin,
+          prevNote: oldNote,
+          createdFrom: this,
+          scrollSpeed: songSpeed,
+          parentStrumline: note.mustPress ? playerStrums : opponentStrums,
+          inEditor: false
+        });
       swagNote.setupNote(note.mustPress, note.mustPress ? 1 : 0, 0, note.noteType);
       swagNote.sustainLength = note.sustainLength;
       swagNote.gfNote = note.gfNote;
       swagNote.scrollFactor.set();
       unspawnNotes.push(swagNote);
 
-      var roundSus:Int = Math.floor(swagNote.sustainLength / Conductor.stepCrochet);
+      final roundSus:Int = Math.floor(swagNote.sustainLength / Conductor.stepCrochet);
       if (roundSus > 0)
       {
         for (susNote in 0...roundSus + 1)
         {
           oldNote = unspawnNotes[Std.int(unspawnNotes.length - 1)];
 
-          var sustainNote:Note = new Note(note.strumTime + (Conductor.stepCrochet * susNote), note.noteData, true, PlayState.SONG.options.arrowSkin, oldNote,
-            this, songSpeed, note.mustPress ? playerStrums : opponentStrums, false);
+          final sustainNote:Note = new Note(
+            {
+              strumTime: note.strumTime + (Conductor.stepCrochet * susNote),
+              noteData: note.noteData,
+              isSustainNote: true,
+              noteSkin: PlayState.SONG.options.arrowSkin,
+              prevNote: oldNote,
+              createdFrom: this,
+              scrollSpeed: songSpeed,
+              parentStrumline: note.mustPress ? playerStrums : opponentStrums,
+              inEditor: false
+            });
           sustainNote.setupNote(swagNote.mustPress, swagNote.mustPress ? 1 : 0, 0, swagNote.noteType);
           sustainNote.gfNote = swagNote.gfNote;
           sustainNote.scrollFactor.set();
@@ -356,7 +381,7 @@ class EditorPlayState extends MusicBeatSubState
       }
       oldNote = swagNote;
     }
-    unspawnNotes.sort(PlayState.sortByTime);
+    return unspawnNotes;
   }
 
   private function generateStaticArrows(player:Int):Void
@@ -388,7 +413,7 @@ class EditorPlayState extends MusicBeatSubState
         opponentStrums.add(babyArrow);
       }
       strumLineNotes.add(babyArrow);
-      babyArrow.postAddedToGroup();
+      babyArrow.playerPosition();
     }
   }
 
@@ -409,7 +434,7 @@ class EditorPlayState extends MusicBeatSubState
   public function endSong()
   {
     notes.forEachAlive(function(note:Note) invalidateNote(note));
-    for (note in unspawnNotes)
+    for (note in unspawnNotes.members)
       if (note != null) invalidateNote(note);
     FlxG.sound.music.pause();
     vocals.pause();

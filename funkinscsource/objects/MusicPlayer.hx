@@ -275,7 +275,7 @@ class MusicPlayer extends FlxGroup
       progressBar.numDivisions = 1600;
 
       updateTimeTxt();
-      backgroundLol.alpha = .5;
+      // backgroundLol.alpha = .5;
     }
     else
     {
@@ -285,7 +285,7 @@ class MusicPlayer extends FlxGroup
 
       instance.downText.text = instance.leText;
       instance.downText.x = -600;
-      backgroundLol.alpha = 0;
+      // backgroundLol.alpha = 0;
     }
     progressBar.updateBar();
   }

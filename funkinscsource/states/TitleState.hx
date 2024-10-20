@@ -26,6 +26,10 @@ class TitleData
   public var backgroundSprite:String = '';
   public var bpm:Float = 102;
   public var skipTime:Float = 0;
+  public var animation:String = '';
+  public var dance_right:Array<Int> = [];
+  public var dance_left:Array<Int> = [];
+  public var idle:Bool = false;
 }
 
 class TitleState extends MusicBeatState
@@ -75,14 +79,11 @@ class TitleState extends MusicBeatState
   override public function create():Void
   {
     Paths.clearStoredMemory();
+    super.create();
+    Paths.clearUnusedMemory();
+
     FlxTransitionableState.skipNextTransOut = false;
     persistentUpdate = true;
-
-    #if (cpp && windows)
-    cpp.CPPInterface.darkMode();
-    #end
-
-    super.create();
 
     if (!skippedIntro && FlxG.sound.music != null) FlxG.sound.music = null;
     grayGrad = FlxGradient.createGradientFlxSprite(FlxG.width, 400, [0x0, FlxColor.WHITE]);
@@ -102,30 +103,19 @@ class TitleState extends MusicBeatState
     whiteGrad2.angle = -90;
     whiteGrad2.y += 0;
 
+    #if (cpp && windows)
+    cpp.CPPInterface.darkMode();
+    #end
+
+    #if dev
     checkInternetConnection();
     if (internetConnection) getBuildVer();
+    #end
 
     Assets.cache.enabled = true;
     ClientPrefs.data.SCEWatermark = ClientPrefs.data.SCEWatermark;
 
-    final file = Json.parse(Paths.getTextFromFile('images/gfDanceTitle.json'));
-
-    titleJson =
-      {
-        titlex: file.titlex,
-        titley: file.titley,
-        startx: file.startx,
-        starty: file.starty,
-        gfx: file.gfx,
-        gfy: file.gfy,
-        backgroundSprite: file.backgroundSprite,
-        bpm: file.bpm,
-        skipTime: file.skipTime
-      }
-
-    if (titleJson.skipTime != 0) defaultTimeSkipped = titleJson.skipTime;
-
-    Conductor.bpm = titleJson.bpm;
+    loadJsonData();
 
     FlxTween.tween(whiteGrad2, {"pixels.height": 400, alpha: 0.7}, Conductor.crochet / 1900,
       {
@@ -163,16 +153,6 @@ class TitleState extends MusicBeatState
           grayGrad2.alpha = 0;
         }
       });
-
-    if (titleJson.backgroundSprite != null && titleJson.backgroundSprite.length > 0 && titleJson.backgroundSprite != "none")
-    {
-      final bg:FlxSprite = new FlxSprite(0, 0, Paths.image(titleJson.backgroundSprite));
-      if (titleJson.backgroundSprite.contains('pixel')) bg.antialiasing = false;
-      else
-        bg.antialiasing = ClientPrefs.data.antialiasing;
-      bg.active = false;
-      add(bg);
-    }
 
     for (i in 0...6)
     {
@@ -224,18 +204,24 @@ class TitleState extends MusicBeatState
     add(grayGrad);
     add(grayGrad2);
 
-    if (ClientPrefs.data.shaders) colourSwap = new ColorSwap();
-
-    gf = new FlxSprite(titleJson.gfx, titleJson.gfy);
-    gf.frames = Paths.getSparrowAtlas('gfDanceTitle');
-    gf.animation.addByIndices('left', 'gfDance', [30, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], "", 24, false);
-    gf.animation.addByIndices('right', 'gfDance', [15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29], "", 24, false);
+    gf = new FlxSprite(gfPosition.x, gfPosition.y);
     gf.antialiasing = ClientPrefs.data.antialiasing;
-    gf.animation.play('right');
     gf.alpha = 0.0001;
     add(gf);
+    gf.frames = Paths.getSparrowAtlas(characterImage);
+    if (!useIdle)
+    {
+      gf.animation.addByIndices('danceLeft', animationName, danceLeftFrames, "", 24, false);
+      gf.animation.addByIndices('danceRight', animationName, danceRightFrames, "", 24, false);
+      gf.animation.play('danceRight');
+    }
+    else
+    {
+      gf.animation.addByPrefix('idle', animationName, 24, false);
+      gf.animation.play('idle');
+    }
 
-    logo = new FlxSprite(titleJson.titlex, titleJson.titley);
+    logo = new FlxSprite(logoPosition.x, logoPosition.y);
     logo.frames = Paths.getSparrowAtlas('logoBumpin');
     logo.antialiasing = ClientPrefs.data.antialiasing;
     logo.animation.addByPrefix('bump', 'logo bumpin', 24, false);
@@ -243,33 +229,30 @@ class TitleState extends MusicBeatState
     logo.alpha = 0.0001;
     add(logo);
 
-    if (colourSwap != null)
+    if (ClientPrefs.data.shaders)
     {
+      colourSwap = new ColorSwap();
       gf.shader = colourSwap.shader;
       logo.shader = colourSwap.shader;
     }
 
-    titleText = new FlxSprite(titleJson.startx, titleJson.starty);
-    titleText.visible = false;
-    titleText.frames = Paths.getSparrowAtlas('titleEnter');
-
     var animFrames:Array<FlxFrame> = [];
-    @:privateAccess {
+    titleText = new FlxSprite(enterPosition.x, enterPosition.y);
+    titleText.frames = Paths.getSparrowAtlas('titleEnter');
+    titleText.visible = false;
+    @:privateAccess
+    {
       titleText.animation.findByPrefix(animFrames, "ENTER IDLE");
       titleText.animation.findByPrefix(animFrames, "ENTER FREEZE");
     }
 
-    if (animFrames.length > 0)
+    if (newTitle = animFrames.length > 0)
     {
-      newTitle = true;
-
       titleText.animation.addByPrefix('idle', "ENTER IDLE", 24);
       titleText.animation.addByPrefix('press', ClientPrefs.data.flashing ? "ENTER PRESSED" : "ENTER FREEZE", 24);
     }
     else
     {
-      newTitle = false;
-
       titleText.animation.addByPrefix('idle', "Press Enter to Begin", 24);
       titleText.animation.addByPrefix('press', "ENTER PRESSED", 24);
     }
@@ -301,8 +284,6 @@ class TitleState extends MusicBeatState
     }
     else
       skipIntro();
-
-    Paths.clearUnusedMemory();
   }
 
   function getIntroTextShit():Array<Array<String>>
@@ -370,6 +351,11 @@ class TitleState extends MusicBeatState
   {
     super.beatHit();
 
+    if (!useIdle)
+    {
+      gf.animation.play(curBeat % 2 == 0 ? 'danceRight' : 'danceLeft');
+    }
+    else if (curBeat % 2 == 0) gf.animation.play('idle', true);
     gf.animation.play(curBeat % 2 == 0 ? 'left' : 'right', true);
     logo.animation.play('bump', true);
 
@@ -631,6 +617,7 @@ class TitleState extends MusicBeatState
     while (textGroup.members.length > 0)
       textGroup.remove(textGroup.members[0], true);
 
+  #if dev
   public function checkInternetConnection()
   {
     var http = new haxe.Http("https://www.google.com");
@@ -652,5 +639,75 @@ class TitleState extends MusicBeatState
     }
 
     http.request();
+  }
+  #end
+
+  // JSON data
+  var characterImage:String = 'gfDanceTitle';
+  var animationName:String = 'gf';
+
+  var gfPosition:FlxPoint = FlxPoint.get(512, 40);
+  var logoPosition:FlxPoint = FlxPoint.get(-150, -100);
+  var enterPosition:FlxPoint = FlxPoint.get(100, 576);
+
+  var useIdle:Bool = false;
+  var musicBPM:Float = 102;
+  var danceLeftFrames:Array<Int> = [15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29];
+  var danceRightFrames:Array<Int> = [30, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
+
+  function loadJsonData()
+  {
+    if (Paths.fileExists('images/gfDanceTitle.json', TEXT))
+    {
+      final titleRaw:String = Paths.getTextFromFile('images/gfDanceTitle.json');
+      if (titleRaw != null && titleRaw.length > 0)
+      {
+        try
+        {
+          final titleJsonFile = tjson.TJSON.parse(titleRaw);
+
+          titleJson =
+            {
+              titlex: titleJsonFile.titlex,
+              titley: titleJsonFile.titley,
+              startx: titleJsonFile.startx,
+              starty: titleJsonFile.starty,
+              gfx: titleJsonFile.gfx,
+              gfy: titleJsonFile.gfy,
+              backgroundSprite: titleJsonFile.backgroundSprite,
+              bpm: titleJsonFile.bpm,
+              skipTime: Math.isNaN(titleJsonFile.skipTime) ? 0 : titleJsonFile.skipTime,
+              animation: titleJsonFile.animation,
+              dance_left: titleJsonFile.dance_left,
+              dance_right: titleJsonFile.dance_right,
+              idle: titleJsonFile.idle
+            }
+          gfPosition.set(titleJson.gfx, titleJson.gfy);
+          logoPosition.set(titleJson.titlex, titleJson.titley);
+          enterPosition.set(titleJson.startx, titleJson.starty);
+          musicBPM = titleJson.bpm;
+
+          if (titleJson.animation != null && titleJson.animation.length > 0) animationName = titleJson.animation;
+          if (titleJson.dance_left != null && titleJson.dance_left.length > 0) danceLeftFrames = titleJson.dance_left;
+          if (titleJson.dance_right != null && titleJson.dance_right.length > 0) danceRightFrames = titleJson.dance_right;
+          if (titleJson.skipTime != 0) defaultTimeSkipped = titleJson.skipTime;
+          useIdle = (titleJson.idle == true);
+
+          if (titleJson.backgroundSprite != null && titleJson.backgroundSprite.trim().length > 0)
+          {
+            final bg:FlxSprite = new FlxSprite().loadGraphic(Paths.image(titleJson.backgroundSprite));
+            bg.antialiasing = titleJson.backgroundSprite.endsWith('-pixel') ? false : ClientPrefs.data.antialiasing;
+            add(bg);
+          }
+        }
+        catch (e:haxe.Exception)
+        {
+          trace('[WARN] Title JSON might broken, ignoring issue...\n${e.details()}');
+        }
+      }
+      else
+        trace('[WARN] No Title JSON detected, using default values.');
+    }
+    // else trace('[WARN] No Title JSON detected, using default values.');
   }
 }

@@ -40,23 +40,32 @@ class SpookyMansion extends BaseStage
   }
 
   var lightningStrikeBeat:Int = 0;
-  var lightningOffset:Int = 8;
+  var lightningStrikeOffset:Int = 8;
 
   override public function beatHit()
   {
-    if (FlxG.random.bool(10) && curBeat > lightningStrikeBeat + lightningOffset)
+    // Play lightning on sync at the start of this specific song.
+		if (songName != null) {
+			if (curBeat == 4 && (songName == "spookeez" || songName == "spookeez-erect"))
+			{
+				doLightningStrike(false, curBeat);
+			}
+		}
+
+		// Play lightning at random intervals.
+    if (FlxG.random.bool(10) && curBeat > (lightningStrikeBeat + lightningStrikeOffset))
     {
-      lightningStrikeShit();
+      doLightningStrike(true, curBeat);
     }
   }
 
-  function lightningStrikeShit():Void
+  function doLightningStrike(playSound:Bool, beat:Int):Void
   {
-    FlxG.sound.play(Paths.soundRandom('thunder_', 1, 2));
+    if (playSound) FlxG.sound.play(Paths.soundRandom('thunder_', 1, 2));
     if (!ClientPrefs.data.lowQuality) halloweenBG.animation.play('halloweem bg lightning strike');
 
     lightningStrikeBeat = curBeat;
-    lightningOffset = FlxG.random.int(8, 24);
+    lightningStrikeOffset = FlxG.random.int(8, 24);
 
     if (boyfriend.hasOffsetAnimation('scared')) boyfriend.playAnim('scared', true);
 
@@ -113,6 +122,14 @@ class SpookyMansion extends BaseStage
           startCountdown();
         }
       });
+  }
+
+  override function destroy()
+  {
+    // Properly reset lightning when restarting the song.
+		lightningStrikeBeat = 0;
+		lightningStrikeOffset = 8;
+    super.destroy();
   }
 }
 #end

@@ -20,6 +20,13 @@ typedef Achievement =
   var ?ID:Int;
 }
 
+enum abstract AchievementOp(String)
+{
+  var GET = 'get';
+  var SET = 'set';
+  var ADD = 'add';
+}
+
 class Achievements
 {
   public static function init()
@@ -92,16 +99,15 @@ class Achievements
   }
 
   public static function getScore(name:String):Float
-    return _scoreFunc(name, 0);
+    return _scoreFunc(name, GET);
 
   public static function setScore(name:String, value:Float, saveIfNotUnlocked:Bool = true):Float
-    return _scoreFunc(name, 1, value, saveIfNotUnlocked);
+    return _scoreFunc(name, SET, value, saveIfNotUnlocked);
 
   public static function addScore(name:String, value:Float = 1, saveIfNotUnlocked:Bool = true):Float
-    return _scoreFunc(name, 2, value, saveIfNotUnlocked);
+    return _scoreFunc(name, ADD, value, saveIfNotUnlocked);
 
-  // mode 0 = get, 1 = set, 2 = add
-  static function _scoreFunc(name:String, mode:Int = 0, addOrSet:Float = 1, saveIfNotUnlocked:Bool = true):Float
+  static function _scoreFunc(name:String, mode:AchievementOp, addOrSet:Float = 1, saveIfNotUnlocked:Bool = true):Float
   {
     if (!variables.exists(name)) variables.set(name, 0);
 
@@ -115,10 +121,11 @@ class Achievements
       var val = addOrSet;
       switch (mode)
       {
-        case 0:
+        case GET:
           return variables.get(name); // get
-        case 2:
+        case ADD:
           val += variables.get(name); // add
+        default:
       }
 
       if (val >= achievement.maxScore)
@@ -303,7 +310,7 @@ class Achievements
       }
       return getScore(name);
     });
-    funk.set("setAchievementScore", function(name:String, ?value:Float = 1, ?saveIfNotUnlocked:Bool = true):Float {
+    funk.set("setAchievementScore", function(name:String, ?value:Float = 0, ?saveIfNotUnlocked:Bool = true):Float {
       if (!achievements.exists(name))
       {
         FunkinLua.luaTrace('setAchievementScore: Couldnt find achievement: $name', false, false, FlxColor.RED);

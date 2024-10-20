@@ -10,11 +10,6 @@ package slushi.windows;
 class CppAPI
 {
 	#if (windows && cpp)
-	public static function obtainRAM():Int
-	{
-		return WindowsCPP.obtainRAM();
-	}
-
 	public static function screenCapture(path:String)
 	{
 		WindowsCPP.windowsScreenShot(path);

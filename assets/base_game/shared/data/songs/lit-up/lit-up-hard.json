@@ -1313,6 +1313,9 @@
 				"mustHitSection": false
 			}
 		],
+			"options": {
+			"blockOpponentMode": true
+		},
 		"gfVersion": "nene",
 		"format": "psych_v1_convert",
 		"bpm": 176,

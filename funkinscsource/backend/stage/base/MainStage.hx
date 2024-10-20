@@ -27,12 +27,12 @@ class MainStage extends BaseStage
       var stageLight:BGSprite = new BGSprite('stage_light', -125, -100, 0.9, 0.9);
       stageLight.setGraphicSize(Std.int(stageLight.width * 1.1));
       stageLight.updateHitbox();
-      baseStage.stageSpriteHandler(stageLight, 4, "stageLight_L");
+      baseStage.stageSpriteHandler(stageLight, -1, "stageLight_L");
       var stageLight:BGSprite = new BGSprite('stage_light', 1225, -100, 0.9, 0.9);
       stageLight.setGraphicSize(Std.int(stageLight.width * 1.1));
       stageLight.updateHitbox();
       stageLight.flipX = true;
-      baseStage.stageSpriteHandler(stageLight, 4, "stageLight_R");
+      baseStage.stageSpriteHandler(stageLight, -1, "stageLight_R");
 
       var stageCurtains:BGSprite = new BGSprite('stagecurtains', -500, -300, 1.3, 1.3);
       stageCurtains.setGraphicSize(Std.int(stageCurtains.width * 0.9));

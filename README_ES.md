@@ -69,13 +69,17 @@ SLE tiene una [wiki](https://github.com/Slushi-Github/Slushi-Engine/tree/main/do
 ----
 SLE no está hecho para competir con otros motores como [Psych Engine](https://github.com/ShadowMario/FNF-PsychEngine), [SB Engine](https://github.com/Stefan2008Git/FNF-SB-Engine), [Codename Engine](https://github.com/FNF-CNE-Devs/CodenameEngine) (¿Me pregunto por qué los desarrolladores de CNE descompilaron SLE? No tenían razón para hacerlo), u otros motores existentes. En cambio, SLE está diseñado para facilitar tareas que de otro modo serían desafiantes y permitirte crear modcharts como los hechos en NotITG o Hitman's AD, con características más allá de simplemente mover las notas o la ventana.
 
-En un futuro cercano, puedes esperar encontrar todo el código C++ de SLE disponible como una biblioteca de Haxe en Haxelib. Esto te permitirá usarlo en tus proyectos no relacionados con FNF'. Lo mismo ocurre con WinSL. :3
+En un futuro cercano, puedes esperar encontrar todo el código C++ de SLE disponible como una biblioteca de Haxe en Haxelib. Esto te permitirá usarlo en tus proyectos no relacionados con FNF'. Lo mismo ocurre con WinSL. :3:
 
-----
+[SL-Windows-API](https://lib.haxe.org/p/sl-windows-api/) (Funciones de la API de Windows en Haxe).
+
+### Creditos:
 
 Slushi, no es ni mi personaje original (OC) ni un personaje que me pertenezca. Ella es de la serie web [Chikn Nuggit](https://twitter.com/chikn_nuggit?t=YohD2quSHtamaiJyzT-FOA&s=09), de Kyra Kupetsky. No tengo permiso directo para usar a Slushi en este motor, todos los derechos sobre el personaje pertenecen a ellos.
 
-Slushi Engine usa codigo de [Codename Engine](https://github.com/FNF-CNE-Devs/CodenameEngine) (SC Engine tambien, pero solo me quiero referir al codigo que use en SLE) y de [HITMANS: THE ANNIHILATE AND DESTROY PROJECT](https://gamebanana.com/mods/453997)
+Slushi Engine usa codigo de [Codename Engine](https://github.com/FNF-CNE-Devs/CodenameEngine) (SC Engine tambien, pero solo me quiero referir al codigo que use en SLE) y de [HITMANS: THE ANNIHILATE AND DESTROY PROJECT](https://gamebanana.com/mods/453997).
+
+Para mas detalles de los creditos, [PORFA revisa esto en el README de SCE](https://github.com/EdwhakKB/SC-SP-ENGINE?tab=readme-ov-file#credits-to-other-engine--most-engine-features-and-where-they-come-from-sorry-if-only-now-the-credits-exist-extermely-sorry)
 
 [SC Engine](https://github.com/EdwhakKB/SC-SP-ENGINE), es solo la base de SLE, no es mío, es de [EdwhakKB](https://github.com/EdwhakKB), tengo su permiso completo para usar SLE en este maravilloso motor.
 
@@ -89,7 +93,7 @@ Slushi Engine usa codigo de [Codename Engine](https://github.com/FNF-CNE-Devs/Co
 
 ## Características del Slushi Engine:
 - Un HUD hecho específicamente para canciones usando el modo NotITG, para que se vea como el de ese juego, facilitando deshacerte del look normal de FNF'.
-- Nuevos shaders, disponibles solo en SLE.
+- Nuevos shaders disponibles solo en SLE.
 - Un extenso número de nuevas funciones en Lua para que experimentes al crear tus canciones o mods.
 - Basado en las versiones más recientes de SC Engine.
-- Pantalla de resultaods del FNF' V-SLICE (Sacado de [P-Slice](https://github.com/mikolka9144/P-Slice))
+- ~~Pantalla de resultados del FNF' V-SLICE (Sacado de [P-Slice](https://github.com/mikolka9144/P-Slice))~~ (Ahora SCE tiene esto, ya no es una característica de SLE)

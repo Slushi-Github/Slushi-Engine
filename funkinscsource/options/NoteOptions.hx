@@ -29,9 +29,9 @@ class NoteOptions extends MusicBeatState
     switch (label)
     {
       case 'Note Colors':
-        openSubState(new options.NotesSubState());
+        openSubState(new options.NotesColorSubState());
       case 'Quant Colors':
-        openSubState(new options.QuantSubState());
+        openSubState(new options.NotesQuantSubState());
     }
   }
 

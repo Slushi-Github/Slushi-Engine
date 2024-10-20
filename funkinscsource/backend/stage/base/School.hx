@@ -17,12 +17,6 @@ class School extends BaseStage
 
   override public function buildStage(baseStage:Stage)
   {
-    var _song = PlayState.SONG.gameOverData;
-    if (_song.gameOverSound == null || _song.gameOverSound.trim().length < 1) GameOverSubstate.deathSoundName = 'fnf_loss_sfx-pixel';
-    if (_song.gameOverLoop == null || _song.gameOverLoop.trim().length < 1) GameOverSubstate.loopSoundName = 'gameOver-pixel';
-    if (_song.gameOverEnd == null || _song.gameOverEnd.trim().length < 1) GameOverSubstate.endSoundName = 'gameOverEnd-pixel';
-    if (_song.gameOverChar == null || _song.gameOverChar.trim().length < 1) GameOverSubstate.characterName = 'bf-pixel-dead';
-
     var bgSky:BGSprite = new BGSprite('weeb/weebSky', 0, 0, 0.1, 0.1);
     bgSky.antialiasing = false;
     baseStage.stageSpriteHandler(bgSky, -1, 'weebSky');
@@ -96,6 +90,15 @@ class School extends BaseStage
       initDoof();
       baseStage.setStartCallbackStage(schoolIntro);
     }
+  }
+
+  override function createPost()
+  {
+    var _song = PlayState.SONG.gameOverData;
+    if (_song.gameOverSound == null || _song.gameOverSound.trim().length < 1) GameOverSubstate.deathSoundName = 'fnf_loss_sfx-pixel';
+    if (_song.gameOverLoop == null || _song.gameOverLoop.trim().length < 1) GameOverSubstate.loopSoundName = 'gameOver-pixel';
+    if (_song.gameOverEnd == null || _song.gameOverEnd.trim().length < 1) GameOverSubstate.endSoundName = 'gameOverEnd-pixel';
+    if (_song.gameOverChar == null || _song.gameOverChar.trim().length < 1) GameOverSubstate.characterName = 'bf-pixel-dead';
   }
 
   override public function beatHit()

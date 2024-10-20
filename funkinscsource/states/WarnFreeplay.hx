@@ -60,7 +60,7 @@ class WarnFreeplay extends states.MusicBeatState
         FlxTween.tween(warnText, {alpha: 0}, 1,
           {
             onComplete: function(twn:FlxTween) {
-              MusicBeatState.switchState(new slushi.states.SlushiMainMenuState());
+              MusicBeatState.switchState(new states.MainMenuState());
             }
           });
       }

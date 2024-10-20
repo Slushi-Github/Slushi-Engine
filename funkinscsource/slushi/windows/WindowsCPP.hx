@@ -171,7 +171,7 @@ class WindowsCPP
 {
 	#if windows
 	@:functionCode('
-		MessageBox(GetActiveWindow(), message, caption, icon | MB_SETFOREGROUND);
+		MessageBox(GET_ENGINE_WINDOW(), message, caption, icon | MB_SETFOREGROUND);
 	')
 	public static function showMessageBox(caption:String, message:String, icon:MessageBoxIcon = MSG_WARNING)
 	{
@@ -374,7 +374,6 @@ class WindowsCPP
 	}
 
 	// thx Trock for this
-
 	@:functionCode('
 		int screenWidth = GetSystemMetrics(SM_CXSCREEN);
 		int screenHeight = GetSystemMetrics(SM_CYSCREEN);
@@ -383,17 +382,6 @@ class WindowsCPP
 	@:noCompletion
 	public static function windowsScreenShot(path:String)
 	{
-	}
-
-	@:functionCode("
-		unsigned long long allocatedRAM = 0;
-		GetPhysicallyInstalledSystemMemory(&allocatedRAM);
-
-		return (allocatedRAM / 1024);
-	")
-	public static function obtainRAM()
-	{
-		return 0;
 	}
 
 	#if SLUSHI_CPP_CODE
@@ -584,87 +572,6 @@ class WindowsCPP
 	public static function _setWindowLayeredMode(numberMode:Int)
 	{
 	}
-
-	// THIS CODE CRASH THE GAME AND THE WINDOWS EXPLORER XDDDDD
-	// @:functionCode('
-	// 	HWND hwnd = FindWindowA("Progman", NULL);
-	// 	hwnd = FindWindowExA(hwnd, 0, "SHELLDLL_DefView", NULL);
-	// 	hwnd = FindWindowExA(hwnd, 0, "SysListView32", "FolderView");
-
-	// 	int numItems = SendMessage(hwnd, LVM_GETITEMCOUNT, 0, 0);
-
-	// 	return numItems;
-	// ')
-	// public static function _getTotalDesktopIcons()
-	// {
-	// 	return 0;
-	// }
-
-	// @:functionCode('
-	// 	HWND hwnd = FindWindowA("Progman", NULL);
-	// 	hwnd = FindWindowExA(hwnd, 0, "SHELLDLL_DefView", NULL);
-	// 	hwnd = FindWindowExA(hwnd, 0, "SysListView32", "FolderView");
-
-	// 	POINT pt;
-	// 	SendMessage(hwnd, LVM_GETITEMPOSITION, iconIndex, (LPARAM)&pt);
-
-	// 	return pt.x; 
-	// ')
-	// public static function _getDesktopIconXPosition(iconIndex:Int)
-	// {
-	// 	return 0;
-	// }
-
-	// @:functionCode('
-	// 	HWND hwnd = FindWindowA("Progman", NULL);
-	// 	hwnd = FindWindowExA(hwnd, 0, "SHELLDLL_DefView", NULL);
-	// 	hwnd = FindWindowExA(hwnd, 0, "SysListView32", "FolderView");
-
-	// 	POINT pt;
-	// 	SendMessage(hwnd, LVM_GETITEMPOSITION, iconIndex, (LPARAM)&pt);
-
-	// 	return pt.y; 
-	// ')
-	// public static function _getDesktopIconYPosition(iconIndex:Int)
-	// {
-	// 	return 0;
-	// }
-
-	// @:functionCode('
-	// 	HWND hwnd = FindWindowA("Progman", NULL);
-	// 	hwnd = FindWindowExA(hwnd, 0, "SHELLDLL_DefView", NULL);
-	// 	hwnd = FindWindowExA(hwnd, 0, "SysListView32", "FolderView");
-
-	// 	POINT pt;
-	// 	SendMessage(hwnd, LVM_GETITEMPOSITION, iconIndex, (LPARAM)&pt);
-	// 	int currentYPosition = pt.y;
-
-	// 	BOOL result = ListView_SetItemPosition(hwnd, iconIndex, newXPosition, currentYPosition);
-
-	// 	return (result == TRUE);
-	// ')
-	// public static function _setDesktopIconXPosition(iconIndex:Int, newXPosition:Int)
-	// {
-	// 	return false;
-	// }
-
-	// @:functionCode('
-	// 	HWND hwnd = FindWindowA("Progman", NULL);
-	// 	hwnd = FindWindowExA(hwnd, 0, "SHELLDLL_DefView", NULL);
-	// 	hwnd = FindWindowExA(hwnd, 0, "SysListView32", "FolderView");
-
-	// 	POINT pt;
-	// 	SendMessage(hwnd, LVM_GETITEMPOSITION, iconIndex, (LPARAM)&pt);
-	// 	int currentXPosition = pt.x;
-
-	// 	BOOL result = ListView_SetItemPosition(hwnd, iconIndex, currentXPosition, newYPosition);
-
-	// 	return (result == TRUE);
-	// ')
-	// public static function _setDesktopIconYPosition(iconIndex:Int, newYPosition:Int)
-	// {
-	// 	return false;
-	// }
 	#end
 	#end
 }

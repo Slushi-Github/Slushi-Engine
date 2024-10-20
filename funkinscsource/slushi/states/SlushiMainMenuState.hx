@@ -200,8 +200,8 @@ class SlushiMainMenuState extends MusicBeatState
 			if (!clickedOption)
 			{
 				sineElap = sineElap + (elapsed * shaderSpeed);
-				sleLogoCamShader.shader.yrot.value = [Math.sin(sineElap) / 12];
-				sleLogoCamShader.shader.xrot.value = [Math.sin(sineElap + 2) / 12];
+				sleLogoCamShader.yrot = Math.sin(sineElap) / 12;
+				sleLogoCamShader.xrot = Math.sin(sineElap + 2) / 12;
 			}
 
 			onCursorClick();
@@ -250,7 +250,7 @@ class SlushiMainMenuState extends MusicBeatState
 			numTween = FlxTween.num(0, shaderValue, 1.2);
 			numTween.onUpdate = function(twn:FlxTween)
 			{
-				sleLogoCamShader.shader.yrot.value = [numTween.value];
+				sleLogoCamShader.yrot = numTween.value;
 			}
 		}
 		else if (FlxG.mouse.overlaps(storyModeSprite) && FlxG.mouse.pressed)
@@ -274,7 +274,7 @@ class SlushiMainMenuState extends MusicBeatState
 			numTween = FlxTween.num(0, shaderValue, 1.2);
 			numTween.onUpdate = function(twn:FlxTween)
 			{
-				sleLogoCamShader.shader.yrot.value = [numTween.value];
+				sleLogoCamShader.yrot = numTween.value;
 			}
 		}
 		else if (FlxG.mouse.overlaps(modsSprite) && FlxG.mouse.pressed)
@@ -297,7 +297,7 @@ class SlushiMainMenuState extends MusicBeatState
 			numTween = FlxTween.num(0, shaderValue, 1.2);
 			numTween.onUpdate = function(twn:FlxTween)
 			{
-				sleLogoCamShader.shader.yrot.value = [numTween.value];
+				sleLogoCamShader.yrot = numTween.value;
 			}
 		}
 		else if (FlxG.mouse.overlaps(creditsSprite) && FlxG.mouse.pressed)
@@ -321,7 +321,7 @@ class SlushiMainMenuState extends MusicBeatState
 			numTween = FlxTween.num(0, shaderValue, 1.2);
 			numTween.onUpdate = function(twn:FlxTween)
 			{
-				sleLogoCamShader.shader.yrot.value = [numTween.value];
+				sleLogoCamShader.yrot = numTween.value;
 			}
 		}
 		else if (FlxG.mouse.overlaps(optionsSprite) && FlxG.mouse.pressed)
@@ -352,7 +352,7 @@ class SlushiMainMenuState extends MusicBeatState
 			numTween = FlxTween.num(0, shaderValue, 1.2);
 			numTween.onUpdate = function(twn:FlxTween)
 			{
-				sleLogoCamShader.shader.yrot.value = [numTween.value];
+				sleLogoCamShader.yrot = numTween.value;
 			}
 		}
 	}

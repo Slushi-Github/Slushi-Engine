@@ -7,10 +7,8 @@
     },
     {
       "name": "openfl",
-      "type": "git",
-      "dir": null,
-      "ref": "feature/shader-improvements",
-      "url": "https://github.com/FunkinCrew/openfl"
+      "type": "haxelib",
+      "version": null
     },
     {
       "name": "flixel-tools",
@@ -40,7 +38,7 @@
     {
       "name": "hscript-iris",
       "type": "haxelib",
-      "version": "1.0.2"
+      "version": null
     },
     {
       "name": "markdown",
@@ -94,7 +92,7 @@
       "name": "flxanimate",
       "type": "git",
       "dir": null,
-      "ref": "funkin-mask",
+      "ref": "dev",
       "url": "https://github.com/Dot-Stuff/flxanimate"
     },
     {
@@ -159,6 +157,13 @@
       "dir": null,
       "ref": "main",
       "url": "https://github.com/MAJigsaw77/hxvlc"
+    },
+    {
+      "name": "flxsoundfilters",
+      "type": "git",
+      "dir": null,
+      "ref": "main",
+      "url": "https://github.com/TheZoroForce240/FlxSoundFilters"
     }
   ]
 }

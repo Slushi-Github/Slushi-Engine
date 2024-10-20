@@ -83,7 +83,7 @@ class TypedAlphabet extends Alphabet
     if (finishedText) return;
 
     showCharacterUpTo(letters.length - 1);
-    if (sound != '') FlxG.sound.play(Paths.sound(sound), volume);
+    if (sound.length > 0) FlxG.sound.play(Paths.sound(sound), volume);
     finishedText = true;
 
     if (onFinish != null) onFinish();

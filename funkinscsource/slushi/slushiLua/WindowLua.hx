@@ -2,6 +2,7 @@ package slushi.slushiLua;
 
 import psychlua.FunkinLua;
 import psychlua.LuaUtils;
+import cpp.GetRAMSys;
 
 class WindowLua
 {
@@ -13,37 +14,30 @@ class WindowLua
 		{
 			#if windows
 			var blackSprite:FlxSprite = null;
-			if (CppAPI.obtainRAM() >= 4096)
-			{ // por mis propias pruebas, usar esto con 4 GBs de ram, no es buena idea, asi que mejor lo desactivo si eso pasa
-				if (!SlushiLua.apliedWindowTransparent)
-				{
-					blackSprite = new FlxSprite().makeGraphic(FlxG.width + 20, FlxG.height + 20, FlxColor.fromRGB(25, 25, 25));
-					blackSprite.camera = LuaUtils.cameraFromString(camToApply);
-					if (PlayState.instance.defaultCamZoom < 1)
-						blackSprite.scale.scale(1 / PlayState.instance.defaultCamZoom);
-					blackSprite.scrollFactor.set();
-					PlayState.instance.add(blackSprite);
-				}
+			if (!SlushiLua.apliedWindowTransparent)
+			{
+				blackSprite = new FlxSprite().makeGraphic(FlxG.width + 20, FlxG.height + 20, FlxColor.fromRGB(25, 25, 25));
+				blackSprite.camera = LuaUtils.cameraFromString(camToApply);
+				if (PlayState.instance.defaultCamZoom < 1)
+					blackSprite.scale.scale(1 / PlayState.instance.defaultCamZoom);
+				blackSprite.scrollFactor.set();
+				PlayState.instance.add(blackSprite);
+			}
 
-				if (trans)
-				{
-					CppAPI.getWindowsTransparent();
-					SlushiLua.apliedWindowTransparent = true;
-				}
-				else
-				{
-					PlayState.instance.remove(blackSprite);
-					blackSprite.destroy();
-					if (SlushiLua.apliedWindowTransparent)
-					{
-						CppAPI.disableWindowTransparent();
-						SlushiLua.apliedWindowTransparent = false;
-					}
-				}
+			if (trans)
+			{
+				CppAPI.getWindowsTransparent();
+				SlushiLua.apliedWindowTransparent = true;
 			}
 			else
 			{
-				printInDisplay("windowTrans: Low RAM for Window transparent!", FlxColor.RED);
+				PlayState.instance.remove(blackSprite);
+				blackSprite.destroy();
+				if (SlushiLua.apliedWindowTransparent)
+				{
+					CppAPI.disableWindowTransparent();
+					SlushiLua.apliedWindowTransparent = false;
+				}
 			}
 			#else
 			printInDisplay("windowTrans: Platform unsupported for Window transparent!", FlxColor.RED);
@@ -60,11 +54,11 @@ class WindowLua
 			#end
 		});
 
-		funkLua.set("doTweenWinAlpha", function(fromValue:Float, toValue:Float, duration:Float, ease:String = "linear")
+		funkLua.set("doTweenWinAlpha", function(toValue:Float, duration:Float, ease:String = "linear")
 		{
 			#if windows
 			if (ClientPrefs.data.windowAlpha)
-				WindowFuncs.doTweenWindowAlpha(fromValue, toValue, duration, ease);
+				WindowFuncs.doTweenWindowAlpha(toValue, duration, ease);
 			#else
 			printInDisplay("doTweenWinAlpha: Platform unsupported for this function", FlxColor.RED);
 			#end
@@ -89,7 +83,7 @@ class WindowLua
 		});
 
 		#if desktop
-		funkLua.set("winAlert", function(text:String, title:String)
+		funkLua.set("windowAlert", function(text:String, title:String)
 		{
 			WindowFuncs.windowAlert(text, title);
 		});
@@ -117,8 +111,8 @@ class WindowLua
 			switch (mode)
 			{
 				case "X":
-					var variables = MusicBeatState.getVariables();
-					var originalTag:String = tag;
+					var variables = MusicBeatState.getVariables("Tween");
+
 					tag = LuaUtils.formatVariable('tween_$tag');
 
 					variables.set(tag, FlxTween.tween(Application.current.window, {x: value}, duration, {
@@ -130,8 +124,8 @@ class WindowLua
 						}
 					}));
 				case "Y":
-					var variables = MusicBeatState.getVariables();
-					var originalTag:String = tag;
+					var variables = MusicBeatState.getVariables("Tween");
+
 					tag = LuaUtils.formatVariable('tween_$tag');
 
 					variables.set(tag, FlxTween.tween(Application.current.window, {y: value}, duration, {
@@ -242,10 +236,12 @@ class WindowLua
 		funkLua.set("setWindowBorderColor", function(r:Int = 0, g:Int = 0, b:Int = 0, mode:Bool = true)
 		{
 			#if windows
-			if (WindowsFuncs.getWindowsVersion() != 0
-				&& WindowsFuncs.getWindowsVersion() == 11)
+			if (WindowsFuncs.getWindowsVersion() != 0 && WindowsFuncs.getWindowsVersion() == 11)
 			{
-				SlushiEngineHUD.instance.canChangeWindowColorWithNoteHit = mode;
+				if (SlushiEngineHUD.instance != null)
+				{
+					SlushiEngineHUD.instance.canChangeWindowColorWithNoteHit = mode;
+				}
 				CppAPI.setWindowBorderColor(r, g, b);
 			}
 			else

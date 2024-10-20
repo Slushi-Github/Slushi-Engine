@@ -13,6 +13,7 @@ import openfl.display.Shader;
 import flixel.system.FlxAssets.FlxShader;
 
 // Code from CNE (CodenameEngine)
+// Edited by me -glow
 class FunkinSCSprite extends FlxSkewed
 {
   public var extraSpriteData:Map<String, Dynamic> = new Map<String, Dynamic>();
@@ -72,54 +73,61 @@ class FunkinSCSprite extends FlxSkewed
     #end
   }
 
-  public function loadSprite(path:String, ?imageFile:String, ?newEndString:String = null, ?parentfolder:String = null)
+  /**
+   * Loads a sprite, image, or atlas.
+   * @param path path to find
+   * @param imageFile image file
+   * @param newEndString ending string for multi-atlas that isn't found with ','
+   * @param parentfolder the files parent folder it's found in.
+   * @param forceLoad forces the function to load externl instead of already placed rules for loading sprite.
+   */
+  public dynamic function loadSprite(path:String, ?imageFile:String, ?newEndString:String = null, ?parentfolder:String = null, ?forceLoad:Bool = false)
   {
     #if flxanimate
     var atlasToFind:String = Paths.getPath(haxe.io.Path.withoutExtension(path) + '/Animation.json', TEXT);
     if (#if MODS_ALLOWED FileSystem.exists(atlasToFind) || #end openfl.utils.Assets.exists(atlasToFind)) isAnimateAtlas = true;
     #end
 
-    if (!isAnimateAtlas)
-    {
-      // Use a way for using mult frames lol
-      var split:Array<String> = imageFile.split(',');
-      var finalFrames:FlxAtlasFrames = Paths.getAtlas(split[0].trim());
-      if (split.length > 1)
-      {
-        var original:FlxAtlasFrames = finalFrames;
-        finalFrames = new FlxAtlasFrames(finalFrames.parent);
-        finalFrames.addAtlas(original, true);
-        for (i in 1...split.length)
-        {
-          var extraFrames:FlxAtlasFrames = Paths.getAtlas(split[i].trim());
-          if (extraFrames != null) finalFrames.addAtlas(extraFrames, true);
-        }
-      }
-      this.frames = finalFrames;
-
-      if (frames == null) this.frames = Paths.getFrames(path, true, parentfolder, newEndString);
-    }
+    if (!isAnimateAtlas) loadFrameAtlas(path, imageFile, parentfolder, newEndString, null, forceLoad);
     #if flxanimate
     else
-    {
-      this.atlasPath = atlasToFind;
-      this.secondAtlasPath = imageFile;
-      this.isAnimateAtlas = true;
-      this.atlas = new FlxAnimate(this.x, this.y);
-      this.atlas.showPivot = false;
-      try
-      {
-        Paths.loadAnimateAtlas(this.atlas, imageFile);
-      }
-      catch (e:haxe.Exception)
-      {
-        this.failedLoadingAutoAtlas = true;
-        Debug.logError('Could not load atlas ${path}: $e');
-        Debug.logInfo(e.stack);
-      }
-    }
+      loadAnimateAtlas(atlasToFind, imageFile);
     #end
   }
+
+  /**
+   * Loads regular atlas frames (sparrow, packer, json, xml)
+   * @param imageFile
+   */
+  public dynamic function loadFrameAtlas(path:String, imageFile:String, ?parentfolder:String, ?newEndString:String, ?searchWhenNull:Null<Bool> = null,
+      ?forceLoad:Bool = false)
+  {
+    // Use a way for using mult frames lol
+    if (!forceLoad) this.frames = Paths.getMultiAtlas(imageFile.split(','));
+    else if ((searchWhenNull == null || searchWhenNull)
+      && forceLoad) this.frames = Paths.getFrames(path, true, parentfolder, newEndString);
+  }
+
+  #if flxanimate
+  public dynamic function loadAnimateAtlas(atlasToFind:String, imageFile:String)
+  {
+    this.atlasPath = atlasToFind;
+    this.secondAtlasPath = imageFile;
+    this.isAnimateAtlas = true;
+    this.atlas = new FlxAnimate(this.x, this.y);
+    this.atlas.showPivot = false;
+    try
+    {
+      Paths.loadAnimateAtlas(this.atlas, imageFile);
+    }
+    catch (e:haxe.Exception)
+    {
+      this.failedLoadingAutoAtlas = true;
+      Debug.logError('Could not load atlas ${path}: ${e.message}');
+      Debug.logError(e.stack);
+    }
+  }
+  #end
 
   public function beatHit(curBeat:Int) {}
 
@@ -227,7 +235,7 @@ class FunkinSCSprite extends FlxSkewed
       _lastPlayedAnimation = AnimName;
 
       var daOffset = this.getAnimOffset(AnimName);
-      if (daOffset != null && daOffset.length > 1) this.offset.set(daOffset[0], daOffset[1]);
+      if (daOffset != null && daOffset.length > 1) this.offset.set(daOffset[0] * scale.x, daOffset[1] * scale.y);
     }
   }
 
@@ -401,10 +409,10 @@ class FunkinSCSprite extends FlxSkewed
 
   override public function destroy()
   {
-    this.animOffsets.clear();
+    if (this.animOffsets != null) this.animOffsets.clear();
 
     #if flxanimate
-    this.atlas = flixel.util.FlxDestroyUtil.destroy(this.atlas);
+    if (this.atlas != null) this.atlas = flixel.util.FlxDestroyUtil.destroy(this.atlas);
     #end
     super.destroy();
   }

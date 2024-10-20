@@ -109,16 +109,16 @@ class TankmanBattlefield extends BaseStage
         firstTank.resetShit(20, 1500, true);
         firstTank.strumTime = 10;
         firstTank.visible = false;
-        PlayState.instance.stage.swagGroup['tankmanRun'].add(firstTank);
+        PlayState.instance.stage.swagGroups['tankmanRun'].add(firstTank);
 
         for (i in 0...TankmenBG.animationNotes.length)
         {
           if (FlxG.random.bool(16))
           {
-            var tankBih = PlayState.instance.stage.swagGroup['tankmanRun'].recycle(TankmenBG);
+            var tankBih = PlayState.instance.stage.swagGroups['tankmanRun'].recycle(TankmenBG);
             tankBih.strumTime = TankmenBG.animationNotes[i][0];
             tankBih.resetShit(500, 200 + FlxG.random.int(50, 100), TankmenBG.animationNotes[i][1] < 2);
-            PlayState.instance.stage.swagGroup['tankmanRun'].add(tankBih);
+            PlayState.instance.stage.swagGroups['tankmanRun'].add(tankBih);
           }
         }
       }

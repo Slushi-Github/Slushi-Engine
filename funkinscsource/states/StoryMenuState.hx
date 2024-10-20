@@ -37,10 +37,21 @@ class StoryMenuState extends MusicBeatState
 
   var loadedWeeks:Array<WeekData> = [];
 
+  #if BASE_GAME_FILES
+  var stickerSubState:vslice.transition.StickerSubState;
+
+  public function new(?stickers:vslice.transition.StickerSubState = null)
+  {
+    super();
+
+    if (stickers != null) stickerSubState = stickers;
+  }
+  #end
+
   override function create()
   {
-    Paths.clearStoredMemory();
-    Paths.clearUnusedMemory();
+    Paths.clearStoredMemory(#if BASE_GAME_FILES if (stickerSubState == null) "All" else "Sound" #else "All" #end);
+    Paths.clearUnusedMemory(#if BASE_GAME_FILES if (stickerSubState == null) true else false #else true #end);
 
     persistentUpdate = persistentDraw = true;
     PlayState.isStoryMode = true;
@@ -59,10 +70,18 @@ class StoryMenuState extends MusicBeatState
         function() MusicBeatState.switchState(new states.editors.WeekEditorState()), function() {
           FlxG.sound.play(Paths.sound('cancelMenu'));
           movedBack = true;
-          MusicBeatState.switchState(new slushi.states.SlushiMainMenuState());
+          MusicBeatState.switchState(new states.MainMenuState());
       }));
       return;
     }
+
+    #if BASE_GAME_FILES
+    if (stickerSubState != null)
+    {
+      openSubState(stickerSubState);
+      stickerSubState.degenStickers();
+    }
+    #end
 
     if (curWeek >= WeekData.weeksList.length) curWeek = 0;
 
@@ -203,6 +222,12 @@ class StoryMenuState extends MusicBeatState
   {
     if (WeekData.weeksList.length < 1)
     {
+      if (controls.BACK && !movedBack && !selectedWeek)
+      {
+        FlxG.sound.play(Paths.sound('cancelMenu'));
+        movedBack = true;
+        MusicBeatState.switchState(new slushi.states.SlushiMainMenuState());
+      }
       super.update(elapsed);
       return;
     }
@@ -378,10 +403,12 @@ class StoryMenuState extends MusicBeatState
         stopspamming = true;
       }
 
+      Highscore.weekHighScoreData = Highscore.resetScoreData();
+
       var directory = StageData.forceNextDirectory;
       LoadingState.loadNextDirectory();
       StageData.forceNextDirectory = directory;
-      LoadingState.prepareToSong(PlayState.SONG);
+      LoadingState.prepareToSong();
       new FlxTimer().start(1, function(tmr:FlxTimer) {
         #if !SHOW_LOADING_SCREEN FlxG.sound.music.stop(); #end
         LoadingState.loadAndSwitchState(new PlayState(), true);
@@ -443,7 +470,9 @@ class StoryMenuState extends MusicBeatState
     lastDifficultyName = diff;
 
     #if ! switch
-    intendedScore = Highscore.getWeekScore(loadedWeeks[curWeek].fileName, curDifficulty);
+    var songOpponentModeBlock:Bool = loadedWeeks[curWeek].blockOpponentMode != null ? loadedWeeks[curWeek].blockOpponentMode : false;
+    var opponentMode:Bool = (ClientPrefs.getGameplaySetting('opponent') && !songOpponentModeBlock);
+    intendedScore = Highscore.getWeekScore(loadedWeeks[curWeek].fileName, curDifficulty, opponentMode).mainData.score;
     #end
   }
 
@@ -535,7 +564,9 @@ class StoryMenuState extends MusicBeatState
     txtTracklist.x -= FlxG.width * 0.35;
 
     #if ! switch
-    intendedScore = Highscore.getWeekScore(loadedWeeks[curWeek].fileName, curDifficulty);
+    var songOpponentModeBlock:Bool = loadedWeeks[curWeek].blockOpponentMode != null ? loadedWeeks[curWeek].blockOpponentMode : false;
+    var opponentMode:Bool = (ClientPrefs.getGameplaySetting('opponent') && !songOpponentModeBlock);
+    intendedScore = Highscore.getWeekScore(loadedWeeks[curWeek].fileName, curDifficulty, opponentMode).mainData.score;
     #end
   }
 }

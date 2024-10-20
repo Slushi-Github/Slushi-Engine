@@ -16,13 +16,15 @@ class ResetScoreSubState extends MusicBeatSubState
   var song:String;
   var difficulty:Int;
   var week:Int;
+  var opponentMode:Bool;
 
   // Week -1 = Freeplay
-  public function new(song:String, difficulty:Int, character:String, week:Int = -1)
+  public function new(song:String, difficulty:Int, character:String, week:Int = -1, opponentMode:Bool = false)
   {
     this.song = song;
     this.difficulty = difficulty;
     this.week = week;
+    this.opponentMode = opponentMode;
 
     super();
 
@@ -104,11 +106,11 @@ class ResetScoreSubState extends MusicBeatSubState
       {
         if (week == -1)
         {
-          Highscore.resetSong(song, difficulty);
+          Highscore.resetSong(song, difficulty, opponentMode);
         }
         else
         {
-          Highscore.resetWeek(WeekData.weeksList[week], difficulty);
+          Highscore.resetWeek(WeekData.weeksList[week], difficulty, opponentMode);
         }
       }
       FlxG.sound.play(Paths.sound('cancelMenu'), 1);

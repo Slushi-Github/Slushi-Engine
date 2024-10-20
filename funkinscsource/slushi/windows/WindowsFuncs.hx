@@ -16,11 +16,12 @@ class WindowsFuncs
 	private static var _windowsWallpaperPath:String = null;
 
 	public static var changedWallpaper:Bool = false;
+	private static final savedWallpaperPath:String = "assets/slushiEngineAssets/SLEAssets/OthersAssets/Cache/savedWindowswallpaper.png";
 
 	public static function changeWindowsWallpaper(path:String)
 	{
 		#if windows
-		var allPath:String = Sys.getCwd() + 'assets/' + path;
+		var allPath:String = CustomFuncs.getAllPath() + 'assets/' + path;
 		allPath = allPath.split("\\").join("/");
 		CppAPI.setWallpaper(allPath);
 		changedWallpaper = true;
@@ -31,7 +32,7 @@ class WindowsFuncs
 	public static function screenCapture(path:String)
 	{
 		#if windows
-		var allPath:String = Sys.getCwd() + 'assets/images/SLEAssets/Cache/' + path;
+		var allPath:String = CustomFuncs.getAllPath() + 'assets/images/SLEAssets/Cache/' + path;
 		allPath = allPath.split("\\").join("/");
 		CppAPI.screenCapture(allPath);
 		Debug.logSLEInfo("Screenshot saved to: " + allPath);
@@ -59,7 +60,7 @@ class WindowsFuncs
 	public static function saveCopyOfSavedWindowsWallpaper()
 	{
 		#if windows
-		var finalPath = 'assets/slushiEngineAssets/SLEAssets/OthersAssets/Cache/savedWindowswallpaper.png';
+		var finalPath = savedWallpaperPath;
 		try
 		{
 			if (!FileSystem.exists('assets/slushiEngineAssets/SLEAssets/OthersAssets/Cache'))
@@ -77,11 +78,14 @@ class WindowsFuncs
 	public static function setOldWindowsWallpaper()
 	{
 		#if windows
+		if (changedWallpaper == false)
+			return;
+
 		changedWallpaper = false;
 
 		if (ClientPrefs.data.useSavedWallpaper)
 		{
-			var finalPath = 'assets/slushiEngineAssets/SLEAssets/OthersAssets/Cache/savedWindowswallpaper.png';
+			var finalPath = savedWallpaperPath;
 			CppAPI.setWallpaper(finalPath);
 			Debug.logSLEInfo("Wallpaper changed to: " + finalPath);
 			return;
@@ -195,6 +199,14 @@ class WindowsFuncs
 		return mousePos;
 	}
 
+	public static function initThreadForWindowRespondingHandler()
+	{
+		#if windows
+		Sys.println("[slushi.windows.WindowsFuncs.initThreadForWindowRespondingHandler] - Starting thread for window responding handler...");
+		slushi.windows.ProgramRespondingUtil.initThread();
+		#end
+	}
+
 	//////////////////////////////////////////////////////////////////////////////////////////
 	#if windows
 	public static function doTweenDesktopWindows(mode:String, toValue:Float, duration:Float, ease:String)
@@ -235,27 +247,6 @@ class WindowsFuncs
 			CppAPI.setTaskBarAlpha(numTween.value);
 		}
 	}
-
-	// public static function doTweenDesktopIcon(mode:String, iconIndex:Int, toValue:Float, duration:Float, ease:String)
-	// {
-	// 	var startvalueX = WindowsCPP._getDesktopIconXPosition(iconIndex);
-	// 	var startvalueY = WindowsCPP._getDesktopIconYPosition(iconIndex);
-	// 	switch (mode)
-	// 	{
-	// 		case "X":
-	// 			var numTween:NumTween = FlxTween.num(startvalueX, toValue, duration, {ease: LuaUtils.getTweenEaseByString(ease)});
-	// 			numTween.onUpdate = function(twn:FlxTween)
-	// 			{
-	// 				WindowsCPP._setDesktopIconXPosition(iconIndex, Std.int(numTween.value));
-	// 			}
-	// 		case "Y":
-	// 			var numTween:NumTween = FlxTween.num(startvalueY, toValue, duration, {ease: LuaUtils.getTweenEaseByString(ease)});
-	// 			numTween.onUpdate = function(twn:FlxTween)
-	// 			{
-	// 				WindowsCPP._setDesktopIconYPosition(iconIndex, Std.int(numTween.value));
-	// 			}
-	// 	}
-	// }
 	#end
 }
 

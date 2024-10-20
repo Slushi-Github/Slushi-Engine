@@ -17,9 +17,10 @@ class DummyScript extends Script
     return variables.set(v, v2);
   }
 
-  public override function onCall(method:String, parameters:Array<Dynamic>):Dynamic
+  public override function onCall(method:String = null, parameters:Array<Dynamic> = null):Dynamic
   {
     var func = variables.get(method);
+    if (!variables.exists(method)) return null;
     if (Reflect.isFunction(func)) return (parameters != null && parameters.length > 0) ? Reflect.callMethod(null, func, parameters) : func();
 
     return null;

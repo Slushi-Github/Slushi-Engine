@@ -26,6 +26,20 @@ import lime.math.Vector2;
 
 using StringTools;
 
+// Starting data when first created! / Can be ediuted too
+typedef NoteSpriteStartData =
+{
+  strumTime:Float,
+  noteData:Int,
+  isSustainNote:Bool,
+  noteSkin:String,
+  ?prevNote:Note,
+  ?createdFrom:Dynamic,
+  ?scrollSpeed:Float,
+  ?parentStrumline:Strumline,
+  ?inEditor:Bool
+}
+
 typedef NoteSplashData =
 {
   disabled:Bool,
@@ -33,7 +47,10 @@ typedef NoteSplashData =
   useGlobalShader:Bool, // breaks r/g/b/a but makes it copy default colors for your custom note
   useRGBShader:Bool,
   antialiasing:Bool,
-  a:Float
+  a:Float,
+  ?r:FlxColor,
+  ?g:FlxColor,
+  ?b:FlxColor
 }
 
 typedef EventNote =
@@ -71,6 +88,7 @@ class Note extends ModchartArrow implements ICloneable<Note>
     '', // Always leave this one empty pls
     'Alt Animation',
     'Hey!',
+    'Cheer!',
     'Hurt Note',
     'GF Sing',
     'Mom Sing',
@@ -148,7 +166,10 @@ class Note extends ModchartArrow implements ICloneable<Note>
       antialiasing: !PlayState.isPixelStage,
       useGlobalShader: false,
       useRGBShader: (PlayState.SONG != null) ? !(PlayState.SONG.options.disableSplashRGB == true) : true,
-      a: ClientPrefs.data.splashAlpha
+      a: ClientPrefs.data.splashAlpha,
+      r: -1,
+      g: -1,
+      b: -1
     };
   public var offsetX:Float = 0;
   public var offsetY:Float = 0;
@@ -219,9 +240,8 @@ class Note extends ModchartArrow implements ICloneable<Note>
     return (!isAnimationNull() && getAnimationName().endsWith('end'));
   }
 
-  // Quant Stuff
-  public var quantColorsOnNotes:Bool = true;
-  public var quantizedNotes:Bool = false;
+  public var customColorsOnNotes:Bool = true;
+  public var customColoredNotes:Bool = false;
 
   // Extra support for textures
   public var containsPixelTexture:Bool = false;
@@ -307,7 +327,7 @@ class Note extends ModchartArrow implements ICloneable<Note>
   {
     // var skin:String = 'noteSplashes';
     // if (PlayState.SONG != null && PlayState.SONG.options.splashSkin != "") skin = PlayState.SONG.options.splashSkin;
-    quantizedNotes ? defaultRGBQuant() : defaultRGB();
+    customColoredNotes ? defaultRGBQuant() : defaultRGB();
 
     if (noteData > -1 && noteType != value)
     {
@@ -319,8 +339,8 @@ class Note extends ModchartArrow implements ICloneable<Note>
           // this used to change the note texture to HURTNOTE_assets.png,
           // but i've changed it to something more optimized with the implementation of RGBPalette:
 
-          // quant shit
-          quantColorsOnNotes = false;
+          // custom shit
+          customColorsOnNotes = false;
 
           // note colors
           rgbShader.r = 0xFF101010;
@@ -340,7 +360,6 @@ class Note extends ModchartArrow implements ICloneable<Note>
           hitsoundChartEditor = false;
         case 'Alt Animation':
           animSuffix = '-alt';
-
         case 'No Animation':
           noAnimation = true;
           noMissAnimation = true;
@@ -375,43 +394,48 @@ class Note extends ModchartArrow implements ICloneable<Note>
   public var allowStrumFollow:Bool = true;
   public var allowNotesToHit:Bool = true;
 
-  public function new(strumTime:Float, noteData:Int, sustainNote:Bool = false, noteSkin:String, ?prevNote:Note, ?createdFrom:Dynamic = null,
-      ?scrollSpeed:Float, ?parentStrumline:Strumline, ?inEditor:Bool = false)
+  public function new(data:NoteSpriteStartData)
   {
     super();
 
     antialiasing = ClientPrefs.data.antialiasing;
-    if (createdFrom == null) createdFrom = PlayState.instance;
-
-    if (prevNote == null) prevNote = this;
-
-    this.prevNote = prevNote;
-    this.isSustainNote = sustainNote;
-    this.noteSkin = noteSkin;
     this.moves = false;
-    this.inEditor = inEditor;
 
     x += (ClientPrefs.data.middleScroll ? PlayState.STRUM_X_MIDDLESCROLL : PlayState.STRUM_X) + 50;
     // MAKE SURE ITS DEFINITELY OFF SCREEN?
     y -= 2000;
-    this.strumTime = strumTime;
+
+    startNoteData(data);
+  }
+
+  public dynamic function startNoteData(data:NoteSpriteStartData)
+  {
+    if (data.createdFrom == null) data.createdFrom = PlayState.instance;
+    if (data.prevNote == null) data.prevNote = this;
+
+    this.prevNote = data.prevNote;
+    this.isSustainNote = data.isSustainNote;
+    this.noteSkin = data.noteSkin;
+    this.inEditor = data.inEditor;
+
+    this.strumTime = data.strumTime;
     if (!inEditor) this.strumTime += ClientPrefs.data.noteOffset;
 
-    this.noteData = noteData;
-    this.parentStrumline = parentStrumline;
-    this.noteScrollSpeed = scrollSpeed;
+    this.noteData = data.noteData;
+    this.parentStrumline = data.parentStrumline;
+    this.noteScrollSpeed = data.scrollSpeed;
 
-    if (noteData > -1)
+    if (data.noteData > -1)
     {
-      rgbShader = new RGBShaderReference(this, quantizedNotes ? initializeGlobalQuantRGBShader(noteData) : initializeGlobalRGBShader(noteData));
-      texture = noteSkin;
+      rgbShader = new RGBShaderReference(this, customColoredNotes ? initializeGlobalQuantRGBShader(data.noteData) : initializeGlobalRGBShader(data.noteData));
+      texture = data.noteSkin;
       if (PlayState.SONG != null && PlayState.SONG.options.disableNoteRGB) rgbShader.enabled = false;
 
-      x += swagWidth * (noteData);
+      x += swagWidth * (data.noteData);
       if (!isSustainNote && noteData < colArray.length)
       { // Doing this 'if' check to fix the warnings on Senpai songs
         var animToPlay:String = '';
-        animToPlay = colArray[noteData % colArray.length];
+        animToPlay = colArray[data.noteData % colArray.length];
         animation.play(animToPlay + 'Scroll');
       }
     }
@@ -425,7 +449,7 @@ class Note extends ModchartArrow implements ICloneable<Note>
       alpha = 0.6;
       multAlpha = 0.6;
       hitsoundDisabled = true;
-      if (ClientPrefs.data.downScroll) flipY = true;
+      if (ClientPrefs.data.downScroll && !inEditor) flipY = true;
 
       offsetX += width / 2;
       copyAngle = false;
@@ -573,12 +597,6 @@ class Note extends ModchartArrow implements ICloneable<Note>
     }
     else
       skin = customSkin;
-
-    if (!inEditor)
-    {
-      if (!skin.contains('noteSkins') && rgbShader.enabled) rgbShader.enabled = false;
-      else if (skin.contains('noteSkins') && !rgbShader.enabled) rgbShader.enabled = true;
-    }
 
     loadNoteTexture(skin, skinPostfix, skinPixel);
 
@@ -802,14 +820,9 @@ class Note extends ModchartArrow implements ICloneable<Note>
         if ((isSustainNote && prevNote.wasGoodHit) || strumTime <= Conductor.songPosition) wasGoodHit = true;
       }
     }
-
-    if (tooLate && !inEditor)
-    {
-      if (alpha > 0.3) alpha = 0.3;
-    }
   }
 
-  public dynamic function followStrumArrow(myStrum:StrumArrow, fakeCrochet:Float, newFollowSpeed:Float = 1)
+  public dynamic function followStrumArrow(myStrum:StrumArrow, newFollowSpeed:Float = 1)
   {
     var strumX:Float = myStrum.x;
     var strumY:Float = myStrum.y;
@@ -878,6 +891,11 @@ class Note extends ModchartArrow implements ICloneable<Note>
   @:access(flixel.FlxCamera)
   override public function draw():Void
   {
+    if (tooLate && !inEditor)
+    {
+      if (alpha > 0.3) alpha = 0.3;
+    }
+
     if (notITGNotes && drawManual)
     {
       if (alpha < 0 || vertices == null || indices == null || uvtData == null || _point == null || offset == null)
@@ -895,34 +913,34 @@ class Note extends ModchartArrow implements ICloneable<Note>
         getScreenPosition(_point, camera) /*.subtractPoint(offset)*/;
         var newGraphic:FlxGraphic = cast mapData();
 
-        /*var shader = this.shader != null ? this.shader : new FlxShader();
-          if (this.shader != shader) this.shader = shader;
+        var shader = this.shader != null ? this.shader : new FlxShader();
+        if (this.shader != shader) this.shader = shader;
 
-          shader.bitmap.input = graphic.bitmap;
-          shader.bitmap.filter = antialiasing ? LINEAR : NEAREST;
+        shader.bitmap.input = graphic.bitmap;
+        shader.bitmap.filter = antialiasing ? LINEAR : NEAREST;
 
-          var transforms:Array<ColorTransform> = [];
-          var transfarm:ColorTransform = new ColorTransform();
-          transfarm.redMultiplier = colorTransform.redMultiplier;
-          transfarm.greenMultiplier = colorTransform.greenMultiplier;
-          transfarm.blueMultiplier = colorTransform.blueMultiplier;
-          transfarm.redOffset = colorTransform.redOffset;
-          transfarm.greenOffset = colorTransform.greenOffset;
-          transfarm.blueOffset = colorTransform.blueOffset;
-          transfarm.alphaOffset = colorTransform.alphaOffset;
-          transfarm.alphaMultiplier = colorTransform.alphaMultiplier * camera.alpha;
+        var transforms:Array<ColorTransform> = [];
+        var transfarm:ColorTransform = new ColorTransform();
+        transfarm.redMultiplier = colorTransform.redMultiplier;
+        transfarm.greenMultiplier = colorTransform.greenMultiplier;
+        transfarm.blueMultiplier = colorTransform.blueMultiplier;
+        transfarm.redOffset = colorTransform.redOffset;
+        transfarm.greenOffset = colorTransform.greenOffset;
+        transfarm.blueOffset = colorTransform.blueOffset;
+        transfarm.alphaOffset = colorTransform.alphaOffset;
+        transfarm.alphaMultiplier = colorTransform.alphaMultiplier * camera.alpha;
 
-          for (n in 0...vertices.length)
-            transforms.push(transfarm);
+        for (n in 0...vertices.length)
+          transforms.push(transfarm);
 
-          var drawItem = camera.startTrianglesBatch(newGraphic, antialiasing, true, blend, true, shader);
+        var drawItem = camera.startTrianglesBatch(newGraphic, antialiasing, true, blend, true, shader);
 
-          @:privateAccess
-          {
-            drawItem.addTrianglesColorArray(vertices, indices, uvtData, null, _point, camera._bounds, transforms);
-        }*/
+        @:privateAccess
+        {
+          drawItem.addTrianglesColorArray(vertices, indices, uvtData, null, _point, camera._bounds, transforms);
+        }
 
-        camera.drawTriangles(newGraphic, vertices, indices, uvtData, null, _point, blend, true, antialiasing, colorTransform, shader);
+        // camera.drawTriangles(newGraphic, vertices, indices, uvtData, null, _point, blend, true, antialiasing, colorTransform, shader);
         // camera.drawTriangles(processedGraphic, vertices, indices, uvtData, null, _point, blend, true, antialiasing);
         // trace("we do be drawin... something?\n verts: \n" + vertices);
       }
@@ -939,7 +957,7 @@ class Note extends ModchartArrow implements ICloneable<Note>
     }
   }
 
-  function mapData():FlxGraphic
+  public function mapData():FlxGraphic
   {
     if (gpix == null || alpha != oalp || !animation.curAnim.finished || oanim != animation.curAnim.name)
     {
@@ -984,6 +1002,12 @@ class Note extends ModchartArrow implements ICloneable<Note>
     return gpix;
   }
 
+  public function validTime(rate:Float = 1, ?ignoreMultSpeed:Bool = false):Bool
+  {
+    final time:Float = (spawnTime * rate) / (noteScrollSpeed < 1 ? noteScrollSpeed : 1) / (!ignoreMultSpeed && multSpeed < 1 ? multSpeed : 1);
+    return (strumTime - Conductor.songPosition < time);
+  }
+
   @:noCompletion
   override function set_clipRect(rect:FlxRect):FlxRect
   {
@@ -996,7 +1020,18 @@ class Note extends ModchartArrow implements ICloneable<Note>
 
   override public function clone():Note
   {
-    return new Note(this.strumTime, this.noteData, this.isSustainNote, this.noteSkin, this.prevNote);
+    return new Note(
+      {
+        strumTime: this.strumTime,
+        noteData: this.noteData,
+        isSustainNote: this.isSustainNote,
+        noteSkin: this.noteSkin,
+        prevNote: this.prevNote,
+        createdFrom: null,
+        scrollSpeed: this.noteScrollSpeed,
+        parentStrumline: this.parentStrumline,
+        inEditor: this.inEditor
+      });
   }
 
   override public function destroy()

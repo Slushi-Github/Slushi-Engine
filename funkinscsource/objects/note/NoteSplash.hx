@@ -49,7 +49,8 @@ class NoteSplash extends FunkinSCSprite
 
   function get_containedPixelTexture():Bool
   {
-    return (skin.contains('pixel') || babyArrow.texture.contains('pixel') || styleChoice.contains('pixel'));
+    var isPixel:Bool = (skin.contains('pixel') || babyArrow.texture.contains('pixel') || styleChoice.contains('pixel'));
+    return isPixel;
   }
 
   public var opponentSplashes:Bool = false;
@@ -68,66 +69,89 @@ class NoteSplash extends FunkinSCSprite
 
     this.opponentSplashes = opponentSplashes;
 
-    if (splash == null) skin = getTexture(opponentSplashes);
+    if (splash == null) splash = getTexture(opponentSplashes);
 
     rgbShader = new RGBPixelShaderReference();
     shader = rgbShader.shader;
     loadSplash(splash, opponentSplashes);
   }
 
-  function loadSplash(?splash:String, ?opponentSplashes:Bool = false)
+  public function loadSplash(?splash:String, ?opponentSplashes:Bool = false)
   {
     config = null; // Reset config to the default so when reloaded it can be set properly
     skin = null;
 
-    var skin:String = splash;
-
-    if (skin == null || skin.length < 1) skin = try getTexture(opponentSplashes)
-    catch (e) null;
-
-    this.skin = skin;
-
+    var stop:Bool = false;
+    var splashSkin:String = splash;
     try
-      frames = Paths.getSparrowAtlas(skin)
+    {
+      frames = Paths.getSparrowAtlas(splashSkin);
+      this.skin = splashSkin;
+    }
     catch (e)
     {
-      active = visible = false;
+      splashSkin = getTexture(opponentSplashes);
+      this.skin = splashSkin;
+      try
+      {
+        frames = Paths.getSparrowAtlas(splashSkin);
+      }
+      catch (e)
+      {
+        splashSkin = DEFAULT_SKIN + getSplashSkinPostfix();
+        this.skin = splashSkin; // Fail Safe
+        try
+        {
+          frames = Paths.getSparrowAtlas(skin);
+        }
+        catch (e)
+        {
+          active = visible = false;
+          stop = true;
+        }
+      }
     }
 
-    var path:String = chooseSplashPath(skin);
-    if (configs.exists(path)) this.config = configs.get(path);
-    else if (Paths.exists(path))
+    final configPath:String = chooseSplashPath(skin);
+
+    if (!stop && configPath != null && configPath.length > 0)
     {
-      var config:Dynamic = haxe.Json.parse(Paths.getTextFromFile(path));
-
-      if (config != null)
+      if (configs.exists(configPath)) this.config = configs.get(configPath);
+      else if (Paths.fileExists(configPath, TEXT))
       {
-        var tempConfig:NoteSplashConfig =
-          {
-            animations: new Map(),
-            scale: config.scale,
-            allowRGB: config.allowRGB,
-            allowPixel: config.allowPixel,
-            rgb: config.rgb
-          }
-        for (i in Reflect.fields(config.animations))
+        var parseItem = Paths.getTextFromFile(configPath);
+        if (parseItem != null)
         {
-          tempConfig.animations.set(i, Reflect.field(config.animations, i));
-        }
+          var config:Dynamic = haxe.Json.parse(parseItem);
 
-        this.config = tempConfig;
+          if (config != null)
+          {
+            var tempConfig:NoteSplashConfig =
+              {
+                animations: new Map(),
+                scale: config.scale,
+                allowRGB: config.allowRGB,
+                allowPixel: config.allowPixel,
+                rgb: config.rgb
+              }
+            for (i in Reflect.fields(config.animations))
+            {
+              tempConfig.animations.set(i, Reflect.field(config.animations, i));
+            }
+
+            this.config = tempConfig;
+          }
+        }
       }
     }
   }
 
-  function chooseSplashPath(skin:String):String
+  function chooseSplashPath(newSkin:String):String
   {
-    var path:String = 'images/noteSplashes/$skin.json';
-    if (Paths.exists(path)) return path;
-    path = 'images/$skin.json';
-    if (Paths.exists(path)) return path;
-    path = '$skin.json';
-    if (Paths.exists(path)) return path;
+    if (Paths.fileExists('images/noteSplashes/$newSkin.json', TEXT)) return 'images/noteSplashes/$newSkin.json';
+    if (Paths.fileExists('images/$newSkin.json', TEXT)) return 'images/$newSkin.json';
+    if (Paths.fileExists('$newSkin.json', TEXT)) return '$newSkin.json';
+    Debug.logInfo('Failed to locate $newSkin.json, returning nothing');
     return null;
   }
 
@@ -151,28 +175,25 @@ class NoteSplash extends FunkinSCSprite
     {
       if (firstPath) finalSplashSkin = "noteSplashes-" + styleChoice;
       else if (secondPath) finalSplashSkin = "notes/noteSplashes-" + styleChoice;
-      else
+      else if (PlayState.SONG != null)
       {
-        if (PlayState.SONG != null)
-        {
-          if (PlayState.SONG.options.splashSkin != null
-            && PlayState.SONG.options.splashSkin.length > 0) finalSplashSkin = PlayState.SONG.options.splashSkin;
-          else
-            finalSplashSkin = PlayState.SONG.options.disableSplashRGB ? 'noteSplashes' : DEFAULT_SKIN + getSplashSkinPostfix();
-        }
+        if (PlayState.SONG.options.splashSkin != null
+          && PlayState.SONG.options.splashSkin.length > 0) finalSplashSkin = PlayState.SONG.options.splashSkin;
+        else
+          finalSplashSkin = PlayState.SONG.options.disableSplashRGB ? 'noteSplashes_vanilla' : DEFAULT_SKIN + getSplashSkinPostfix();
       }
     }
+    if (finalSplashSkin == null) finalSplashSkin = DEFAULT_SKIN + getSplashSkinPostfix();
     return finalSplashSkin;
   }
 
-  public dynamic function spawnSplashNote(note:Note, ?noteData:Int, ?opponentSplashes:Bool = false, ?randomize:Bool = true)
+  public dynamic function spawnSplashNote(note:Note, ?noteData:Null<Int>, ?opponentSplashes:Bool = false, ?randomize:Bool = true)
   {
     if (getTexture(opponentSplashes, note) != null) loadSplash(getTexture(opponentSplashes, note));
 
     if (note != null && note.noteSplashData.disabled) return;
     if (babyArrow != null) setPosition(babyArrow.x, babyArrow.y); // To prevent it from being misplaced for one game tick
 
-    var noteData:Null<Int> = noteData;
     if (noteData == null) noteData = note != null ? note.noteData : 0;
 
     if (randomize)
@@ -182,7 +203,7 @@ class NoteSplash extends FunkinSCSprite
       var animArray:Array<Int> = [];
       while (true)
       {
-        var data:Int = noteData % 4 + (datas * 4);
+        var data:Int = noteData % Note.colArray.length + (datas * Note.colArray.length);
         if (!noteDataMap.exists(data) || !animation.exists(noteDataMap[data])) break;
         datas++;
         anims++;
@@ -191,13 +212,16 @@ class NoteSplash extends FunkinSCSprite
       {
         for (i in 0...anims)
         {
-          var data = noteData % 4 + (i * 4);
+          var data = noteData % Note.colArray.length + (i * Note.colArray.length);
           if (!animArray.contains(data)) animArray.push(data);
         }
       }
 
       if (animArray.length > 1) noteData = animArray[FlxG.random.bool() ? 0 : 1];
     }
+
+    this.noteData = noteData;
+    var anim:String = playDefaultAnim();
 
     var anim:String = null;
     function playDefaultAnim(playAnim:Bool = true)
@@ -217,15 +241,21 @@ class NoteSplash extends FunkinSCSprite
     var tempShader:RGBPalette = null;
     if (config.allowRGB)
     {
-      if (note == null) note = new Note(0, noteData, false, "");
-      Note.initializeGlobalRGBShader(noteData % 4);
+      if (note == null) note = new Note(
+        {
+          strumTime: 0,
+          noteData: noteData,
+          isSustainNote: false,
+          noteSkin: ""
+        });
+      Note.initializeGlobalRGBShader(noteData % Note.colArray.length);
       function useDefault()
       {
-        tempShader = Note.globalRgbShaders[noteData % 4];
+        tempShader = Note.globalRgbShaders[noteData % Note.colArray.length];
       }
 
       if (((cast FlxG.state) is NoteSplashEditorState)
-        || ((note.noteSplashData.useRGBShader) && (PlayState.SONG == null || !PlayState.SONG.options.disableNoteRGB)))
+        || ((note.noteSplashData.useRGBShader) && (PlayState.SONG == null || !PlayState.SONG.options.disableSplashRGB)))
       {
         // If Note RGB is enabled:
         if ((!note.noteSplashData.useGlobalShader || ((cast FlxG.state) is NoteSplashEditorState)))
@@ -238,8 +268,8 @@ class NoteSplash extends FunkinSCSprite
             {
               if (i > 2) break;
 
-              var arr:Array<FlxColor> = ClientPrefs.data.arrowRGB[noteData % 4];
-              if (PlayState.isPixelStage) arr = ClientPrefs.data.arrowRGBPixel[noteData % 4];
+              var arr:Array<FlxColor> = ClientPrefs.data.arrowRGB[noteData % Note.colArray.length];
+              if (PlayState.isPixelStage) arr = ClientPrefs.data.arrowRGBPixel[noteData % Note.colArray.length];
               var rgb = colors[i];
               if (rgb == null)
               {
@@ -263,13 +293,19 @@ class NoteSplash extends FunkinSCSprite
               else if (i == 2) tempShader.b = color;
             }
           }
-          else
-            useDefault();
+          else if (note != null)
+          {
+            if (note.noteSplashData.r != -1) note.rgbShader.r = note.noteSplashData.r;
+            if (note.noteSplashData.g != -1) note.rgbShader.g = note.noteSplashData.g;
+            if (note.noteSplashData.b != -1) note.rgbShader.b = note.noteSplashData.b;
+            tempShader = note.rgbShader.parent;
+          }
         }
         else
           useDefault();
       }
     }
+    if (config.allowPixel) rgbShader.containsPixel = containedPixelTexture || PlayState.isPixelStage;
     if (!config.allowPixel) rgbShader.containsPixel = false;
     rgbShader.copyValues(tempShader);
     if (!config.allowPixel) rgbShader.pixelSize = 1;
@@ -307,6 +343,17 @@ class NoteSplash extends FunkinSCSprite
       offset.x += -58;
       offset.y += -55;
     }
+  }
+
+  public var noteData:Int = 0;
+
+  public function playDefaultAnim()
+  {
+    var animation:String = noteDataMap.get(noteData);
+    if (animation != null && this.animation.exists(animation)) this.animation.play(animation, true);
+    else
+      visible = false;
+    return animation;
   }
 
   public static function getSplashSkinPostfix()

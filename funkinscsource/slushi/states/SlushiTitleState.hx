@@ -59,6 +59,8 @@ class SlushiTitleState extends MusicBeatState
 		#end
 		Mods.loadTopMod();
 
+		// new slushi.wiiUGamepad.MiisendUServer(); // ?
+
 		if (Main.checkGJKeysAndId())
 		{
 			GameJoltAPI.connect();

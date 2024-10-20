@@ -10,8 +10,6 @@ import backend.Highscore;
 // import backend.Debug;
 import lime.app.Application;
 
-import slushi.states.SlushiTitleState;
-
 class Init extends FlxState
 {
   public static var mouseCursor:FlxSprite;
@@ -19,7 +17,6 @@ class Init extends FlxState
   override function create()
   {
     FlxTransitionableState.skipNextTransOut = true;
-    Paths.clearStoredMemory();
 
     // Run this first so we can see logs.
     Debug.onInitProgram();
@@ -102,7 +99,7 @@ class Init extends FlxState
     // Finish up loading debug tools.
     Debug.onGameStart();
 
-     // Load Slushi Engine initial functions
+    // Load Slushi Engine initial functions
 		SlushiMain.loadSlushiEngineFunctions();
 
     if (Main.checkGJKeysAndId())
@@ -113,8 +110,6 @@ class Init extends FlxState
 
     if (ClientPrefs.data.gjUser.toLowerCase() == 'glowsoony') FlxG.scaleMode = new flixel.system.scaleModes.FillScaleMode();
 
-    if (FlxG.save.data != null && FlxG.save.data.fullscreen) FlxG.fullscreen = FlxG.save.data.fullscreen;
-
-    FlxG.switchState(new SlushiTitleState());
+    FlxG.switchState(new slushi.states.SlushiTitleState());
   }
 }

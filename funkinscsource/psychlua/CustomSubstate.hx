@@ -42,7 +42,6 @@ class CustomSubstate extends MusicBeatSubState
     if (instance != null)
     {
       PlayState.instance.closeSubState();
-      instance = null;
       return true;
     }
     return false;
@@ -52,7 +51,7 @@ class CustomSubstate extends MusicBeatSubState
   {
     if (instance != null)
     {
-      var tagObject:FlxObject = cast(MusicBeatState.getVariables(), FlxObject);
+      var tagObject:FlxObject = MusicBeatState.variableMap(tag).get(tag);
       if (tagObject != null)
       {
         if (pos < 0) instance.add(tagObject);
@@ -96,6 +95,7 @@ class CustomSubstate extends MusicBeatSubState
   override function destroy()
   {
     PlayState.instance.callOnScripts('onCustomSubstateDestroy', [name]);
+    instance = null;
     name = 'unnamed';
 
     PlayState.instance.setOnHScript('customSubstate', null);

@@ -53,6 +53,8 @@ class Main extends Sprite
     // utils.logging.CrashHandler.queryStatus();
     // #end
 
+    // WindowsFuncs.initThreadForWindowRespondingHandler();
+
     setupGame();
   }
 

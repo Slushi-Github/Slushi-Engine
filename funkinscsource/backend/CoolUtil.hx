@@ -169,11 +169,12 @@ class CoolUtil
     {
       for (row in 0...sprite.frameHeight)
       {
-        var colorOfThisPixel:Int = sprite.pixels.getPixel32(col, row);
-        if (colorOfThisPixel != 0)
+        var colorOfThisPixel:FlxColor = sprite.pixels.getPixel32(col, row);
+        if (colorOfThisPixel.alphaFloat > 0.05)
         {
-          if (countByColor.exists(colorOfThisPixel)) countByColor[colorOfThisPixel] = countByColor[colorOfThisPixel] + 1;
-          else if (countByColor[colorOfThisPixel] != 13520687 - (2 * 13520687)) countByColor[colorOfThisPixel] = 1;
+          colorOfThisPixel = FlxColor.fromRGB(colorOfThisPixel.red, colorOfThisPixel.green, colorOfThisPixel.blue, 255);
+          var count:Int = countByColor.exists(colorOfThisPixel) ? countByColor[colorOfThisPixel] : 0;
+          countByColor[colorOfThisPixel] = count + 1;
         }
       }
     }
@@ -181,11 +182,11 @@ class CoolUtil
     var maxCount = 0;
     var maxKey:Int = 0; // after the loop this will store the max color
     countByColor[FlxColor.BLACK] = 0;
-    for (key in countByColor.keys())
+    for (key => count in countByColor)
     {
-      if (countByColor[key] >= maxCount)
+      if (count >= maxCount)
       {
-        maxCount = countByColor[key];
+        maxCount = count;
         maxKey = key;
       }
     }
@@ -195,7 +196,7 @@ class CoolUtil
 
   inline public static function numberArray(max:Int, ?min:Int = 0):Array<Int>
   {
-    return [for (i in min...max) i];
+    return [for (i in min...max + 1) i];
   }
 
   inline public static function browserLoad(site:String)
@@ -457,5 +458,34 @@ class CoolUtil
     var blue = b_ov * (a_ov / 255) + b_bg * (1 - (a_ov / 255));
 
     return (Std.int(alpha) << 24) | (Std.int(red) << 16) | (Std.int(green) << 8) | Std.int(blue);
+  }
+
+  public static function recursivelyReadFolders(path:String, ?erasePath:Bool = true)
+  {
+    var ret:Array<String> = [];
+    for (i in FileSystem.readDirectory(path))
+    {
+      returnFileName(i, ret, path);
+    }
+    if (erasePath)
+    {
+      path += '/';
+      for (i in 0...ret.length)
+      {
+        ret[i] = ret[i].replace(path, '');
+      }
+    }
+    return ret;
+  }
+
+  static function returnFileName(path:String, toAdd:Array<String>, full:String)
+  {
+    if (FileSystem.isDirectory(full + '/' + path))
+    {
+      for (i in FileSystem.readDirectory(full + '/' + path))
+        returnFileName(i, toAdd, full + '/' + path);
+    }
+    else
+      toAdd.push((full + '/' + path).replace('.json', ''));
   }
 }

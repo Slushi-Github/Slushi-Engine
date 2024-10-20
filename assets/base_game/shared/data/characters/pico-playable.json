@@ -61,7 +61,7 @@
       "offsets": [-45, 50],
       "anim": "singRIGHTmiss",
       "fps": 24,
-      "name": "Pico NOTE LEFT Miss",
+      "name": "Pico NOTE LEFT miss",
       "indices": []
     },
     {
@@ -69,7 +69,7 @@
       "offsets": [83, 28],
       "anim": "singLEFTmiss",
       "fps": 24,
-      "name": "Pico Note Right miss",
+      "name": "Pico Note Right Miss",
       "indices": []
     },
     {

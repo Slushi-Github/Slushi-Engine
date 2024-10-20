@@ -1,4 +1,5 @@
 #if !macro
+
 import lime.app.Application;
 import openfl.Lib;
 // Windows things
@@ -9,14 +10,15 @@ import slushi.windows.WindowsCPP.MessageBoxIcon;
 import slushi.windows.WindowsFuncs;
 import slushi.windows.WinConsoleUtils;
 #end
-// Window, main of the engine and other things
+// Window, main class of the engine and other things
 import slushi.windowThings.WindowFuncs;
 import slushi.SlushiMain;
 import slushi.slushiUtils.SlushiDebugText.*;
 import slushi.slushiUtils.*;
-import slushi.slushiEngineHUD.SlushiEngineHUD;
+import slushi.slushiUtils.SlushiEngineHUD;
 import slushi.slushiUtils.LyricsUtils;
 import slushi.others.CustomFuncs;
+import flixel.tweens.misc.NumTween;
 // Use own Debug class
 import slushi.slushiUtils.Debug.*;
 import slushi.slushiUtils.Debug;
@@ -25,7 +27,7 @@ import shaders.FunkinSourcedShaders;
 import openfl.display.Shader;
 import openfl.filters.BitmapFilter;
 import openfl.filters.ShaderFilter;
-import shaders.FunkinSourcedShaders.ShaderBase;
+import shaders.ShaderBase;
 /////////////////////////////////////////
 
 #if sys
@@ -86,7 +88,6 @@ import flixel.util.FlxStringUtil;
 import flixel.text.FlxText;
 import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
-import flixel.tweens.misc.NumTween;
 import flixel.group.FlxSpriteGroup;
 import flixel.group.FlxGroup;
 import flixel.group.FlxGroup.FlxTypedGroup;

@@ -8,20 +8,14 @@ import psychlua.FunkinLua;
 #end
 #if HSCRIPT_ALLOWED
 import crowplexus.iris.Iris;
-
-typedef IrisCall =
-{
-  var methodName:String;
-  var methodReturn:Dynamic;
-  var methodVal:Dynamic;
-};
+import crowplexus.hscript.Expr.Error as IrisError;
 
 class HScript extends Iris
 {
   public var isHxStage:Bool = false;
   public var filePath:String;
   public var modFolder:String;
-
+  public var returnValue:Dynamic = null;
   #if LUA_ALLOWED
   public var parentLua:FunkinLua;
 
@@ -35,36 +29,57 @@ class HScript extends Iris
     }
   }
 
-  public static function initHaxeModuleCode(parent:FunkinLua, code:String, ?varsToBring:Any = null)
+  public function errorCaught(e:IrisError, ?funcName:String)
   {
-    var hs:HScript = try parent.hscript
-    catch (e) null;
-    if (hs == null)
-    {
-      Debug.logInfo('Found Nulled initializing haxe interp for: ${parent.scriptName}');
-      parent.hscript = new HScript(parent, code, varsToBring);
-    }
-    else
-    {
-      hs.varsToBring = varsToBring;
-      try
-      {
-        hs.scriptStr = code;
-        hs.execute();
-      }
-      catch (e:Dynamic)
-      {
-        FunkinLua.luaTrace('ERROR (${hs.origin}) - $e', false, false, FlxColor.RED);
-      }
-    }
+    var header:String = (funcName != null ? '$origin: $funcName' : origin);
+    #if LUA_ALLOWED
+    FunkinLua.luaTrace('ERROR ($header) - ${e.toString()}', false, false, FlxColor.RED);
+    #else
+    hscriptTrace('ERROR ($header) - ${e.toString()}', FlxColor.RED);
+    #end
   }
-  #end
 
   public static function hscriptTrace(text:String, color:FlxColor = FlxColor.WHITE)
   {
     if (states.PlayState.instance != null) states.PlayState.instance.addTextToDebug(text, color);
     Debug.logInfo(text);
   }
+
+  public static function initHaxeModuleCode(parent:FunkinLua, code:String, ?varsToBring:Any = null, ?isHxStage:Bool = false)
+  {
+    var hs:HScript = try parent.hscript
+    catch (e) null;
+    if (hs == null)
+    {
+      trace('initializing haxe interp for: ${parent.scriptName}');
+      parent.hscript = new HScript(parent, code, varsToBring, isHxStage);
+      return parent.hscript.returnValue;
+    }
+    else
+    {
+      hs.varsToBring = varsToBring;
+      var prevCode:String = hs.scriptCode;
+      try
+      {
+        if (hs.scriptCode != code)
+        {
+          hs.scriptCode = code;
+          hs.parse(true);
+        }
+        hs.returnValue = hs.execute();
+        return hs.returnValue;
+      }
+      catch (e:IrisError)
+      {
+        hs.errorCaught(e);
+        hs.returnValue = null;
+        hs.scriptCode = prevCode;
+        return e;
+      }
+    }
+    return null;
+  }
+  #end
 
   public var origin:String;
 
@@ -74,7 +89,7 @@ class HScript extends Iris
 
     this.isHxStage = isHxStage;
 
-    super(null, {name: "hscript-iris", autoRun: false, preset: false});
+    super(null, {name: "hscript-iris", autoRun: false, autoPreset: false});
     #if LUA_ALLOWED
     parentLua = parent;
     if (parent != null)
@@ -84,7 +99,7 @@ class HScript extends Iris
     }
     #end
     filePath = file;
-    if (filePath != null && filePath.length > 0)
+    if (filePath != null && filePath.length > 0 && parent == null)
     {
       this.origin = filePath;
       #if MODS_ALLOWED
@@ -94,7 +109,6 @@ class HScript extends Iris
         this.modFolder = myFolder[1];
       #end
     }
-
     var scriptThing:String = file;
     if (parent == null && file != null)
     {
@@ -104,11 +118,19 @@ class HScript extends Iris
         scriptThing = File.getContent(f);
       }
     }
-    this.scriptStr = scriptThing;
-
     preset();
-    execute();
+    this.scriptCode = scriptThing;
     this.varsToBring = varsToBring;
+    try
+    {
+      this.returnValue = execute();
+    }
+    catch (e:IrisError)
+    {
+      this.errorCaught(e);
+      this.returnValue = null;
+      this.returnValue = e;
+    }
   }
 
   var varsToBring(default, set):Any = null;
@@ -117,8 +139,14 @@ class HScript extends Iris
   {
     super.preset();
 
-    // CLASSES (HAXE)
     set('Type', Type);
+    set('Reflect', Reflect);
+    #if sys
+    set('File', sys.io.File);
+    set('FileSystem', sys.FileSystem);
+    #end
+
+    // CLASSES (HAXE)
     set('Math', Math);
     set('Std', Std);
     set('Date', Date);
@@ -195,18 +223,18 @@ class HScript extends Iris
     set('AttachedText', objects.AttachedText);
 
     // Functions & Variables
-    set('setVar', function(name:String, value:Dynamic) {
-      MusicBeatState.getVariables().set(name, value);
+    set('setVar', function(name:String, value:Dynamic, ?type:String = "Custom") {
+      MusicBeatState.getVariables(type).set(name, value);
     });
-    set('getVar', function(name:String) {
+    set('getVar', function(name:String, ?type:String = "Custom") {
       var result:Dynamic = null;
-      if (MusicBeatState.getVariables().exists(name)) result = MusicBeatState.getVariables().get(name);
+      if (MusicBeatState.getVariables(type).exists(name)) result = MusicBeatState.getVariables(type).get(name);
       return result;
     });
-    set('removeVar', function(name:String) {
-      if (MusicBeatState.getVariables().exists(name))
+    set('removeVar', function(name:String, ?type:String = "Custom") {
+      if (MusicBeatState.getVariables(type).exists(name))
       {
-        MusicBeatState.getVariables().remove(name);
+        MusicBeatState.getVariables(type).remove(name);
         return true;
       }
       return false;
@@ -405,8 +433,8 @@ class HScript extends Iris
       set('getSwagBack', function(id:String) return Stage.instance.swagBacks.get(id));
       set('setSlowBacks', function(id:Dynamic, sprite:Array<FlxSprite>) Stage.instance.slowBacks.set(id, sprite));
       set('getSlowBacks', function(id:Dynamic) return Stage.instance.slowBacks.get(id));
-      set('setSwagGroup', function(id:String, group:FlxTypedGroup<Dynamic>) Stage.instance.swagGroup.set(id, group));
-      set('getSwagGroup', function(id:String) return Stage.instance.swagGroup.get(id));
+      set('setSwagGroup', function(id:String, group:FlxTypedGroup<Dynamic>) Stage.instance.swagGroups.set(id, group));
+      set('getSwagGroup', function(id:String) return Stage.instance.swagGroups.get(id));
       set('animatedBacks', function(id:FlxSprite) Stage.instance.animatedBacks.push(id));
       set('animatedBacks2', function(id:FlxSprite) Stage.instance.animatedBacks2.push(id));
       set('useSwagBack', function(id:String) return Stage.instance.swagBacks[id]);
@@ -448,7 +476,7 @@ class HScript extends Iris
     {
       #if (HSCRIPT_ALLOWED && HScriptImproved)
       set('doHSI', function(path:String) {
-        states.PlayState.instance.addScript(path);
+        states.PlayState.instance.addScript(path, CODENAME);
       });
       #end
       set('addBehindGF', states.PlayState.instance.addBehindGF);
@@ -468,25 +496,25 @@ class HScript extends Iris
     });
 
     FlxG.signals.focusGained.add(function() {
-      call("focusGained", []);
+      executeFunction("focusGained", []);
     });
     FlxG.signals.focusLost.add(function() {
-      call("focusLost", []);
+      executeFunction("focusLost", []);
     });
     FlxG.signals.gameResized.add(function(w:Int, h:Int) {
-      call("gameResized", [w, h]);
+      executeFunction("gameResized", [w, h]);
     });
     FlxG.signals.postDraw.add(function() {
-      call("postDraw", []);
+      executeFunction("postDraw", []);
     });
     FlxG.signals.postGameReset.add(function() {
-      call("postGameReset", []);
+      executeFunction("postGameReset", []);
     });
     FlxG.signals.postGameStart.add(function() {
-      call("postGameStart", []);
+      executeFunction("postGameStart", []);
     });
     FlxG.signals.postStateSwitch.add(function() {
-      call("postStateSwitch", []);
+      executeFunction("postStateSwitch", []);
     });
 
     set('parseJson', function(directory:String, ?ignoreMods:Bool = false):{} {
@@ -514,30 +542,27 @@ class HScript extends Iris
   public function executeCode(?funcToRun:String = null, ?funcArgs:Array<Dynamic> = null):IrisCall
   {
     if (funcToRun == null) return null;
-
     if (!exists(funcToRun))
     {
       #if LUA_ALLOWED
       FunkinLua.luaTrace(origin + ' - No function named: $funcToRun', false, false, FlxColor.RED);
       #else
-      states.PlayState.instance.addTextToDebug(origin + ' - No function named: $funcToRun', FlxColor.RED);
+      hscriptTrace(origin + ' - No function named: $funcToRun', FlxColor.RED);
       #end
       return null;
     }
-
     try
     {
-      final callValue:IrisCall = call(funcToRun, funcArgs);
-      return callValue.methodVal;
+      return call(funcToRun, funcArgs);
     }
-    catch (e:Dynamic)
+    catch (e:IrisError)
     {
-      Debug.logInfo('ERROR ${funcToRun}: $e');
+      errorCaught(e, funcToRun);
     }
     return null;
   }
 
-  public function executeFunction(funcToRun:String = null, funcArgs:Array<Dynamic>):IrisCall
+  public function executeFunction(funcToRun:String = null, funcArgs:Array<Dynamic> = null):IrisCall
   {
     if (funcToRun == null || !exists(funcToRun)) return null;
     return call(funcToRun, funcArgs);
@@ -547,21 +572,25 @@ class HScript extends Iris
   public static function implement(funk:FunkinLua)
   {
     funk.addLocalCallback("runHaxeCode",
-      function(codeToRun:String, ?varsToBring:Any = null, ?funcToRun:String = null, ?funcArgs:Array<Dynamic> = null):IrisCall {
+      function(codeToRun:String, ?varsToBring:Any = null, ?funcToRun:String = null, ?funcArgs:Array<Dynamic> = null):Dynamic {
         #if HSCRIPT_ALLOWED
-        initHaxeModuleCode(funk, codeToRun, varsToBring);
+        final retVal:Dynamic = initHaxeModuleCode(funk, codeToRun, varsToBring);
+        if (Std.isOfType(retVal, IrisError)) return null;
+        if (funcToRun == null)
+        {
+          return (LuaUtils.typeSupported(retVal)) ? retVal : null;
+        }
         try
         {
-          final retVal:IrisCall = funk.hscript.executeCode(funcToRun, funcArgs);
-          if (retVal != null)
+          final retCall:IrisCall = funk.hscript.executeCode(funcToRun, funcArgs);
+          if (retCall != null)
           {
-            return (retVal.methodVal == null
-              || LuaUtils.isOfTypes(retVal.methodVal, [Bool, Int, Float, String, Array])) ? retVal.methodVal : null;
+            return (LuaUtils.typeSupported(retCall.returnValue)) ? retCall.returnValue : null;
           }
         }
         catch (e:Dynamic)
         {
-          FunkinLua.luaTrace('ERROR (${funk.hscript.origin}: $funcToRun) - $e', false, false, FlxColor.RED);
+          funk.hscript.errorCaught(e, funcToRun);
         }
         #else
         FunkinLua.luaTrace("runHaxeCode: HScript isn't supported on this platform!", false, false, FlxColor.RED);
@@ -574,15 +603,11 @@ class HScript extends Iris
       try
       {
         final retVal:IrisCall = funk.hscript.executeFunction(funcToRun, funcArgs);
-        if (retVal != null)
-        {
-          return (retVal.methodVal == null
-            || LuaUtils.isOfTypes(retVal.methodVal, [Bool, Int, Float, String, Array])) ? retVal.methodVal : null;
-        }
+        if (retVal != null) return (LuaUtils.typeSupported(retVal.returnValue)) ? retVal.returnValue : null;
       }
       catch (e:Dynamic)
       {
-        FunkinLua.luaTrace('ERROR (${funk.hscript.origin}: $funcToRun) - $e', false, false, FlxColor.RED);
+        funk.hscript.errorCaught(e, funcToRun);
       }
       return null;
       #else
@@ -599,7 +624,7 @@ class HScript extends Iris
       var c:Dynamic = Type.resolveClass(str + libName);
       if (c == null) c = Type.resolveEnum(str + libName);
 
-      #if HScript
+      #if HSCRIPT_ALLOWED
       if (funk.hscript != null)
       {
         try
@@ -611,6 +636,7 @@ class HScript extends Iris
           FunkinLua.luaTrace(funk.hscript.origin + ":" + funk.lastCalledFunction + " - " + e, false, false, FlxColor.RED);
         }
       }
+      FunkinLua.luaTrace("addHaxeLibrary is deprecated! Import classes through \"import\" in HScript!", false, true);
       #else
       FunkinLua.luaTrace(funk.hscript.origin + ": addHaxeLibrary: HScript isn't supported on this platform!", false, false, FlxColor.RED);
       #end
@@ -640,7 +666,7 @@ class HScript extends Iris
   #if SCEModchartingTools
   public inline function initMod(mod:modcharting.Modifier)
   {
-    call("initMod", [mod]);
+    executeFunction("initMod", [mod]);
   }
   #end
 

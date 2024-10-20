@@ -164,4 +164,14 @@ class Constants
    * The separator between an asset library and the asset path.
    */
   public static final LIBRARY_SEPARATOR:String = ':';
+
+  // % Sick
+  public static final RANK_PERFECT_PLAT_THRESHOLD:Float = 1.0; // % Sick
+  public static final RANK_PERFECT_GOLD_THRESHOLD:Float = 0.85; // % Sick
+
+  // % Hit
+  public static final RANK_PERFECT_THRESHOLD:Float = 1.00;
+  public static final RANK_EXCELLENT_THRESHOLD:Float = 0.90;
+  public static final RANK_GREAT_THRESHOLD:Float = 0.80;
+  public static final RANK_GOOD_THRESHOLD:Float = 0.60;
 }

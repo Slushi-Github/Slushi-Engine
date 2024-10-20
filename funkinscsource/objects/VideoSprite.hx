@@ -58,7 +58,7 @@ class VideoSprite extends FlxSpriteGroup
     if (!shouldLoop)
     {
       videoSprite.bitmap.onEndReached.add(function() {
-        if (alreadyDestroyed) return;
+        if (this.alreadyDestroyed) return;
 
         Debug.logInfo('Video destroyed');
         if (cover != null)
@@ -98,17 +98,17 @@ class VideoSprite extends FlxSpriteGroup
     }
 
     Debug.logInfo('Video destroyed');
-    if (cover != null)
+    if (this.cover != null)
     {
-      remove(cover);
-      cover.destroy();
+      this.remove(this.cover);
+      this.cover.destroy();
     }
 
-    if (finishCallback != null) finishCallback();
+    if (this.finishCallback != null) finishCallback();
     onSkip = null;
 
     _videos.remove(this);
-    psychlua.LuaUtils.getTargetInstance().remove(this);
+    if (PlayState.instance != null) PlayState.instance.remove(this);
     super.destroy();
   }
 
@@ -131,7 +131,7 @@ class VideoSprite extends FlxSpriteGroup
         if (onSkip != null) onSkip();
         finishCallback = null;
         videoSprite.bitmap.onEndReached.dispatch();
-        psychlua.LuaUtils.getTargetInstance().remove(this);
+        if (PlayState.instance != null) PlayState.instance.remove(this);
         Debug.logInfo('Skipped video');
         return;
       }

@@ -223,18 +223,18 @@ class Script extends FlxBasic implements IFlxDestroyable
     set("playBFSing", true);
 
     // Functions & Variables
-    set('setVar', function(name:String, value:Dynamic) {
-      MusicBeatState.getVariables().set(name, value);
+    set('setVar', function(name:String, value:Dynamic, ?type:String = "Custom") {
+      MusicBeatState.getVariables(type).set(name, psychlua.ReflectionFunctions.parseSingleInstance(value));
     });
-    set('getVar', function(name:String) {
+    set('getVar', function(name:String, ?type:String = "Custom") {
       var result:Dynamic = null;
-      if (MusicBeatState.getVariables().exists(name)) result = MusicBeatState.getVariables().get(name);
+      if (MusicBeatState.getVariables(type).exists(name)) result = MusicBeatState.getVariables(type).get(name);
       return result;
     });
-    set('removeVar', function(name:String) {
-      if (MusicBeatState.getVariables().exists(name))
+    set('removeVar', function(name:String, ?type:String = "Custom") {
+      if (MusicBeatState.getVariables(type).exists(name))
       {
-        MusicBeatState.getVariables().remove(name);
+        MusicBeatState.getVariables(type).remove(name);
         return true;
       }
       return false;
@@ -543,10 +543,8 @@ class Script extends FlxBasic implements IFlxDestroyable
   /**
    * PRIVATE HANDLERS - DO NOT TOUCH
    */
-  private function onCall(func:String, parameters:Array<Dynamic>):Dynamic
-  {
+  private function onCall(func:String = null, parameters:Array<Dynamic> = null):Dynamic
     return null;
-  }
 
   public function onCreate(path:String) {}
 

@@ -11,7 +11,7 @@ import sys.io.File;
 class EngineMacros
 {
     #if macro
-    static var ENGINE_VERSION = "0.3.4";
+    static var ENGINE_VERSION = "0.3.8";
     static var CUSTOM_BUILD_NAME = "not defined";
 
     public static function initialize_compilation() {

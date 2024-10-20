@@ -2,10 +2,24 @@ package objects;
 
 import flixel.util.FlxSort;
 import flixel.util.FlxDestroyUtil;
+import flixel.graphics.frames.FlxAtlasFrames;
 import openfl.utils.Assets;
 import haxe.Json;
 import objects.stage.TankmenBG;
-import flixel.graphics.frames.FlxAtlasFrames;
+#if LUA_ALLOWED
+import psychlua.*;
+#else
+import psychlua.LuaUtils;
+import psychlua.HScript;
+#end
+#if (HSCRIPT_ALLOWED && HScriptImproved)
+import codenameengine.scripting.Script as HScriptCode;
+#end
+import shaders.FNFShader;
+#if HSCRIPT_ALLOWED
+import scripting.*;
+import crowplexus.iris.Iris;
+#end
 
 class Character extends FunkinSCSprite
 {
@@ -115,7 +129,7 @@ class Character extends FunkinSCSprite
   public var noteSkin:String;
 
   /**
-   * Custom sturm skin the overrides while playing unless its null.
+   * Custom strum skin the overrides while playing unless its null.
    */
   public var strumSkin:String;
 
@@ -243,7 +257,7 @@ class Character extends FunkinSCSprite
   public var noteSkinStyleOfCharacter:String = 'noteSkins/NOTE_assets';
 
   /**
-   * Sturm skin style of the character (really a backup for finding the original null).
+   * Strum skin style of the character (really a backup for finding the original null).
    */
   public var strumSkinStyleOfCharacter:String = 'noteSkins/NOTE_assets';
 
@@ -338,9 +352,42 @@ class Character extends FunkinSCSprite
    */
   public var useGFSpeed:Null<Bool> = false;
 
+  #if LUA_ALLOWED
+  /**
+   * Scripts the are lua for characters.
+   */
+  public var luaArray:Array<FunkinLua> = [];
+  #end
+
+  #if HSCRIPT_ALLOWED
+  /**
+   * Iris Scripts that are for characters.
+   */
+  public var hscriptArray:Array<psychlua.HScript> = [];
+
+  /**
+   * SCHS scripts that are for characters.
+   */
+  public var scHSArray:Array<scripting.SCScript> = [];
+
+  #if HScriptImproved
+  /**
+   * Codename Scripts the are for characters.
+   */
+  public var codeNameScripts:codenameengine.scripting.ScriptPack;
+  #end
+
+  #end
+  public var idleDances:IdleDances = null;
+  public var useIdleSequence:Bool = false;
+
   public function new(x:Float, y:Float, ?character:String = 'bf', ?isPlayer:Bool = false, ?characterType:CharacterType = OTHER)
   {
     super(x, y);
+
+    #if (HSCRIPT_ALLOWED && HScriptImproved)
+    if (codeNameScripts == null) (codeNameScripts = new codenameengine.scripting.ScriptPack("Character")).setParent(this);
+    #end
 
     switch (character)
     {
@@ -354,7 +401,7 @@ class Character extends FunkinSCSprite
       case 'pico-blazin', 'darnell-blazin':
         changeCharacter(character, isPlayer);
         stopIdle = false;
-				skipDance = true;
+        skipDance = true;
       default:
         changeCharacter(character, isPlayer);
     }
@@ -393,7 +440,7 @@ class Character extends FunkinSCSprite
     isPsychPlayer = false;
     // Finally a easier way to try-catch characters!
     // Load the data from JSON and cast it to a struct we can easily read.
-    var characterPath:String = 'data/characters/$curCharacter.json';
+    final characterPath:String = 'data/characters/$curCharacter.json';
     var path:String = Paths.getPath(characterPath, TEXT);
 
     if (#if MODS_ALLOWED !FileSystem.exists(path) && #end!Assets.exists(path))
@@ -426,7 +473,8 @@ class Character extends FunkinSCSprite
     originalFlipX = flipX;
 
     skipDance = false;
-    hasMissAnimations = hasOffsetAnimation('singLEFTmiss') || hasOffsetAnimation('singDOWNmiss') || hasOffsetAnimation('singUPmiss') || hasOffsetAnimation('singRIGHTmiss');
+    hasMissAnimations = hasOffsetAnimation('singLEFTmiss') || hasOffsetAnimation('singDOWNmiss') || hasOffsetAnimation('singUPmiss')
+      || hasOffsetAnimation('singRIGHTmiss');
     isDancing = hasOffsetAnimation('danceLeft') && hasOffsetAnimation('danceRight');
     doMissThing = !hasOffsetAnimation('singUPmiss'); // if for some reason you only have an up miss, why?
 
@@ -435,6 +483,9 @@ class Character extends FunkinSCSprite
     var flips:Bool = isPlayer ? (!curCharacter.startsWith('bf') && !isPsychPlayer) : (curCharacter.startsWith('bf') || isPsychPlayer); // Doesn't flip for BF, since his are already in the right place??? --When Player!
     // Flip for just bf --When Not Player!
     if (flips) flipAnims(true);
+
+    callOnScripts('onChangeCharacter', [curCharacter, isPlayer, characterType]);
+    callOnScripts('changeCharacter', [curCharacter, isPlayer, characterType]);
   }
 
   public dynamic function loadCharacterFile(json:Dynamic)
@@ -454,8 +505,8 @@ class Character extends FunkinSCSprite
     scale.set(1, 1);
     updateHitbox();
 
-    var defaultIfNotFoundArrowSkin:String = PlayState.SONG != null ? PlayState.SONG.options.arrowSkin : noteSkinStyleOfCharacter;
-    var defaultIfNotFoundStrumSkin:String = PlayState.SONG != null ? PlayState.SONG.options.strumSkin : strumSkinStyleOfCharacter;
+    final defaultIfNotFoundArrowSkin:String = PlayState.SONG != null ? PlayState.SONG.options.arrowSkin : noteSkinStyleOfCharacter;
+    final defaultIfNotFoundStrumSkin:String = PlayState.SONG != null ? PlayState.SONG.options.strumSkin : strumSkinStyleOfCharacter;
     noteSkin = (json.noteSkin != null ? json.noteSkin : defaultIfNotFoundArrowSkin);
     strumSkin = (json.strumSkin != null ? json.strumSkin : defaultIfNotFoundStrumSkin);
 
@@ -471,6 +522,20 @@ class Character extends FunkinSCSprite
     {
       setGraphicSize(Std.int(width * jsonGraphicScale));
       updateHitbox();
+    }
+
+    if (json.idleDances != null)
+    {
+      idleDances =
+        {
+          dances: json.idleDances.dances != null ? json.idleDances.dances : null,
+          idle: json.idleDances.idle != null ? json.idleDances.idle : null,
+          danceLR:
+            {
+              left: json.idleDances.danceLR.left != null ? json.idleDances.danceLR.left : null,
+              right: json.idleDances.danceLR.right != null ? json.idleDances.danceLR.right : null
+            }
+        }
     }
 
     // positioning
@@ -515,7 +580,7 @@ class Character extends FunkinSCSprite
     if (isPlayer && json.playerAnimations != null) animationsArray = json.playerAnimations;
 
     // Bound dancing varialbes
-    var defaultBeat:Int = Std.int(json.defaultBeat);
+    final defaultBeat:Int = Std.int(json.defaultBeat);
     idleBeat = (!Math.isNaN(defaultBeat) && defaultBeat != 0) ? defaultBeat : 1;
 
     if (json.useGFSpeed != null) useGFSpeed = json.useGFSpeed;
@@ -524,13 +589,13 @@ class Character extends FunkinSCSprite
     {
       for (anim in animationsArray)
       {
-        var animAnim:String = '' + anim.anim;
-        var animName:String = '' + anim.name;
-        var animFps:Int = anim.fps;
-        var animLoop:Bool = !!anim.loop; // Bruh
-        var animFlipX:Bool = !!anim.flipX;
-        var animFlipY:Bool = !!anim.flipY;
-        var animIndices:Array<Int> = anim.indices;
+        final animAnim:String = '' + anim.anim;
+        final animName:String = '' + anim.name;
+        final animFps:Int = anim.fps;
+        final animLoop:Bool = !!anim.loop; // Bruh
+        final animFlipX:Bool = !!anim.flipX;
+        final animFlipY:Bool = !!anim.flipY;
+        final animIndices:Array<Int> = anim.indices;
         if (!isAnimateAtlas)
         {
           if (animIndices != null && animIndices.length > 0) animation.addByIndices(animAnim, animName, animIndices, "", animFps, animLoop, animFlipX,
@@ -582,7 +647,11 @@ class Character extends FunkinSCSprite
       || (isAnimateAtlas && (atlas.anim.curInstance == null || atlas.anim.curSymbol == null)) #end
       || stoppedUpdatingCharacter)
     {
+      callOnScripts('onUpdate', [elapsed]);
+      callOnScripts('update', [elapsed]);
       super.update(elapsed);
+      callOnScripts('onUpdatePost', [elapsed]);
+      callOnScripts('updatePost', [elapsed]);
       return;
     }
 
@@ -665,38 +734,88 @@ class Character extends FunkinSCSprite
       }
     }
 
+    callOnScripts('onUpdate', [elapsed]);
+    callOnScripts('update', [elapsed]);
+
     super.update(elapsed);
+
+    callOnScripts('onUpdatePost', [elapsed]);
+    callOnScripts('updatePost', [elapsed]);
   }
 
   public var danced:Bool = false;
   public var stoppedDancing:Bool = false;
   public var stoppedUpdatingCharacter:Bool = false;
 
+  var danceIndex:Int = 0;
+
   public dynamic function dance(forced:Bool = false, altAnim:Bool = false)
   {
+    final result:Dynamic = callOnScripts('onDance', [forced, altAnim]);
+    final result2:Dynamic = callOnScripts('dance', [forced, altAnim]);
+
+    if (result == LuaUtils.Function_Stop || result2 == LuaUtils.Function_Stop) return;
     if (!ClientPrefs.data.characters) return;
     if (debugMode || stoppedDancing || skipDance || specialAnim || nonanimated || stopIdle) return;
+
     if (animation.curAnim != null)
     {
-      var canInterrupt = animInterrupt.get(animation.curAnim.name);
+      final canInterrupt:Bool = animInterrupt.get(animation.curAnim.name);
 
       if (canInterrupt)
       {
-        var animName:String = ''; // Flow the game!
-        if (isDancing)
+        if (idleDances == null)
         {
-          danced = !danced;
-          if (altAnim && hasOffsetAnimation('danceRight-alt') && hasOffsetAnimation('danceLeft-alt')) animName = 'dance${danced ? 'Right' : 'Left'}-alt';
+          var animName:String = ''; // Flow the game!
+          if (isDancing)
+          {
+            danced = !danced;
+            if (altAnim
+              && hasOffsetAnimation('danceRight-alt')
+              && hasOffsetAnimation('danceLeft-alt')) animName = 'dance${danced ? 'Right' : 'Left'}-alt';
+            else
+              animName = 'dance${(danced ? 'Right' : 'Left') + idleSuffix}';
+          }
           else
-            animName = 'dance${(danced ? 'Right' : 'Left') + idleSuffix}';
+          {
+            if (altAnim
+              && (hasOffsetAnimation('idle-alt') || hasOffsetAnimation('idle-alt2'))) animName = hasOffsetAnimation('idle-alt2') ? 'idle-alt2' : 'idle-alt';
+            else
+              animName = 'idle' + idleSuffix;
+          }
+          playAnim(animName, forced);
         }
         else
         {
-          if (altAnim && (hasOffsetAnimation('idle-alt') || hasOffsetAnimation('idle-alt2'))) animName = 'idle-alt';
+          var animName:String = ''; // Flow the game!
+          if (idleDances.dances != null)
+          {
+            // Code borrowed from Troll-Engine
+            if (idleDances.dances.length > 1)
+            {
+              danceIndex++;
+              if (danceIndex >= idleDances.dances.length) danceIndex = 0;
+            }
+            animName = idleDances.dances[danceIndex] + idleSuffix;
+          }
+          else if (isDancing && idleDances.danceLR.left != null && idleDances.danceLR.right != null)
+          {
+            danced = !danced;
+            if (altAnim
+              && hasOffsetAnimation('dance${idleDances.danceLR.right}-alt')
+              && hasOffsetAnimation('dance${idleDances.danceLR.left}-alt'))
+              animName = 'dance${danced ? idleDances.danceLR.right : idleDances.danceLR.left}-alt';
+            else
+              animName = 'dance${(danced ? idleDances.danceLR.right : idleDances.danceLR.left) + idleSuffix}';
+          }
           else
-            animName = 'idle' + idleSuffix;
+          {
+            if (altAnim && hasOffsetAnimation('${idleDances.idle}-alt')) animName = '${idleDances.idle}-alt';
+            else
+              animName = idleDances.idle + idleSuffix;
+          }
+          playAnim(animName, forced);
         }
-        playAnim(animName, forced);
       }
     }
 
@@ -707,7 +826,7 @@ class Character extends FunkinSCSprite
 
   public var doAffectForAnimationName:Bool = true;
 
-  public dynamic function doAffectForName(name:String)
+  public dynamic function doAffectForName(name:String):String
   {
     if (name.endsWith('alt') && !hasOffsetAnimation(name)) name = name.split('-')[0];
     if (name == 'laugh' && !hasOffsetAnimation(name)) name = 'singUP';
@@ -717,11 +836,13 @@ class Character extends FunkinSCSprite
       if (doMissThing) missed = true;
     }
 
-    if (hasOffsetAnimation(name)) // if it's STILL null, just play idle, and if you REALLY messed up, it'll look in the xml for a valid anim
+    if (!hasOffsetAnimation(name)) // if it's STILL null, just play idle, and if you REALLY messed up, it'll look in the xml for a valid anim
     {
       if (isDancing && hasOffsetAnimation('danceRight')) name = 'danceRight';
       else if (hasOffsetAnimation('idle')) name = 'idle';
     }
+
+    return name;
   }
 
   public var doAfterAffectForAnimationName:Bool = true;
@@ -738,7 +859,16 @@ class Character extends FunkinSCSprite
 
   override public function playAnim(AnimName:String, Force:Bool = false, Reversed:Bool = false, Frame:Int = 0):Void
   {
+    final result:Dynamic = callOnScripts('onPlayAnim', [AnimName, Force, Reversed, Frame]);
+    final result2:Dynamic = callOnScripts('playAnim', [AnimName, Force, Reversed, Frame]);
+    if (result == LuaUtils.Function_Stop || result2 == LuaUtils.Function_Stop) return;
+
     super.playAnim(AnimName, Force, Reversed, Frame);
+
+    final resultPost:Dynamic = callOnScripts('onPlayAnimPost', [AnimName, Force, Reversed, Frame]);
+    final resultPost2:Dynamic = callOnScripts('playAnimPost', [AnimName, Force, Reversed, Frame]);
+
+    if (resultPost == LuaUtils.Function_Stop || resultPost2 == LuaUtils.Function_Stop) return;
 
     if (!ClientPrefs.data.characters) return;
 
@@ -749,7 +879,7 @@ class Character extends FunkinSCSprite
 
     if (nonanimated || charNotPlaying) return;
 
-    if (doAffectForAnimationName) doAffectForName(AnimName);
+    if (doAffectForAnimationName) AnimName = doAffectForName(AnimName);
 
     if (!isAnimateAtlas) animation.play(AnimName, Force, Reversed, Frame);
     #if flxanimate
@@ -767,10 +897,7 @@ class Character extends FunkinSCSprite
       color = CoolUtil.blendColors(curColor, FlxColor.fromInt(0xFFCFAFFF));
       curColor = realCurColor;
     }
-    else if (color != curColor && doMissThing)
-    {
-      color = curColor;
-    }
+    else if (color != curColor && doMissThing) color = curColor;
 
     var daOffset = animOffsets.get(AnimName);
 
@@ -779,14 +906,17 @@ class Character extends FunkinSCSprite
     if (debugMode)
     {
       if ((hasOffsetAnimation(AnimName) && !isPlayer)
-        || (animPlayerOffsets.exists(AnimName) && isPlayer)) offset.set(daOffset[0] * scale.x * daZoom, daOffset[1] * scale.y * daZoom);
+        || (animPlayerOffsets.exists(AnimName) && isPlayer)) offset.set(daOffset[0] * daZoom, daOffset[1] * daZoom);
     }
     else
     {
-      if (hasOffsetAnimation(AnimName)) offset.set(daOffset[0] * scale.x * daZoom, daOffset[1] * scale.y * daZoom);
+      if (hasOffsetAnimation(AnimName)) offset.set(daOffset[0] * daZoom, daOffset[1] * daZoom);
     }
 
     if (doAfterAffectForAnimationName) doAfterAffectForName(AnimName);
+
+    callOnScripts('onPlayedAnim', [AnimName, Force, Reversed, Frame]);
+    callOnScripts('playedAnim', [AnimName, Force, Reversed, Frame]);
   }
 
   public dynamic function allowDance():Bool
@@ -825,23 +955,16 @@ class Character extends FunkinSCSprite
     var dancing:Bool = false;
     if (!useGFSpeed)
     {
-      if (beat % idleBeat == 0)
-      {
-        if (idleToBeat)
-          dancing = true;
-      }
-      else if (beat % idleBeat != 0)
-      {
-        if (isDancingType())
-          dancing = true;
-      }
+      if (beat % idleBeat == 0) dancing = idleToBeat;
+      else if (beat % idleBeat != 0) dancing = isDancingType();
       return dancing;
     }
-    else return (beat % gfSpeed == 0);
+    else
+      return (beat % gfSpeed == 0);
     return false;
   }
 
-  public function loadMappedAnims(json:String = '', tankManNotes:Bool = false):Void
+  public dynamic function loadMappedAnims(json:String = '', tankManNotes:Bool = false):Void
   {
     try
     {
@@ -854,7 +977,6 @@ class Character extends FunkinSCSprite
       }
       if (tankManNotes) TankmenBG.animationNotes = animationNotes;
       animationNotes.sort(sortAnims);
-      Debug.logInfo('note lengths ${animationNotes.length}');
     }
     catch (e:haxe.Exception)
     {
@@ -862,7 +984,7 @@ class Character extends FunkinSCSprite
     }
   }
 
-  public function sortAnims(Obj1:Array<Dynamic>, Obj2:Array<Dynamic>):Int
+  public dynamic function sortAnims(Obj1:Array<Dynamic>, Obj2:Array<Dynamic>):Int
   {
     return FlxSort.byValues(FlxSort.ASCENDING, Obj1[0], Obj2[0]);
   }
@@ -941,9 +1063,7 @@ class Character extends FunkinSCSprite
       visible = false;
     }
     else
-    {
       visible = vis;
-    }
   }
 
   public override function draw()
@@ -971,7 +1091,11 @@ class Character extends FunkinSCSprite
       return;
     }
     #end
+    callOnScripts('onDraw');
+    callOnScripts('draw');
     super.draw();
+    callOnScripts('onDrawPost');
+    callOnScripts('drawPost');
     if (missingCharacter && visible)
     {
       alpha = lastAlpha;
@@ -984,15 +1108,52 @@ class Character extends FunkinSCSprite
 
   override public function destroy()
   {
-    animOffsets.clear();
-    animInterrupt.clear();
-    animNext.clear();
-    animDanced.clear();
+    if (animOffsets != null) animOffsets.clear();
+    if (animInterrupt != null) animInterrupt.clear();
+    if (animNext != null) animNext.clear();
+    if (animDanced != null) animDanced.clear();
 
-    animationNotes.resize(0);
+    if (animationNotes != null && animationNotes.length > 0) animationNotes.resize(0);
 
     #if flxanimate
-    atlas = flixel.util.FlxDestroyUtil.destroy(atlas);
+    if (atlas != null) atlas = flixel.util.FlxDestroyUtil.destroy(atlas);
+    #end
+
+    #if LUA_ALLOWED
+    for (lua in luaArray)
+    {
+      lua.call('onDestroy', []);
+      lua.stop();
+    }
+    luaArray = null;
+    #end
+
+    #if HSCRIPT_ALLOWED
+    for (script in hscriptArray)
+      if (script != null)
+      {
+        script.executeFunction('onDestroy');
+        script.destroy();
+      }
+    hscriptArray = null;
+
+    for (script in scHSArray)
+      if (script != null)
+      {
+        script.executeFunc('onDestroy');
+        script.destroy();
+      }
+    scHSArray = null;
+
+    #if HScriptImproved
+    for (script in codeNameScripts.scripts)
+      if (script != null)
+      {
+        script.call('onDestroy');
+        script.destroy();
+      }
+    codeNameScripts = null;
+    #end
     #end
     super.destroy();
   }
@@ -1001,6 +1162,606 @@ class Character extends FunkinSCSprite
   {
     curColor = Color;
     return super.set_color(Color);
+  }
+
+  #if (LUA_ALLOWED || HSCRIPT_ALLOWED)
+  public function loadCharacterScript(name:String = "", preloading:Bool = false)
+  {
+    final scriptName:String = (name != null && name.length > 0) ? name : curCharacter;
+    #if LUA_ALLOWED
+    startLuasNamed('data/characters/' + scriptName, false);
+    #end
+    #if HSCRIPT_ALLOWED
+    startHScriptsNamed('data/characters/' + scriptName);
+    startSCHSNamed('data/characters/sc/' + scriptName);
+    #if HScriptImproved startHSIScriptsNamed('data/characters/advanced/' + scriptName); #end
+    #end
+  }
+  #end
+
+  #if LUA_ALLOWED
+  public function startLuasNamed(luaFile:String, ?preloading:Bool = false)
+  {
+    var scriptFilelua:String = luaFile + '.lua';
+    #if MODS_ALLOWED
+    var luaToLoad:String = Paths.modFolders(scriptFilelua);
+    if (!FileSystem.exists(luaToLoad)) luaToLoad = Paths.getSharedPath(scriptFilelua);
+
+    if (FileSystem.exists(luaToLoad))
+    #elseif sys
+    var luaToLoad:String = Paths.getSharedPath(scriptFilelua);
+    if (OpenFlAssets.exists(luaToLoad))
+    #end
+    {
+      for (script in luaArray)
+        if (script.scriptName == luaToLoad) return false;
+
+      new FunkinLua(luaToLoad, 'PLAYSTATE', preloading);
+      return true;
+    }
+    return false;
+  }
+  #end
+
+  #if HSCRIPT_ALLOWED
+  public function startHScriptsNamed(scriptFile:String)
+  {
+    for (extn in CoolUtil.haxeExtensions)
+    {
+      var scriptFileHx:String = scriptFile + '.$extn';
+      #if MODS_ALLOWED
+      var scriptToLoad:String = Paths.modFolders(scriptFileHx);
+      if (!FileSystem.exists(scriptToLoad)) scriptToLoad = Paths.getSharedPath(scriptFileHx);
+      #else
+      var scriptToLoad:String = Paths.getSharedPath(scriptFileHx);
+      #end
+
+      if (FileSystem.exists(scriptToLoad))
+      {
+        if (Iris.instances.exists(scriptToLoad)) return false;
+
+        initHScript(scriptToLoad);
+        return true;
+      }
+    }
+    return false;
+  }
+
+  public function initHScript(file:String)
+  {
+    var newScript:HScript = null;
+    try
+    {
+      var times:Float = Date.now().getTime();
+      newScript = new HScript(null, file);
+      newScript.executeFunction('onCreate');
+      hscriptArray.push(newScript);
+      Debug.logInfo('initialized Hscript interp successfully: $file (${Std.int(Date.now().getTime() - times)}ms)');
+    }
+    catch (e:Dynamic)
+    {
+      var newScript:HScript = cast(Iris.instances.get(file), HScript);
+      Debug.logInfo('ERROR ON LOADING ($file) - $e');
+
+      if (newScript != null) newScript.destroy();
+    }
+  }
+
+  public function startSCHSNamed(scriptFile:String)
+  {
+    for (extn in CoolUtil.haxeExtensions)
+    {
+      var scriptFileHx:String = scriptFile + '.$extn';
+      #if MODS_ALLOWED
+      var scriptToLoad:String = Paths.modFolders(scriptFileHx);
+      if (!FileSystem.exists(scriptToLoad)) scriptToLoad = Paths.getSharedPath(scriptFileHx);
+      #else
+      var scriptToLoad:String = Paths.getSharedPath(scriptFileHx);
+      #end
+
+      if (FileSystem.exists(scriptToLoad))
+      {
+        for (script in scHSArray)
+          if (script.hsCode.path == scriptToLoad) return false;
+
+        initSCHS(scriptToLoad);
+        return true;
+      }
+    }
+    return false;
+  }
+
+  public function initSCHS(file:String)
+  {
+    var newScript:SCScript = null;
+    try
+    {
+      var times:Float = Date.now().getTime();
+      newScript = new SCScript();
+      newScript.loadScript(file);
+      newScript.executeFunc('onCreate');
+      scHSArray.push(newScript);
+      Debug.logInfo('initialized SCHScript interp successfully: $file (${Std.int(Date.now().getTime() - times)}ms)');
+    }
+    catch (e:Dynamic)
+    {
+      var script:SCScript = null;
+      for (scripts in scHSArray)
+        if (scripts.hsCode.path == file) script = scripts;
+      var newScript:SCScript = script;
+      // addTextToDebug('ERROR ON LOADING ($file) - $e', FlxColor.RED);
+
+      if (newScript != null) newScript.destroy();
+    }
+  }
+
+  #if HScriptImproved
+  public function startHSIScriptsNamed(scriptFile:String)
+  {
+    for (extn in CoolUtil.haxeExtensions)
+    {
+      var scriptFileHx:String = scriptFile + '.$extn';
+      #if MODS_ALLOWED
+      var scriptToLoad:String = Paths.modFolders(scriptFileHx);
+      if (!FileSystem.exists(scriptToLoad)) scriptToLoad = Paths.getSharedPath(scriptFileHx);
+      #else
+      var scriptToLoad:String = Paths.getSharedPath(scriptFileHx);
+      #end
+
+      if (FileSystem.exists(scriptToLoad))
+      {
+        for (script in codeNameScripts.scripts)
+          if (script.fileName == scriptToLoad) return false;
+        initHSIScript(scriptToLoad);
+        return true;
+      }
+    }
+    return false;
+  }
+
+  public function initHSIScript(scriptFile:String)
+  {
+    try
+    {
+      var times:Float = Date.now().getTime();
+      #if (HSCRIPT_ALLOWED && HScriptImproved)
+      for (ext in CoolUtil.haxeExtensions)
+      {
+        if (scriptFile.toLowerCase().contains('.$ext'))
+        {
+          Debug.logInfo('INITIALIZED SCRIPT: ' + scriptFile);
+          var script = HScriptCode.create(scriptFile);
+          if (!(script is codenameengine.scripting.DummyScript))
+          {
+            codeNameScripts.add(script);
+
+            // Then CALL SCRIPT
+            script.load();
+            script.call('onCreate');
+          }
+        }
+      }
+      #end
+      Debug.logInfo('initialized hscript-improved interp successfully: $scriptFile (${Std.int(Date.now().getTime() - times)}ms)');
+    }
+    catch (e)
+    {
+      Debug.logError('Error on loading Script!' + e);
+    }
+  }
+  #end
+  #end
+  public function callOnAllHS(funcToCall:String, args:Array<Dynamic> = null, ignoreStops = false, exclusions:Array<String> = null,
+      excludeValues:Array<Dynamic> = null):Dynamic
+  {
+    if (args == null) args = [];
+    if (exclusions == null) exclusions = [];
+    if (excludeValues == null) excludeValues = [LuaUtils.Function_Continue];
+
+    var result:Dynamic = callOnHScript(funcToCall, args, ignoreStops, exclusions, excludeValues);
+    if (result == null || excludeValues.contains(result)) result = callOnHSI(funcToCall, args, ignoreStops, exclusions, excludeValues);
+    if (result == null || excludeValues.contains(result)) result = callOnSCHS(funcToCall, args, ignoreStops, exclusions, excludeValues);
+    return result;
+  }
+
+  public function callOnScripts(funcToCall:String, args:Array<Dynamic> = null, ignoreStops = false, exclusions:Array<String> = null,
+      excludeValues:Array<Dynamic> = null):Dynamic
+  {
+    if (args == null) args = [];
+    if (exclusions == null) exclusions = [];
+    if (excludeValues == null) excludeValues = [LuaUtils.Function_Continue];
+
+    var result:Dynamic = callOnLuas(funcToCall, args, ignoreStops, exclusions, excludeValues);
+    if (result == null || excludeValues.contains(result))
+    {
+      result = callOnHScript(funcToCall, args, ignoreStops, exclusions, excludeValues);
+      if (result == null || excludeValues.contains(result)) result = callOnHSI(funcToCall, args, ignoreStops, exclusions, excludeValues);
+      if (result == null || excludeValues.contains(result)) result = callOnSCHS(funcToCall, args, ignoreStops, exclusions, excludeValues);
+    }
+    return result;
+  }
+
+  public function callOnLuas(funcToCall:String, args:Array<Dynamic> = null, ignoreStops = false, exclusions:Array<String> = null,
+      excludeValues:Array<Dynamic> = null):Dynamic
+  {
+    var returnVal:Dynamic = LuaUtils.Function_Continue;
+    #if LUA_ALLOWED
+    if (args == null) args = [];
+    if (exclusions == null) exclusions = [];
+    if (excludeValues == null) excludeValues = [LuaUtils.Function_Continue];
+
+    var arr:Array<FunkinLua> = [];
+    for (script in luaArray)
+    {
+      if (script.closed)
+      {
+        arr.push(script);
+        continue;
+      }
+
+      if (exclusions.contains(script.scriptName)) continue;
+
+      var myValue:Dynamic = script.call(funcToCall, args);
+      if ((myValue == LuaUtils.Function_StopLua || myValue == LuaUtils.Function_StopAll)
+        && !excludeValues.contains(myValue)
+        && !ignoreStops)
+      {
+        returnVal = myValue;
+        break;
+      }
+
+      if (myValue != null && !excludeValues.contains(myValue)) returnVal = myValue;
+
+      if (script.closed) arr.push(script);
+    }
+
+    if (arr.length > 0) for (script in arr)
+      luaArray.remove(script);
+    #end
+    return returnVal;
+  }
+
+  public function callOnHScript(funcToCall:String, ?args:Array<Dynamic> = null, ?ignoreStops:Bool = false, exclusions:Array<String> = null,
+      excludeValues:Array<Dynamic> = null):Dynamic
+  {
+    var returnVal:Dynamic = LuaUtils.Function_Continue;
+
+    #if HSCRIPT_ALLOWED
+    if (exclusions == null) exclusions = new Array();
+    if (excludeValues == null) excludeValues = new Array();
+    excludeValues.push(LuaUtils.Function_Continue);
+
+    var len:Int = hscriptArray.length;
+    if (len < 1) return returnVal;
+    for (script in hscriptArray)
+    {
+      @:privateAccess
+      if (script == null || !script.exists(funcToCall) || exclusions.contains(script.origin)) continue;
+
+      try
+      {
+        var callValue = script.call(funcToCall, args);
+        var myValue:Dynamic = callValue.signature;
+
+        // compiler fuckup fix
+        if ((myValue == LuaUtils.Function_StopHScript || myValue == LuaUtils.Function_StopAll)
+          && !excludeValues.contains(myValue)
+          && !ignoreStops)
+        {
+          returnVal = myValue;
+          break;
+        }
+        if (myValue != null && !excludeValues.contains(myValue)) returnVal = myValue;
+      }
+      catch (e:Dynamic)
+      {
+        Debug.logInfo('ERROR (${script.origin}: $funcToCall) - $e');
+      }
+    }
+    #end
+
+    return returnVal;
+  }
+
+  public function callOnHSI(funcToCall:String, ?args:Array<Dynamic> = null, ?ignoreStops:Bool = false, exclusions:Array<String> = null,
+      excludeValues:Array<Dynamic> = null):Dynamic
+  {
+    var returnVal:Dynamic = LuaUtils.Function_Continue;
+
+    #if (HSCRIPT_ALLOWED && HScriptImproved)
+    if (args == null) args = [];
+    if (exclusions == null) exclusions = [];
+    if (excludeValues == null) excludeValues = [LuaUtils.Function_Continue];
+
+    var len:Int = codeNameScripts.scripts.length;
+    if (len < 1) return returnVal;
+
+    for (script in codeNameScripts.scripts)
+    {
+      var myValue:Dynamic = script.active ? script.call(funcToCall, args) : null;
+      if ((myValue == LuaUtils.Function_StopHScript || myValue == LuaUtils.Function_StopAll)
+        && !excludeValues.contains(myValue)
+        && !ignoreStops)
+      {
+        returnVal = myValue;
+        break;
+      }
+      if (myValue != null && !excludeValues.contains(myValue)) returnVal = myValue;
+    }
+    #end
+
+    return returnVal;
+  }
+
+  public function callOnSCHS(funcToCall:String, ?args:Array<Dynamic> = null, ?ignoreStops:Bool = false, exclusions:Array<String> = null,
+      excludeValues:Array<Dynamic> = null):Dynamic
+  {
+    var returnVal:Dynamic = LuaUtils.Function_Continue;
+
+    #if HSCRIPT_ALLOWED
+    if (exclusions == null) exclusions = new Array();
+    if (excludeValues == null) excludeValues = new Array();
+    excludeValues.push(LuaUtils.Function_Continue);
+
+    var len:Int = scHSArray.length;
+    if (len < 1) return returnVal;
+    for (script in scHSArray)
+    {
+      if (script == null || !script.existsVar(funcToCall) || exclusions.contains(script.hsCode.path)) continue;
+
+      try
+      {
+        var callValue = script.callFunc(funcToCall, args);
+        var myValue:Dynamic = callValue.funcReturn;
+
+        // compiler fuckup fix
+        if ((myValue == LuaUtils.Function_StopHScript || myValue == LuaUtils.Function_StopAll)
+          && !excludeValues.contains(myValue)
+          && !ignoreStops)
+        {
+          returnVal = myValue;
+          break;
+        }
+        if (myValue != null && !excludeValues.contains(myValue)) returnVal = myValue;
+      }
+      catch (e:Dynamic)
+      {
+        Debug.logInfo('ERROR (${script.hsCode.path}: $funcToCall) - $e');
+      }
+    }
+    #end
+
+    return returnVal;
+  }
+
+  public function setOnScripts(variable:String, arg:Dynamic, exclusions:Array<String> = null)
+  {
+    if (exclusions == null) exclusions = [];
+    setOnLuas(variable, arg, exclusions);
+    setOnHScript(variable, arg, exclusions);
+    setOnHSI(variable, arg, exclusions);
+    setOnSCHS(variable, arg, exclusions);
+  }
+
+  public function setOnLuas(variable:String, arg:Dynamic, exclusions:Array<String> = null)
+  {
+    #if LUA_ALLOWED
+    if (exclusions == null) exclusions = [];
+    for (script in luaArray)
+    {
+      if (exclusions.contains(script.scriptName)) continue;
+
+      script.set(variable, arg);
+    }
+    #end
+  }
+
+  public function setOnHScript(variable:String, arg:Dynamic, exclusions:Array<String> = null)
+  {
+    #if HSCRIPT_ALLOWED
+    if (exclusions == null) exclusions = [];
+    for (script in hscriptArray)
+    {
+      if (exclusions.contains(script.origin)) continue;
+
+      script.set(variable, arg);
+    }
+    #end
+  }
+
+  public function setOnHSI(variable:String, arg:Dynamic, exclusions:Array<String> = null)
+  {
+    #if (HSCRIPT_ALLOWED && HScriptImproved)
+    if (exclusions == null) exclusions = [];
+    for (script in codeNameScripts.scripts)
+    {
+      if (exclusions.contains(script.fileName)) continue;
+
+      script.set(variable, arg);
+    }
+    #end
+  }
+
+  public function setOnSCHS(variable:String, arg:Dynamic, exclusions:Array<String> = null)
+  {
+    #if HSCRIPT_ALLOWED
+    if (exclusions == null) exclusions = [];
+    for (script in scHSArray)
+    {
+      if (exclusions.contains(script.hsCode.path)) continue;
+
+      script.setVar(variable, arg);
+    }
+    #end
+  }
+
+  public function getOnScripts(variable:String, arg:String, exclusions:Array<String> = null)
+  {
+    if (exclusions == null) exclusions = [];
+    getOnLuas(variable, arg, exclusions);
+    getOnHScript(variable, exclusions);
+    getOnHSI(variable, exclusions);
+    getOnSCHS(variable, exclusions);
+  }
+
+  public function getOnLuas(variable:String, arg:String, exclusions:Array<String> = null)
+  {
+    #if LUA_ALLOWED
+    if (exclusions == null) exclusions = [];
+    for (script in luaArray)
+    {
+      if (exclusions.contains(script.scriptName)) continue;
+
+      script.get(variable, arg);
+    }
+    #end
+  }
+
+  public function getOnHScript(variable:String, exclusions:Array<String> = null)
+  {
+    #if HSCRIPT_ALLOWED
+    if (exclusions == null) exclusions = [];
+    for (script in hscriptArray)
+    {
+      if (exclusions.contains(script.origin)) continue;
+
+      script.get(variable);
+    }
+    #end
+  }
+
+  public function getOnHSI(variable:String, exclusions:Array<String> = null)
+  {
+    #if (HSCRIPT_ALLOWED && HScriptImproved)
+    if (exclusions == null) exclusions = [];
+    for (script in codeNameScripts.scripts)
+    {
+      if (exclusions.contains(script.fileName)) continue;
+
+      script.get(variable);
+    }
+    #end
+  }
+
+  public function getOnSCHS(variable:String, exclusions:Array<String> = null)
+  {
+    #if HSCRIPT_ALLOWED
+    if (exclusions == null) exclusions = [];
+    for (script in scHSArray)
+    {
+      if (exclusions.contains(script.hsCode.path)) continue;
+
+      script.getVar(variable);
+    }
+    #end
+  }
+
+  public function searchForVarsOnScripts(variable:String, arg:String, result:Bool)
+  {
+    var result:Dynamic = searchLuaVar(variable, arg, result);
+    if (result == null)
+    {
+      result = searchHxVar(variable, arg, result);
+      if (result == null) result = searchHSIVar(variable, arg, result);
+    }
+    return result;
+  }
+
+  public function searchLuaVar(variable:String, arg:String, result:Bool)
+  {
+    #if LUA_ALLOWED
+    for (script in luaArray)
+    {
+      if (script.get(variable, arg) == result)
+      {
+        return result;
+      }
+    }
+    #end
+    return !result;
+  }
+
+  public function searchHxVar(variable:String, arg:String, result:Bool)
+  {
+    #if HSCRIPT_ALLOWED
+    for (script in hscriptArray)
+    {
+      if (LuaUtils.convert(script.get(variable), arg) == result)
+      {
+        return result;
+      }
+    }
+    #end
+    return !result;
+  }
+
+  public function searchHSIVar(variable:String, arg:String, result:Bool)
+  {
+    #if (HSCRIPT_ALLOWED && HScriptImproved)
+    for (script in codeNameScripts.scripts)
+    {
+      if (LuaUtils.convert(script.get(variable), arg) == result)
+      {
+        return result;
+      }
+    }
+    #end
+    return !result;
+  }
+
+  public function getHxNewVar(name:String, type:String):Dynamic
+  {
+    #if HSCRIPT_ALLOWED
+    var hxVar:Dynamic = null;
+
+    // we prioritize modchart cuz frick you
+
+    for (script in hscriptArray)
+    {
+      var newHxVar = Std.isOfType(script.get(name), Type.resolveClass(type));
+      hxVar = newHxVar;
+    }
+    if (hxVar != null) return hxVar;
+    #end
+
+    return null;
+  }
+
+  public function getLuaNewVar(name:String, type:String):Dynamic
+  {
+    #if LUA_ALLOWED
+    var luaVar:Dynamic = null;
+
+    // we prioritize modchart cuz frick you
+
+    for (script in luaArray)
+    {
+      var newLuaVar = script.get(name, type).getVar(name, type);
+      if (newLuaVar != null) luaVar = newLuaVar;
+    }
+    if (luaVar != null) return luaVar;
+    #end
+
+    return null;
+  }
+
+  public function addScript(file:String, type:ScriptType = CODENAME, ?externalArguments:Array<Dynamic> = null)
+  {
+    if (externalArguments == null) externalArguments = [];
+    switch (type)
+    {
+      case CODENAME:
+        initHSIScript(file);
+      case IRIS:
+        initHScript(file);
+      case SC:
+        initSCHS(file);
+      case LUA:
+        var state:String = (externalArguments[0] != null && externalArguments[0].length > 0) ? externalArguments[0] : 'PLAYSTATE';
+        var preload:Bool = externalArguments[1] != null ? externalArguments[1] : false;
+        new FunkinLua(file, state, preload);
+        Debug.logInfo('length ${luaArray.length}');
+    }
   }
 }
 
@@ -1079,8 +1840,8 @@ typedef CharacterFile =
 
   /**
    * Let's characters used a custom deadChar based on character.
+   * **Note: bf => "bf-dead", bf-pixel => "bf-dead-pixel", bf-holding-gf => "bf-holding-gf-dead"**
    * @default ""
-   * **Note: bf => "bf-dead" =>, bf-pixel => "bf-dead-pixel", bf-holding-gf => "bf-holding-gf-dead"**
    */
   var ?deadChar:String;
 
@@ -1159,6 +1920,25 @@ typedef CharacterFile =
    * @default false
    */
   var ?useGFSpeed:Bool;
+
+  /**
+   *
+   * @default idle: "idle"
+   */
+  var ?idleDances:IdleDances;
+}
+
+typedef IdleDances =
+{
+  var ?dances:Array<String>;
+  var ?idle:String;
+  var ?danceLR:DanceLR;
+}
+
+typedef DanceLR =
+{
+  var left:String;
+  var right:String;
 }
 
 typedef AnimArray =

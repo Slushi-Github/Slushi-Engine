@@ -159,7 +159,7 @@ class Constant3DStrumArrow extends ModchartArrow
 
   var confirmHoldTimer:Float = -1;
 
-  static final CONFIRM_HOLD_TIME:Float = 0.15;
+  static final CONFIRM_HOLD_TIME:Float = 0.1;
 
   public dynamic function reloadNote(style:String)
   {

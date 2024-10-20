@@ -1,6 +1,6 @@
 package slushi.slushiLua;
 
-import slushi.slushiEngineHUD.SlushiEngineHUD;
+import slushi.slushiUtils.SlushiEngineHUD;
 import slushi.slushiUtils.SlushiDebugText;
 
 import psychlua.FunkinLua;
@@ -55,7 +55,7 @@ class OthersLua
 
 		funkLua.set("CopyCamera", function(camTag:String, camToCopy:String)
 		{
-			var variables = MusicBeatState.getVariables();
+			var variables = MusicBeatState.getVariables("Tween");
 			if (!variables.exists(camTag))
 			{
 				var camera = new backend.CameraCopy(LuaUtils.cameraFromString(camToCopy));
@@ -68,7 +68,7 @@ class OthersLua
 		});
 
 		funkLua.set("removeCopyCamera", function(camTag:String) {
-			var variables = MusicBeatState.getVariables();
+			var variables = MusicBeatState.getVariables("Tween");
 
 			if (variables.exists(camTag))
 			{
@@ -80,15 +80,14 @@ class OthersLua
 		});
 
 		funkLua.set("tweenNumer", function(tag:String, startNum:Float, endNum:Float, duration:Float, ease:String = "linear") {
-			var originalTag:String = tag;
-			tag = LuaUtils.checkVariable(tag, 'tween_');
-			var variables = MusicBeatState.getVariables();
+			
+			var variables = MusicBeatState.getVariables("Tween");
 
 			variables.set(tag, FlxTween.num(startNum, endNum, duration, {
 				ease: LuaUtils.getTweenEaseByString(ease),
 				onComplete: function(twn:FlxTween) {
 					variables.remove(tag);
-					if (PlayState.instance != null) PlayState.instance.callOnLuas('onTweenCompleted', [originalTag]);
+					if (PlayState.instance != null) PlayState.instance.callOnLuas('onTweenCompleted', [tag]);
 					return endNum;
 				},
 				onUpdate: function(tween:FlxTween) {

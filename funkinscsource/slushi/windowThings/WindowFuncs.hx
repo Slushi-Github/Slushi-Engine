@@ -115,10 +115,11 @@ class WindowFuncs
 		#end
 	}
 
-	public static function doTweenWindowAlpha(fromValue:Float, toValue:Float, duration:Float, ease:String = "linear")
+	public static function doTweenWindowAlpha(toValue:Float, duration:Float, ease:String = "linear")
 	{
 		#if windows
-		var numTween:NumTween = FlxTween.num(fromValue, toValue, duration, {ease: psychlua.LuaUtils.getTweenEaseByString(ease)});
+		var startValue:Float = CppAPI.getWindowOppacity();
+		var numTween:NumTween = FlxTween.num(startValue, toValue, duration, {ease: psychlua.LuaUtils.getTweenEaseByString(ease)});
 		numTween.onUpdate = function(twn:FlxTween)
 		{
 			CppAPI.setWindowOppacity(numTween.value);

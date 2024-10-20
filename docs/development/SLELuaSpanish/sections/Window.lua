@@ -15,7 +15,7 @@ function windowAlpha(alpha)
     ]]--
 end
 
-function doTweenWinAlpha(fromValue, toValue, duration, ease)
+function doTweenWinAlpha(toValue, duration, ease)
     --[[
     Realiza un tween en la opacidad de la ventana.
     fromValue: Valor inicial de opacidad (float).

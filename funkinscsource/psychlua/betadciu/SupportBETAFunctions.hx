@@ -199,10 +199,9 @@ class SupportBETAFunctions
     });
 
     funk.set("characterZoom", function(id:String, zoomAmount:Float) {
-      id = LuaUtils.checkVariable(id, 'extraCharacter_');
-      if (MusicBeatState.getVariables().exists(id) && ClientPrefs.data.characters)
+      if (MusicBeatState.variableMap(id).exists(id) && ClientPrefs.data.characters)
       {
-        var spr:Character = cast(MusicBeatState.getVariables().get(id), Character);
+        final spr:Character = MusicBeatState.variableMap(id).get(id);
         spr.setZoom(zoomAmount);
       }
       else
@@ -215,15 +214,12 @@ class SupportBETAFunctions
       {
         if (tag != null)
         {
-          var originalTag:String = tag;
-          tag = LuaUtils.checkVariable(tag, 'tween_');
-          var variables = MusicBeatState.getVariables();
-          variables.set(tag, FlxTween.color(itemExam, duration, initColor, finalColor,
+          MusicBeatState.getVariables("Tween").set(tag, FlxTween.color(itemExam, duration, initColor, finalColor,
             {
               ease: LuaUtils.getTweenEaseByString(ease),
               onComplete: function(twn:FlxTween) {
-                variables.remove(tag);
-                if (PlayState.instance != null) PlayState.instance.callOnLuas('onTweenCompleted', [originalTag, vars]);
+                MusicBeatState.getVariables("Tween").remove(tag);
+                if (PlayState.instance != null) PlayState.instance.callOnLuas('onTweenCompleted', [tag, vars]);
               }
             }));
         }
@@ -241,15 +237,12 @@ class SupportBETAFunctions
       {
         if (tag != null)
         {
-          var originalTag:String = tag;
-          tag = LuaUtils.checkVariable(tag, 'tween_');
-          var variables = MusicBeatState.getVariables();
-          variables.set(tag, FlxTween.color(itemExam, duration, initColor, finalColor,
+          MusicBeatState.getVariables("Tween").set(tag, FlxTween.color(itemExam, duration, initColor, finalColor,
             {
               ease: LuaUtils.getTweenEaseByString(ease),
               onComplete: function(twn:FlxTween) {
-                variables.remove(tag);
-                if (PlayState.instance != null) PlayState.instance.callOnLuas('onTweenCompleted', [originalTag, vars]);
+                MusicBeatState.getVariables("Tween").remove(tag);
+                if (PlayState.instance != null) PlayState.instance.callOnLuas('onTweenCompleted', [tag, vars]);
               }
             }));
         }
@@ -1018,7 +1011,7 @@ class SupportBETAFunctions
     });
 
     funk.set("changeIcon", function(obj:String, iconName:String) {
-      var split:Array<String> = obj.split('.');
+      final split:Array<String> = obj.split('.');
       var object:HealthIcon = cast(LuaUtils.getObjectDirectly(split[0]), HealthIcon);
       if (split.length > 1)
       {
@@ -1035,8 +1028,8 @@ class SupportBETAFunctions
     });
 
     funk.set("removeLuaIcon", function(tag:String, ?destroy:Bool = false) {
-      tag = LuaUtils.checkVariable(tag, 'extraIcon_');
-      var variables = MusicBeatState.getVariables();
+      var variables = MusicBeatState.variableMap(tag);
+      if (variables == null) return;
       var obj:HealthIcon = variables.get(tag);
       if (obj == null || obj.destroy == null) return;
 
@@ -1091,9 +1084,7 @@ class SupportBETAFunctions
 
     funk.set("arrayContains", function(obj:String, value:Dynamic) {
       var leArray:Dynamic = Reflect.getProperty(LuaUtils.getTargetInstance(), obj);
-
       if (leArray.contains(value)) return true;
-
       return false;
     });
 
@@ -1266,7 +1257,7 @@ class SupportBETAFunctions
       {
         for (i in 0...PlayState.instance.unspawnNotes.length)
         {
-          var daNote = PlayState.instance.unspawnNotes[i];
+          var daNote = PlayState.instance.unspawnNotes.members[i];
           if (daNote.mustPress) daNote.reloadNote(style, postfix);
         }
       }
@@ -1274,14 +1265,14 @@ class SupportBETAFunctions
       {
         for (i in 0...PlayState.instance.unspawnNotes.length)
         {
-          var daNote = PlayState.instance.unspawnNotes[i];
+          var daNote = PlayState.instance.unspawnNotes.members[i];
           if (!daNote.mustPress) daNote.reloadNote(style, postfix);
         }
       }
     });
 
     funk.set("changeIndividualNotes", function(style:String, i:Int, ?postfix:String = "") {
-      PlayState.instance.unspawnNotes[i].reloadNote(style, postfix);
+      PlayState.instance.unspawnNotes.members[i].reloadNote(style, postfix);
     });
 
     funk.set("playStrumAnim", function(isDad:Bool, id:Int, time:Float, isSus:Bool = false) {
@@ -1298,9 +1289,7 @@ class SupportBETAFunctions
     });
 
     funk.set("changeAddedIcon", function(tag:String, character:String) {
-      tag = LuaUtils.checkVariable(tag, 'extraIcon_');
-      var shit:HealthIcon = cast(MusicBeatState.getVariables().get(tag), HealthIcon);
-      shit.changeIcon(character);
+      cast(MusicBeatState.variableMap(tag).get(tag), HealthIcon).changeIcon(character);
     });
 
     // because the naming is stupid
@@ -1309,9 +1298,7 @@ class SupportBETAFunctions
     });
 
     funk.set("changeLuaIcon", function(tag:String, character:String) {
-      tag = LuaUtils.checkVariable(tag, 'extraIcon_');
-      var shit:HealthIcon = cast(MusicBeatState.getVariables().get(tag), HealthIcon);
-      shit.changeIcon(character);
+      cast(MusicBeatState.variableMap(tag).get(tag), HealthIcon).changeIcon(character);
     });
 
     funk.set("makeLuaCharacter", function(tag:String, character:String, isPlayer:Bool = false, flipped:Bool = false, characterType:String = 'OTHER') {
@@ -1319,37 +1306,29 @@ class SupportBETAFunctions
     });
 
     funk.set("changeLuaCharacter", function(tag:String, character:String, characterType:String = 'OTHER') {
-      var originalTag:String = tag;
-      tag = LuaUtils.checkVariable(tag, 'extraCharacter_');
-      var shit:Character = cast(MusicBeatState.getVariables().get(tag), Character);
-      if (shit != null) LuaUtils.makeLuaCharacter(originalTag, character, shit.isPlayer, shit.flipMode, characterType);
+      final shit:Character = MusicBeatState.variableMap(tag).get(tag);
+      if (shit != null) LuaUtils.makeLuaCharacter(tag, character, shit.isPlayer, shit.flipMode, characterType);
     });
 
     funk.set("stopIdle", function(id:String, stopped:Bool) {
-      id = LuaUtils.checkVariable(id, 'extraCharacter_');
-      if (ClientPrefs.data.characters)
+      if (!ClientPrefs.data.characters) return;
+      if (MusicBeatState.variableMap(id).exists(id))
       {
-        if (MusicBeatState.getVariables().exists(id))
-        {
-          cast(MusicBeatState.getVariables().get(id), Character).stopIdle = stopped;
-          return;
-        }
-        cast(LuaUtils.getActorByName(id), Character).stopIdle = stopped;
+        cast(MusicBeatState.variableMap(id).get(id), Character).stopIdle = stopped;
+        return;
       }
+      cast(LuaUtils.getActorByName(id), Character).stopIdle = stopped;
     });
 
     funk.set("characterDance", function(character:String) {
-      character = LuaUtils.checkVariable(character, 'extraCharacter_');
-      if (ClientPrefs.data.characters)
+      if (!ClientPrefs.data.characters) return;
+      if (MusicBeatState.variableMap(character).exists(character))
       {
-        if (MusicBeatState.getVariables().exists(character))
-        {
-          var spr:Character = cast(MusicBeatState.getVariables().get(character), Character);
-          spr.dance();
-        }
-        else
-          cast(LuaUtils.getObjectDirectly(character), Character).dance();
+        final spr:Character = MusicBeatState.variableMap(character).get(character);
+        spr.dance();
       }
+      else
+        cast(LuaUtils.getObjectDirectly(character), Character).dance();
     });
 
     // New Stuff
@@ -1390,12 +1369,10 @@ class SupportBETAFunctions
 
   static public function makeNewIcon(tag:String, character:String, player:Bool = false)
   {
-    tag = LuaUtils.checkVariable(tag, 'extraIcon_');
-    LuaUtils.destroyObject(tag);
-    var leSprite:HealthIcon = new HealthIcon(character, player);
-    MusicBeatState.getVariables().set(tag, leSprite); // yes
-    var icon:HealthIcon = cast(MusicBeatState.getVariables().get(tag), HealthIcon);
-    LuaUtils.getTargetInstance().add(icon);
-    if (PlayState.instance != null) icon.cameras = !player ? PlayState.instance.iconP2.cameras : PlayState.instance.iconP1.cameras;
+    LuaUtils.findToDestroy(tag);
+    final leSprite:HealthIcon = new HealthIcon(character, player);
+    MusicBeatState.getVariables("Icon").set(tag, leSprite); // yes
+    LuaUtils.getTargetInstance().add(leSprite);
+    if (PlayState.instance != null) leSprite.cameras = !player ? PlayState.instance.iconP2.cameras : PlayState.instance.iconP1.cameras;
   }
 }

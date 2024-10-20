@@ -141,7 +141,7 @@
   "flip_x": true,
   "healthbar_colors": [49, 176, 209],
   "camera_position": [0, 0],
-  "noteSkin": "",
+  "noteSkin": "noteSkins/NOTE_assets",
   "sing_duration": 4,
   "scale": 1,
   "_editor_isPlayer": true

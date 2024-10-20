@@ -177,7 +177,7 @@ class HScript extends Script
     interp.allowStaticVariables = interp.allowPublicVariables = true;
   }
 
-  private override function onCall(funcName:String, parameters:Array<Dynamic>):Dynamic
+  private override function onCall(funcName:String = null, parameters:Array<Dynamic> = null):Dynamic
   {
     if (interp == null) return null;
     if (!interp.variables.exists(funcName)) return null;

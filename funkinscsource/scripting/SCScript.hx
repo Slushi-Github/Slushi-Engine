@@ -126,10 +126,16 @@ class SCScript extends flixel.FlxBasic
     presetScript();
   }
 
-  public function callFunc(func:String, ?args:Array<Dynamic>):Dynamic
+  public function callFunc(func:String, ?args:Array<Dynamic>):SCCall
   {
-    if (hsCode == null || !active || !exists) return -1;
+    if (hsCode == null || !active || !exists) return null;
     if (args == null) args = [];
+    return hsCode.call(func, args);
+  }
+
+  public function executeFunc(func:String = null, args:Array<Dynamic> = null):SCCall
+  {
+    if (hsCode == null || !active || !exists) return null;
     return hsCode.call(func, args);
   }
 
@@ -167,18 +173,18 @@ class SCScript extends flixel.FlxBasic
     setVar("playBFSing", true);
 
     // Functions & Variables
-    setVar('setVar', function(name:String, value:Dynamic) {
-      MusicBeatState.getVariables().set(name, value);
+    setVar('setVar', function(name:String, value:Dynamic, ?type:String = "Custom") {
+      MusicBeatState.getVariables(type).set(name, psychlua.ReflectionFunctions.parseSingleInstance(value));
     });
-    setVar('getVar', function(name:String) {
+    setVar('getVar', function(name:String, ?type:String = "Custom") {
       var result:Dynamic = null;
-      if (MusicBeatState.getVariables().exists(name)) result = MusicBeatState.getVariables().get(name);
+      if (MusicBeatState.getVariables(type).exists(name)) result = MusicBeatState.getVariables(type).get(name);
       return result;
     });
-    setVar('removeVar', function(name:String) {
-      if (MusicBeatState.getVariables().exists(name))
+    setVar('removeVar', function(name:String, ?type:String = "Custom") {
+      if (MusicBeatState.getVariables(type).exists(name))
       {
-        MusicBeatState.getVariables().remove(name);
+        MusicBeatState.getVariables(type).remove(name);
         return true;
       }
       return false;

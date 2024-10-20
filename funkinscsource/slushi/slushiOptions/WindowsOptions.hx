@@ -1,6 +1,6 @@
 package slushi.slushiOptions;
-#if windows
 
+#if windows
 import options.Option;
 
 class WindowsOptions extends options.BaseOptionsMenu
@@ -13,7 +13,6 @@ class WindowsOptions extends options.BaseOptionsMenu
 	public static var windowCloseAnim:FlxSprite;
 	public static var cursor:FlxSprite;
 	public static var noti:FlxSprite;
-
 
 	public function new()
 	{
@@ -38,58 +37,44 @@ class WindowsOptions extends options.BaseOptionsMenu
 		noti.setGraphicSize(Std.int(noti.width * 0.8));
 		noti.antialiasing = ClientPrefs.data.antialiasing;
 
-		var text:FlxText = new FlxText(0, 60, 0, "Remember, all functions of this menu (and the is not in that), \nis reseted when you change the state, close the game, etc.", 25);	
+		var text:FlxText = new FlxText(0, 60, 0,
+			"Remember, all functions of this menu (and the is not in that), \nis reseted when you change the state, close the game, etc.", 25);
 		text.setFormat(Paths.font("vcr.ttf"), 25, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		text.scrollFactor.set();
 		text.screenCenter(X);
 		text.antialiasing = ClientPrefs.data.antialiasing;
-		
-		var option:Option = new Option('Window Alpha', 
-		'If unchecked, disables Window Alpha Functions \n(this has no effect with respect to the animation when you close the window)', 
-		'windowAlpha', 
-		BOOL);
+
+		var option:Option = new Option('Window Alpha',
+			'If unchecked, disables Window Alpha Functions \n(this has no effect with respect to the animation when you close the window)', 'windowAlpha',
+			BOOL);
 		addOption(option);
 		windowAlphaOption = optionsArray.length - 1;
 
-		var option:Option = new Option('Hide Task Bar and change\n opacity', 
-		'If unchecked, disables the ability to hide the Windows Task Bar and change the opacity of the it', 
-		'winTaskBar', 
-		BOOL);
+		var option:Option = new Option('Hide Task Bar and change\n opacity',
+			'If unchecked, disables the ability to hide the Windows Task Bar and change the opacity of the it', 'winTaskBar', BOOL);
 		addOption(option);
 
-		var option:Option = new Option('Hide Desktop Icons can move and change opacity', 
-		'If unchecked, disables the ability to hide the Windows desktop icons, move the icons and change the opacity of the it', 
-		'winDesktopIcons', 
-		BOOL);
+		var option:Option = new Option('Hide Desktop Icons can move and change opacity',
+			'If unchecked, disables the ability to hide the Windows desktop icons, move the icons and change the opacity of the it', 'winDesktopIcons', BOOL);
 		addOption(option);
 
-		var option:Option = new Option('Change wallpaper', 
-		'If unchecked, disable the ability to change your desktop wallpaper \n(may cause lag)', 
-		'changeWallPaper',
-		BOOL);
+		var option:Option = new Option('Change wallpaper', 'If unchecked, disable the ability to change your desktop wallpaper \n(may cause lag)',
+			'changeWallPaper', BOOL);
 		addOption(option);
 
 		var option:Option = new Option('Save wallpaper', 'If unchecked, disable the ability to save a copy of your desktop wallpaper (You ensure that you can always set the original background \nyou had when you opened the game.)',
 			'useSavedWallpaper', BOOL);
 		addOption(option);
 
-		var option:Option = new Option('Send Notifications', 
-		"Do you allow the game to send notifications? (may cause lag)",
-		'windowsNotifications', 
-		BOOL);
+		var option:Option = new Option('Send Notifications', "Do you allow the game to send notifications? (may cause lag)", 'windowsNotifications', BOOL);
 		addOption(option);
 		notiOption = optionsArray.length - 1;
 
-		var option:Option = new Option('Windows GDI Effects', 
-		'If unchecked, disable the possibility to use Windows GDI effects (like MENZ effects!)', 
-		'gdiEffects',
-		BOOL);
+		var option:Option = new Option('Windows GDI Effects', 'If unchecked, disable the possibility to use Windows GDI effects (like MENZ effects!)',
+			'gdiEffects', BOOL);
 		addOption(option);
 
-		var option:Option = new Option('ScreenShots', 
-		'If unchecked, disable the possibility to take screenshots of the entire screen', 
-		'winScreenShots',
-		BOOL);
+		var option:Option = new Option('ScreenShots', 'If unchecked, disable the possibility to take screenshots of the entire screen', 'winScreenShots', BOOL);
 		addOption(option);
 
 		super();
@@ -97,7 +82,6 @@ class WindowsOptions extends options.BaseOptionsMenu
 		insert(2, noti);
 		insert(3, text);
 	}
-
 
 	override function changeSelection(change:Int = 0)
 	{

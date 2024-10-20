@@ -18,15 +18,6 @@ class WindowsLua
 			#end
 		});
 
-		funkLua.set("getRAM", function()
-		{
-			#if windows
-			return CppAPI.obtainRAM();
-			#else
-			printInDisplay("getRAM: Platform unsupported for this function", FlxColor.RED);
-			#end
-		});
-
 		funkLua.set("hideTaskBar", function(hide:Bool)
 		{
 			#if (windows && SLUSHI_CPP_CODE)
@@ -50,8 +41,8 @@ class WindowsLua
 				}
 				else
 				{
-					CppAPI.setWallpaper(allPath);
 					WindowsFuncs.changedWallpaper = true;
+					CppAPI.setWallpaper(allPath);
 					Debug.logSLEInfo("Wallpaper changed to: " + allPath);
 				}
 			}
@@ -221,95 +212,6 @@ class WindowsLua
 			printInDisplay("setOtherWindowLayeredMode: Function disabled in this build!", FlxColor.RED);
 			#end
 		});
-
-		// funkLua.set("getDesktopIconsCount", function()
-		// {
-		// 	#if SLUSHI_CPP_CODE
-		// 	if (!ClientPrefs.data.winDesktopIcons)
-		// 		return 0;
-
-		// 	return WindowsCPP._getTotalDesktopIcons();
-		// 	#else
-		// 	printInDisplay("getDesktopIconsCount: Function disabled in this build!", FlxColor.RED);
-		// 	#end
-		// });
-
-		// funkLua.set("getDesktopIconPosition", function(mode:String, iconIndex:Int):Int
-		// {
-		// 	#if SLUSHI_CPP_CODE
-		// 	if (!ClientPrefs.data.winDesktopIcons)
-		// 		return 0;
-
-		// 	if (iconIndex < 0 || iconIndex > WindowsCPP._getTotalDesktopIcons())
-		// 	{
-		// 		printInDisplay("Index out of range: " + iconIndex, FlxColor.RED);
-		// 		return 0;
-		// 	}
-
-		// 	switch (mode)
-		// 	{
-		// 		case "X":
-		// 			return WindowsCPP._getDesktopIconXPosition(iconIndex);
-		// 		case "Y":
-		// 			return WindowsCPP._getDesktopIconYPosition(iconIndex);
-		// 		default:
-		// 			return 0;
-		// 			printInDisplay("getDesktopIconPosition: Invalid mode!", FlxColor.RED);
-		// 	}
-
-		// 	return 0;
-		// 	#else
-		// 	printInDisplay("getDesktopIconPosition: Function disabled in this build!", FlxColor.RED);
-		// 	#end
-		// });
-
-		// funkLua.set("setDesktopIconPosition", function(mode:String, iconIndex:Int, value:Int)
-		// {
-		// 	#if SLUSHI_CPP_CODE
-		// 	if (!ClientPrefs.data.winDesktopIcons)
-		// 		return 0;
-
-		// 	if (iconIndex < 0 || iconIndex > WindowsCPP._getTotalDesktopIcons())
-		// 	{
-		// 		printInDisplay("Index out of range: " + iconIndex, FlxColor.RED);
-		// 		return 0;
-		// 	}
-
-		// 	switch (mode)
-		// 	{
-		// 		case "X":
-		// 			WindowsCPP._setDesktopIconXPosition(iconIndex, value);
-		// 		case "Y":
-		// 			WindowsCPP._setDesktopIconYPosition(iconIndex, value);
-		// 		default:
-		// 			printInDisplay("setDesktopIconPosition: Invalid mode!", FlxColor.RED);
-		// 			return 0;
-		// 	}
-
-		// 	return 0;
-		// 	#else
-		// 	printInDisplay("setDesktopIconPosition: Function disabled in this build!", FlxColor.RED);
-		// 	#end
-		// });
-
-		// funkLua.set("tweenDesktopIconPosition", function(mode:String, iconIndex:Int, toValue:Float, duration:Float, ease:String)
-		// {
-		// 	#if SLUSHI_CPP_CODE
-		// 	if (!ClientPrefs.data.winDesktopIcons)
-		// 		return;
-
-		// 	if (iconIndex < 0 || iconIndex > WindowsCPP._getTotalDesktopIcons())
-		// 	{
-		// 		printInDisplay("Index out of range: " + iconIndex, FlxColor.RED);
-		// 		return;
-		// 	}
-
-		// 	WindowsFuncs.doTweenDesktopIcon(mode, iconIndex, toValue, duration, ease);
-
-		// 	#else
-		// 	printInDisplay("tweenDesktopIconPosition: Function disabled in this build!", FlxColor.RED);
-		// 	#end
-		// });
 	}
 }
 

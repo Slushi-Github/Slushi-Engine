@@ -79,13 +79,6 @@ class PhillyBlazin extends BaseStage
 
     if (ClientPrefs.data.shaders) setupRainShader();
 
-    var _song = PlayState.SONG.gameOverData;
-    if (_song.gameOverSound == null || _song.gameOverSound.trim().length < 1) GameOverSubstate.deathSoundName = 'fnf_loss_sfx-pico-gutpunch';
-    if (_song.gameOverLoop == null || _song.gameOverLoop.trim().length < 1) GameOverSubstate.loopSoundName = 'gameOver-pico';
-    if (_song.gameOverEnd == null || _song.gameOverEnd.trim().length < 1) GameOverSubstate.endSoundName = 'gameOverEnd-pico';
-    if (_song.gameOverChar == null || _song.gameOverChar.trim().length < 1) GameOverSubstate.characterName = 'pico-blazin';
-    GameOverSubstate.deathDelay = 0.15;
-
     setDefaultGF('nene');
     precache();
 
@@ -109,6 +102,13 @@ class PhillyBlazin extends BaseStage
 
   override function createPost()
   {
+    var _song = PlayState.SONG.gameOverData;
+    if (_song.gameOverSound == null || _song.gameOverSound.trim().length < 1) GameOverSubstate.deathSoundName = 'fnf_loss_sfx-pico-gutpunch';
+    if (_song.gameOverLoop == null || _song.gameOverLoop.trim().length < 1) GameOverSubstate.loopSoundName = 'gameOver-pico';
+    if (_song.gameOverEnd == null || _song.gameOverEnd.trim().length < 1) GameOverSubstate.endSoundName = 'gameOverEnd-pico';
+    if (_song.gameOverChar == null || _song.gameOverChar.trim().length < 1) GameOverSubstate.characterName = 'pico-blazin';
+    GameOverSubstate.deathDelay = 0.15;
+
     abot.setPosition(gf.x, gf.y + 350);
     FlxG.camera.focusOn(camFollow.getPosition());
     FlxG.camera.fade(FlxColor.BLACK, 1.5, true, null, true);
@@ -120,8 +120,8 @@ class PhillyBlazin extends BaseStage
     }
     abot.color = 0xFF888888;
 
-    var unspawnNotes:Array<Note> = cast game.unspawnNotes;
-    for (note in unspawnNotes)
+    var unspawnNotes:CustomArrayGroup<Note> = cast game.unspawnNotes;
+    for (note in unspawnNotes.members)
     {
       if (note == null) continue;
 

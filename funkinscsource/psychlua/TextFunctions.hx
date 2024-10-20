@@ -4,19 +4,21 @@ class TextFunctions
 {
   public static function implement(funk:FunkinLua)
   {
-    funk.set("makeLuaText", function(tag:String, text:String, width:Int, x:Float, y:Float) {
+    funk.set("makeLuaText", function(tag:String, ?text:String = '', ?width:Int = 0, ?x:Float = 0, ?y:Float = 0) {
       tag = tag.replace('.', '');
-      LuaUtils.destroyObject(tag);
-      var leText:FlxText = new FlxText(x, y, width, text, 16);
+      LuaUtils.findToDestroy(tag);
+      final leText:FlxText = new FlxText(x, y, width, text, 16);
       leText.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
       leText.cameras = [PlayState.instance.camHUD];
       leText.scrollFactor.set();
       leText.borderSize = 2;
-      MusicBeatState.getVariables().set(tag, leText);
+      MusicBeatState.getVariables("Text").set(tag, leText);
     });
 
     funk.set("setTextString", function(tag:String, text:String) {
-      var obj:FlxText = LuaUtils.getObjectDirectly(tag);
+      final split:Array<String> = tag.split('.');
+      final obj:FlxText = split.length > 1 ? (LuaUtils.getVarInArray(LuaUtils.getPropertyLoop(split),
+        split[split.length - 1])) : LuaUtils.getObjectDirectly(split[0]);
       if (obj != null)
       {
         obj.text = text;
@@ -26,7 +28,9 @@ class TextFunctions
       return false;
     });
     funk.set("setTextSize", function(tag:String, size:Int) {
-      var obj:FlxText = LuaUtils.getObjectDirectly(tag);
+      final split:Array<String> = tag.split('.');
+      final obj:FlxText = split.length > 1 ? (LuaUtils.getVarInArray(LuaUtils.getPropertyLoop(split),
+        split[split.length - 1])) : LuaUtils.getObjectDirectly(split[0]);
       if (obj != null)
       {
         obj.size = size;
@@ -36,7 +40,9 @@ class TextFunctions
       return false;
     });
     funk.set("setTextWidth", function(tag:String, width:Float) {
-      var obj:FlxText = LuaUtils.getObjectDirectly(tag);
+      final split:Array<String> = tag.split('.');
+      final obj:FlxText = split.length > 1 ? (LuaUtils.getVarInArray(LuaUtils.getPropertyLoop(split),
+        split[split.length - 1])) : LuaUtils.getObjectDirectly(split[0]);
       if (obj != null)
       {
         obj.fieldWidth = width;
@@ -47,7 +53,9 @@ class TextFunctions
     });
     #if (flixel >= "5.4.0")
     funk.set("setTextHeight", function(tag:String, height:Float) {
-      var obj:FlxText = LuaUtils.getObjectDirectly(tag);
+      final split:Array<String> = tag.split('.');
+      final obj:FlxText = split.length > 1 ? (LuaUtils.getVarInArray(LuaUtils.getPropertyLoop(split),
+        split[split.length - 1])) : LuaUtils.getObjectDirectly(split[0]);
       if (obj != null)
       {
         obj.fieldHeight = height;
@@ -58,7 +66,9 @@ class TextFunctions
     });
     #end
     funk.set("setTextAutoSize", function(tag:String, value:Bool) {
-      var obj:FlxText = LuaUtils.getObjectDirectly(tag);
+      final split:Array<String> = tag.split('.');
+      final obj:FlxText = split.length > 1 ? (LuaUtils.getVarInArray(LuaUtils.getPropertyLoop(split),
+        split[split.length - 1])) : LuaUtils.getObjectDirectly(split[0]);
       if (obj != null)
       {
         obj.autoSize = value;
@@ -68,7 +78,9 @@ class TextFunctions
       return false;
     });
     funk.set("setTextBorder", function(tag:String, size:Float, color:String, ?style:String = 'outline') {
-      var obj:FlxText = LuaUtils.getObjectDirectly(tag);
+      final split:Array<String> = tag.split('.');
+      final obj:FlxText = split.length > 1 ? (LuaUtils.getVarInArray(LuaUtils.getPropertyLoop(split),
+        split[split.length - 1])) : LuaUtils.getObjectDirectly(split[0]);
       if (obj != null)
       {
         CoolUtil.setTextBorderFromString(obj, (size > 0 ? style : 'none'));
@@ -80,7 +92,9 @@ class TextFunctions
       return false;
     });
     funk.set("setTextColor", function(tag:String, color:String) {
-      var obj:FlxText = LuaUtils.getObjectDirectly(tag);
+      final split:Array<String> = tag.split('.');
+      final obj:FlxText = split.length > 1 ? (LuaUtils.getVarInArray(LuaUtils.getPropertyLoop(split),
+        split[split.length - 1])) : LuaUtils.getObjectDirectly(split[0]);
       if (obj != null)
       {
         obj.color = CoolUtil.colorFromString(color);
@@ -90,7 +104,9 @@ class TextFunctions
       return false;
     });
     funk.set("setTextFont", function(tag:String, newFont:String) {
-      var obj:FlxText = LuaUtils.getObjectDirectly(tag);
+      final split:Array<String> = tag.split('.');
+      final obj:FlxText = split.length > 1 ? (LuaUtils.getVarInArray(LuaUtils.getPropertyLoop(split),
+        split[split.length - 1])) : LuaUtils.getObjectDirectly(split[0]);
       if (obj != null)
       {
         obj.font = Paths.font(newFont);
@@ -100,7 +116,9 @@ class TextFunctions
       return false;
     });
     funk.set("setTextItalic", function(tag:String, italic:Bool) {
-      var obj:FlxText = LuaUtils.getObjectDirectly(tag);
+      final split:Array<String> = tag.split('.');
+      final obj:FlxText = split.length > 1 ? (LuaUtils.getVarInArray(LuaUtils.getPropertyLoop(split),
+        split[split.length - 1])) : LuaUtils.getObjectDirectly(split[0]);
       if (obj != null)
       {
         obj.italic = italic;
@@ -110,7 +128,9 @@ class TextFunctions
       return false;
     });
     funk.set("setTextAlignment", function(tag:String, alignment:String = 'left') {
-      var obj:FlxText = LuaUtils.getObjectDirectly(tag);
+      final split:Array<String> = tag.split('.');
+      final obj:FlxText = split.length > 1 ? (LuaUtils.getVarInArray(LuaUtils.getPropertyLoop(split),
+        split[split.length - 1])) : LuaUtils.getObjectDirectly(split[0]);
       if (obj != null)
       {
         obj.alignment = LEFT;
@@ -120,6 +140,8 @@ class TextFunctions
             obj.alignment = RIGHT;
           case 'center':
             obj.alignment = CENTER;
+          case 'justify':
+            obj.alignment = JUSTIFY;
         }
         return true;
       }
@@ -128,7 +150,9 @@ class TextFunctions
     });
 
     funk.set("getTextString", function(tag:String) {
-      var obj:FlxText = LuaUtils.getObjectDirectly(tag);
+      final split:Array<String> = tag.split('.');
+      final obj:FlxText = split.length > 1 ? (LuaUtils.getVarInArray(LuaUtils.getPropertyLoop(split),
+        split[split.length - 1])) : LuaUtils.getObjectDirectly(split[0]);
       if (obj != null && obj.text != null)
       {
         return obj.text;
@@ -137,7 +161,9 @@ class TextFunctions
       return null;
     });
     funk.set("getTextSize", function(tag:String) {
-      var obj:FlxText = LuaUtils.getObjectDirectly(tag);
+      final split:Array<String> = tag.split('.');
+      final obj:FlxText = split.length > 1 ? (LuaUtils.getVarInArray(LuaUtils.getPropertyLoop(split),
+        split[split.length - 1])) : LuaUtils.getObjectDirectly(split[0]);
       if (obj != null)
       {
         return obj.size;
@@ -146,7 +172,9 @@ class TextFunctions
       return -1;
     });
     funk.set("getTextFont", function(tag:String) {
-      var obj:FlxText = LuaUtils.getObjectDirectly(tag);
+      final split:Array<String> = tag.split('.');
+      final obj:FlxText = split.length > 1 ? (LuaUtils.getVarInArray(LuaUtils.getPropertyLoop(split),
+        split[split.length - 1])) : LuaUtils.getObjectDirectly(split[0]);
       if (obj != null)
       {
         return obj.font;
@@ -155,7 +183,9 @@ class TextFunctions
       return null;
     });
     funk.set("getTextWidth", function(tag:String) {
-      var obj:FlxText = LuaUtils.getObjectDirectly(tag);
+      final split:Array<String> = tag.split('.');
+      final obj:FlxText = split.length > 1 ? (LuaUtils.getVarInArray(LuaUtils.getPropertyLoop(split),
+        split[split.length - 1])) : LuaUtils.getObjectDirectly(split[0]);
       if (obj != null)
       {
         return obj.fieldWidth;
@@ -165,15 +195,16 @@ class TextFunctions
     });
 
     funk.set("addLuaText", function(tag:String) {
-      if (MusicBeatState.getVariables().exists(tag))
+      if (LuaUtils.getObjectDirectly(tag) != null)
       {
-        var shit:FlxText = LuaUtils.getObjectDirectly(tag);
+        final shit:FlxText = LuaUtils.getObjectDirectly(tag);
         LuaUtils.getTargetInstance().add(shit);
       }
     });
     funk.set("removeLuaText", function(tag:String, destroy:Bool = true) {
-      var variables = MusicBeatState.getVariables();
-      var text:FlxText = variables.get(tag);
+      final variables = MusicBeatState.variableMap(tag);
+      if (variables == null) return;
+      final text:FlxText = variables.get(tag);
       if (text == null) return;
 
       LuaUtils.getTargetInstance().remove(text, true);

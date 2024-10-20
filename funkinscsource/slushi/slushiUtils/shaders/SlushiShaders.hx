@@ -101,8 +101,8 @@ class Shader3DForNotes
 		if (shad != null)
 		{
 
-			var variables = MusicBeatState.getVariables();
-			var originalTag:String = tag;
+			var variables = MusicBeatState.getVariables("Tween");
+			
 			tag = LuaUtils.formatVariable('tween_$tag');
 
 			variables.set(tag, PlayState.tweenManager.num(startVal, value, time, {
@@ -141,8 +141,8 @@ class Shader3DForNotes
 
 		if (shad != null)
 		{
-			var variables = MusicBeatState.getVariables();
-			var originalTag:String = tag;
+			var variables = MusicBeatState.getVariables("Tween");
+			
 			tag = LuaUtils.formatVariable('tween_$tag');
 
 			variables.set(tag, PlayState.tweenManager.num(startVal, value, time, {
@@ -181,8 +181,8 @@ class Shader3DForNotes
 
 		if (shad != null)
 		{
-			var variables = MusicBeatState.getVariables();
-			var originalTag:String = tag;
+			var variables = MusicBeatState.getVariables("Tween");
+			
 			tag = LuaUtils.formatVariable('tween_$tag');
 
 			variables.set(tag, PlayState.tweenManager.num(startVal, value, time, {
@@ -221,8 +221,8 @@ class Shader3DForNotes
 
 		if (shad != null)
 		{
-			var variables = MusicBeatState.getVariables();
-			var originalTag:String = tag;
+			var variables = MusicBeatState.getVariables("Tween");
+			
 			tag = LuaUtils.formatVariable('tween_$tag');
 
 			variables.set(tag, PlayState.tweenManager.num(startVal, value, time, {
@@ -296,8 +296,8 @@ class WhiteShaderForNotes
 
 		if (shad != null)
 		{
-			var variables = MusicBeatState.getVariables();
-			var originalTag:String = tag;
+			var variables = MusicBeatState.getVariables("Tween");
+			
 			tag = LuaUtils.formatVariable('tween_$tag');
 
 			variables.set(tag, PlayState.tweenManager.num(startVal, value, time, {

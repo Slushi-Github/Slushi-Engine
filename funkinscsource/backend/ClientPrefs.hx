@@ -8,7 +8,7 @@ import states.TitleState;
 // Add a variable here and it will get automatically saved
 @:structInit class SaveVariables
 {
-	#if windows
+  #if windows
 	public var windowAlpha:Bool = true;
 	public var windowsNotifications:Bool = true;
 	public var changeWindowBorderColorWithNoteHit:Bool = true;
@@ -132,7 +132,6 @@ import states.TitleState;
   public var discordRPC:Bool = true;
 
   public var hudStyle:String = 'PSYCH';
-  public var quantNotes:Bool = false;
 
   public var gjUser:String = "";
   public var gjToken:String = "";
@@ -173,7 +172,7 @@ import states.TitleState;
 
   public var popupScoreForOp:Bool = true;
 
-  public var resultsScreenType:String = 'NONE';
+  public var behaviourType:String = 'NONE';
 
   public var systemUserName:String = "";
 
@@ -209,6 +208,8 @@ import states.TitleState;
 
   public var vanillaStrumAnimations:Bool = false;
   public var holdCoverPlay:Bool = true;
+
+  public var colorNoteType:String = 'None';
 }
 
 class ClientPrefs

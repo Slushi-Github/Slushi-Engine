@@ -321,7 +321,7 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
           spr.scale.set(character.scale.x, character.scale.y);
           spr.updateHitbox();
 
-          spr.offset.set(character.offset.x * spr.scale.x, spr.offset.y * spr.scale.y);
+          spr.offset.set(character.offset.x, spr.offset.y);
           spr.visible = true;
 
           var otherSpr:FlxSprite = #if flxanimate (spr == animateGhost) ? ghost : animateGhost #else ghost #end;
@@ -939,21 +939,9 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
     else
     {
     #end
-      var split:Array<String> = character.imageFile.split(',');
-      var charFrames:FlxAtlasFrames = Paths.getAtlas(split[0].trim());
-
-      if (split.length > 1)
-      {
-        var original:FlxAtlasFrames = charFrames;
-        charFrames = new FlxAtlasFrames(charFrames.parent);
-        charFrames.addAtlas(original, true);
-        for (i in 1...split.length)
-        {
-          var extraFrames:FlxAtlasFrames = Paths.getAtlas(split[i].trim());
-          if (extraFrames != null) charFrames.addAtlas(extraFrames, true);
-        }
-      }
-      character.frames = charFrames;
+      var spriteName:String = "characters/" + character.curCharacter;
+      if (character.imageFile != null) spriteName = character.imageFile;
+      character.loadSprite(Paths.checkForImage(spriteName), character.imageFile, spriteName);
     #if flxanimate
     }
     #end
@@ -1031,10 +1019,11 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
     if (FlxG.keys.pressed.CONTROL) ctrlMult = 0.25;
 
     // CAMERA CONTROLS
-    if (FlxG.keys.pressed.J) FlxG.camera.scroll.x -= elapsed * 500 * shiftMult * ctrlMult;
-    if (FlxG.keys.pressed.K) FlxG.camera.scroll.y += elapsed * 500 * shiftMult * ctrlMult;
-    if (FlxG.keys.pressed.L) FlxG.camera.scroll.x += elapsed * 500 * shiftMult * ctrlMult;
-    if (FlxG.keys.pressed.I) FlxG.camera.scroll.y -= elapsed * 500 * shiftMult * ctrlMult;
+    var camMove:Float = elapsed * 500 * shiftMult * ctrlMult;
+    if (FlxG.keys.pressed.J) FlxG.camera.scroll.x -= camMove;
+    if (FlxG.keys.pressed.K) FlxG.camera.scroll.y += camMove;
+    if (FlxG.keys.pressed.L) FlxG.camera.scroll.x += camMove;
+    if (FlxG.keys.pressed.I) FlxG.camera.scroll.y -= camMove;
 
     var mouse = FlxG.mouse.getScreenPosition();
     if (FlxG.mouse.justPressed && !FlxG.mouse.overlaps(UI_characterbox))

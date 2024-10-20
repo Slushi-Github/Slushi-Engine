@@ -56,7 +56,7 @@ class DialogueBoxPsych extends FlxSpriteGroup
   {
     super();
 
-    if (song != null && song != '')
+    if (song != null && song.length > 0)
     {
       FlxG.sound.playMusic(Paths.music(song), 0);
       FlxG.sound.music.fadeIn(2, 0, 1);

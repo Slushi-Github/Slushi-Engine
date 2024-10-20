@@ -39,6 +39,7 @@ class Macros
       "flixel.addons.util",
       // OTHER LIBRARIES & STUFF
       #if (VIDEOS_ALLOWED && hxvlc) "hxvlc.flixel", "hxvlc.openfl", #end
+      #if flxsoundfilters "flixel.sound.filters.effects", "flixel.sound.filters.extensions", #end
       // BASE HAXE
       "DateTools",
       "EReg",
@@ -75,7 +76,6 @@ class Macros
       "slushi.windowThings",
       "slushi.winSL",
       /////
-
 
       "states",
       "substates",

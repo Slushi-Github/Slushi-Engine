@@ -265,7 +265,7 @@ class GameJoltLogin extends MusicBeatState implements PsychUIEventHandler.PsychU
       {
         FlxG.save.flush();
         FlxG.mouse.visible = false;
-        MusicBeatState.switchState(new slushi.states.SlushiMainMenuState());
+        MusicBeatState.switchState(new states.MainMenuState());
         ClientPrefs.saveSettings();
       }
     }

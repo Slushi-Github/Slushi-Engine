@@ -3,7 +3,7 @@
 xsi:schemaLocation="http://lime.openfl.org/project/1.0.4 http://lime.openfl.org/xsd/project-1.0.4.xsd">
 	<!-- _________________________ Application Settings _________________________ -->
 
-	<app title="SC Engine - Slushi Engine" file="SLE" packageName="com.SCTeam.SCEE" package="com.SCTeam.SCE" main="Main" version="0.3.3" company="SlushiAndSCTeam" />
+	<app title="SC Engine - Slushi Engine" file="SLE" packageName="com.SCTeam.SCEE" package="com.SCTeam.SCE" main="Main" version="0.3.8" company="SlushiAndSCTeam" />
 
 	<!--Switch Export with Unique ApplicationID and Icon-->
 	<set name="APP_ID" value="0x0100f6c013bbc000" />
@@ -57,17 +57,17 @@ xsi:schemaLocation="http://lime.openfl.org/project/1.0.4 http://lime.openfl.org/
 	<define name="SLUSHI_LUA"/> <!-- Defines whether if Lua of SLE is allowed. -->
 	<define name="SLUSHI_CPP_CODE" if="windows"/> <!-- Defines whether if C++ code is allowed. -->
 	<!-- <define name="THIS_IS_A_BUILD_TEST"/> -->
-	<!-- <define name=" CUSTOM_BUILD"/> -->
+	<!-- <define name="CUSTOM_BUILD"/> -->
+	<define name="WINSL_SUGGEST_COMMAND"/> <!-- Defines whether if WinSL can suggest commands is allowed. -->
 	<!-- ____________________________ EXPERIMENTAL _______________________________ -->
 	<!-- ____________________________ Assets - Paths _______________________________ -->
 	<assets path="assets/slushiEngineAssets" rename="assets/slushiEngineAssets" include="*"/>
 	<assets path="assets/slushiEngineAssets/SLEAssets" rename="assets/slushiEngineAssets/SLEAssets" include="*"/>
 	<!-- ____________________________ Libs _______________________________ -->
 	<!-- <haxelib name="flxgif"/> -->
-	<haxelib name="fuzzaldrin"/>
+	<haxelib name="fuzzaldrin" if="WINSL_SUGGEST_COMMAND"/>
 	<!-- ____________________________ Libs versions and settings _______________________________ -->
 	<!-- ____________________________ Others _______________________________ -->
-
 
 	<!-- PSYCH && SCE CUSTOMIZATION -->
 	<!-- Defines whether the Discord client should be enabled. Only works on desktop. -->
@@ -238,10 +238,7 @@ xsi:schemaLocation="http://lime.openfl.org/project/1.0.4 http://lime.openfl.org/
 
 	<!--In case you want to use the addons package-->
 	<haxelib name="linc_luajit" if="LUA_ALLOWED"/>
-	<haxelib name="hscript-iris" if="HSCRIPT_ALLOWED" version="1.0.2"/>
-
-	<!--Avoid memory leaks with for loops in HScript-->
-	<haxedef name="loop_unroll_max_cost" value="25" />
+	<haxelib name="hscript-iris" if="HSCRIPT_ALLOWED"/>
 
 	<haxelib name="hxvlc" if="VIDEOS_ALLOWED"/>
 	<haxelib name="format"/>
@@ -273,11 +270,14 @@ xsi:schemaLocation="http://lime.openfl.org/project/1.0.4 http://lime.openfl.org/
 	<!-- Enables a terminal log prompt on debug builds -->
 	<haxelib name="hxcpp-debug-server" if="debug"/>
 	<haxedef name="HXC_LIBVLC_LOGGING" if="VIDEOS_ALLOWED debug" />
+	<haxedef name="HXVLC_NO_SHARE_DIRECTORY" if="VIDEOS_ALLOWED" />
+	<define name="x86_BUILD" if="32bits" />
 
 	<haxelib name="thx.core"/>
 	<haxelib name="thx.semver"/>
 	<haxelib name="json2object"/>
 	<haxelib name="FlxPartialSound"/>
+	<haxelib name="flxsoundfilters" />
 
 	<!--Disable source traces for release builds-->
 	<haxeflag name="-D no-traces"/>
@@ -311,7 +311,7 @@ xsi:schemaLocation="http://lime.openfl.org/project/1.0.4 http://lime.openfl.org/
 	<haxedef name="HXCPP_CHECK_POINTER" if="CRASH_HANDLER" />
 	<haxedef name="HXCPP_STACK_LINE" if="CRASH_HANDLER" />
 
-	<haxedef name="hscriptPos" /> <!-- for logging -->
+	<haxedef name="hscriptPos" if="HSCRIPT_ALLOWED"/> <!-- for logging -->
 
 	<!-- Enable this on platforms which do not support dropping files onto the window. -->
 	<haxedef name="FILE_DROP_UNSUPPORTED" if="mac" />

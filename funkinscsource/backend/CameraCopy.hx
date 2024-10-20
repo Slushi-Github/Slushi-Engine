@@ -28,8 +28,6 @@ class CameraCopy extends FlxCamera
     this.x = _target.x;
     this.y = _target.y;
 
-    this.filters = _target.filters;
-
     this.scroll.copyFrom(_target.scroll);
     this.scroll.addPoint(scrollOffset);
     this.scroll.scale(1 - scrollOverride);

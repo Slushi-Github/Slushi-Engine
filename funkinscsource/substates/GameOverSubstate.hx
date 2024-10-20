@@ -166,10 +166,24 @@ class GameOverSubstate extends MusicBeatSubState
         PlayState.chartingMode = false;
         PlayState.modchartMode = false;
 
-        Mods.loadTopMod();
-        if (PlayState.isStoryMode) MusicBeatState.switchState(new StoryMenuState());
+        if (ClientPrefs.data.behaviourType != 'VSLICE')
+        {
+          if (PlayState.isStoryMode) MusicBeatState.switchState(new StoryMenuState());
+          else
+            MusicBeatState.switchState(new states.freeplay.FreeplayState());
+        }
+        #if BASE_GAME_FILES
         else
-          MusicBeatState.switchState(new states.freeplay.FreeplayState());
+        {
+          if (PlayState.isStoryMode)
+          {
+            PlayState.storyPlaylist = [];
+            openSubState(new vslice.transition.StickerSubState(null, (sticker) -> new StoryMenuState(sticker)));
+          }
+          else
+            openSubState(new vslice.transition.StickerSubState(null, (sticker) -> new states.freeplay.FreeplayState(sticker)));
+        }
+        #end
 
         FlxG.sound.playMusic(SlushiMain.getSLEPath("Musics/SLE_HackNet_Resonance.ogg"));
         PlayState.instance.callOnScripts('onGameOverConfirm', [false]);

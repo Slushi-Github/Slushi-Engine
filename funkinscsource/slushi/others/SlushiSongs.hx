@@ -1,7 +1,7 @@
 package slushi.others;
 
 /**
- * A simple class for things of the slushi engine songs
+ * A simple class for things of the Slushi Engine songs
  * 
  * Author: Slushi
  */

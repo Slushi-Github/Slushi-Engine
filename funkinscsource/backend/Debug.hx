@@ -196,10 +196,10 @@ class Debug
 
     logInfo("Debug logging initialized. Hello, developer.");
 
-    var buildType:String = #if debug "DEBUG" #else "RELEASE" #end;
+    var buildType:String = #if debug "DEBUG" #elseif release "RELEASE" #else "COMPLIED" #end;
     logInfo("This is a " + buildType + " build.");
     #if !web
-    logInfo('Operating System : ${Sys.systemName()}');
+    logInfo('Operating System: ${Sys.systemName()}');
     #end
     logInfo('Haxe Version: ' + haxe.macro.Compiler.getDefine("haxe"));
     logInfo('HaxeFlixel version: ${Std.string(FlxG.VERSION)}');
@@ -299,24 +299,16 @@ class Debug
   {
     // This code is junk but I kept getting Null Function References.
     var inArray:Array<Dynamic> = null;
-    if (input == null)
-    {
-      inArray = ['<NULL>'];
-    }
-    else if (!Std.isOfType(input, Array))
-    {
-      inArray = [input];
-    }
+    var stringArray:Array<String> = [];
+    if (input == null) inArray = ['<NULL>'];
+    else if (!Std.isOfType(input, Array)) inArray = [input];
     else
-    {
       inArray = input;
-    }
 
     if (pos == null) return inArray;
 
     // Format the position ourselves.
     var output:Array<Dynamic> = ['(${pos.className}/${pos.methodName}#${pos.lineNumber}): '];
-
     return output.concat(inArray);
   }
 }
@@ -388,9 +380,9 @@ class DebugLogWriter
     #end
   }
 
-  function shouldLog(input:String):Bool
+  inline function shouldLog(input:String):Bool
   {
-    var levelIndex = LOG_LEVELS.indexOf(input);
+    final levelIndex = LOG_LEVELS.indexOf(input);
     // Could not find this log level.
     if (levelIndex == -1) return false;
     return levelIndex <= logLevel;
@@ -398,7 +390,7 @@ class DebugLogWriter
 
   public function setLogLevel(input:String):Void
   {
-    var levelIndex = LOG_LEVELS.indexOf(input);
+    final levelIndex = LOG_LEVELS.indexOf(input);
     // Could not find this log level.
     if (levelIndex == -1) return;
 
@@ -413,9 +405,10 @@ class DebugLogWriter
    */
   public function write(input:Array<Dynamic>, logLevel = 'TRACE'):Void
   {
-    var ts = FlxStringUtil.formatTime(getTime(), true);
-    var dateNow = getDate();
-    var msg = '$dateNow, $ts [${logLevel.rpad('', 5)}] - ${input.join('')}';
+    final ts = FlxStringUtil.formatTime(getTime(), true);
+    final dateNow = getDate();
+    final arguments = transformToArguments(input);
+    final msg = '$dateNow || $ts [$logLevel] - $arguments';
 
     #if sys
     if (active && file != null)
@@ -430,24 +423,19 @@ class DebugLogWriter
     #end
 
     // Output text to the debug console directly.
-    if (shouldLog(logLevel))
-    {
-      printDebug(msg);
-    }
+    if (shouldLog(logLevel)) printDebug(msg);
   }
 
   public static function getDate()
   {
-    var dateNow = Date.now();
-    var year = dateNow.getFullYear();
-    var mouth = dateNow.getMonth() + 1;
-    var day = dateNow.getDate();
-    var all = year + "-" + (mouth < 10 ? "0" : "") + mouth + "-" + (day < 10 ? "0" : "") + day;
-
-    return all;
+    final dateNow = Date.now();
+    final year = dateNow.getFullYear();
+    final month = dateNow.getMonth() + 1;
+    final day = dateNow.getDate();
+    return '$year/${month < 10 ? "0" : ""}$month/${day < 10 ? "0" : ""}$day';
   }
 
-  function printDebug(msg:String)
+  inline function printDebug(msg:String)
   {
     #if sys
     Sys.println(msg);
@@ -455,5 +443,15 @@ class DebugLogWriter
     // Pass null to exclude the position.
     haxe.Log.trace(msg, null);
     #end
+  }
+
+  inline function transformToArguments(input:Array<Dynamic>):String
+  {
+    final call:String = Std.string(input[0]);
+    input.shift();
+    var value:String = "";
+    for (item in input)
+      value += (value.length > 0 ? ", " : "") + Std.string(item);
+    return call + value;
   }
 }

@@ -138,7 +138,7 @@ class ResultsScreenKadeSubstate extends substates.MusicBeatSubState
     var bads = PlayState.isStoryMode ? PlayState.averageWeekBads : PlayState.averageGoods;
     var shits = PlayState.isStoryMode ? PlayState.averageWeekShits : PlayState.averageShits;
 
-    comboText.text = 'Judgements:\nSwags - ${swags}\nSicks - ${sicks}\nGoods - ${goods}\nBads - ${bads}\nShits - ${shits}\n\nCombo Breaks: ${PlayState.isStoryMode ? PlayState.averageWeekMisses : game.songMisses}\nHighest Combo: ${PlayState.highestCombo + 1}\nScore: $score\n${PlayState.isStoryMode ? 'Average Accuracy' : 'Accuracy'}: ${acc}% \nRank: ${game.comboLetterRank} - ${game.ratingFC} \nRate: ${game.playbackRate}x\n\nH - Replay song';
+    comboText.text = 'Judgements:\nSwags - ${swags}\nSicks - ${sicks}\nGoods - ${goods}\nBads - ${bads}\nShits - ${shits}\n\nCombo Breaks: ${PlayState.isStoryMode ? PlayState.averageWeekMisses : game.songMisses}\nHighest Combo: ${game.highestCombo + 1}\nScore: $score\n${PlayState.isStoryMode ? 'Average Accuracy' : 'Accuracy'}: ${acc}% \nRank: ${game.comboLetterRank} - ${game.ratingFC} \nRate: ${game.playbackRate}x\n\nH - Replay song';
 
     add(comboText);
 
@@ -192,11 +192,10 @@ class ResultsScreenKadeSubstate extends substates.MusicBeatSubState
 
     if (superMegaConditionShit)
     {
-      var percent:Float = game.ratingPercent;
-      if (Math.isNaN(percent)) percent = 0;
-      Highscore.saveScore(PlayState.SONG.songId, game.songScore, PlayState.storyDifficulty, percent);
-      Highscore.saveCombo(PlayState.SONG.songId, game.ratingFC, PlayState.storyDifficulty);
-      Highscore.saveLetter(PlayState.SONG.songId, game.comboLetterRank, PlayState.storyDifficulty);
+      // If no high score is present, save both score and rank.
+      // If score or rank are better, save the highest one.
+      // If neither are higher, nothing will change.
+      Highscore.applySongRank(Highscore.songHighScoreData);
     }
 
     mean = HelperFunctions.truncateFloat(mean / game.playerNotes, 2);

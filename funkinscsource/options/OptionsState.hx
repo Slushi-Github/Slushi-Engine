@@ -32,7 +32,6 @@ class OptionsState extends MusicBeatState
         FlxTransitionableState.skipNextTransOut = true;
         FlxTransitionableState.skipNextTransIn = true;
         MusicBeatState.switchState(new slushi.slushiOptions.SlushiOptionsState());
-        
       case 'Note Options':
         FlxTransitionableState.skipNextTransOut = true;
         FlxTransitionableState.skipNextTransIn = true;

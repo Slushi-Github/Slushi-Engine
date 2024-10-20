@@ -1,8 +1,7 @@
 package shaders;
 
-class RGBPalette
+class RGBPalette extends ShaderBase
 {
-  public var shader(default, null):RGBPaletteShader = new RGBPaletteShader();
   public var r(default, set):FlxColor;
   public var g(default, set):FlxColor;
   public var b(default, set):FlxColor;
@@ -16,61 +15,62 @@ class RGBPalette
   private function set_r(color:FlxColor)
   {
     r = color;
-    shader.r.value = [color.redFloat, color.greenFloat, color.blueFloat];
+    shader.setFloatArray('r', [color.redFloat, color.greenFloat, color.blueFloat]);
     return color;
   }
 
   private function set_g(color:FlxColor)
   {
     g = color;
-    shader.g.value = [color.redFloat, color.greenFloat, color.blueFloat];
+    shader.setFloatArray('g', [color.redFloat, color.greenFloat, color.blueFloat]);
     return color;
   }
 
   private function set_b(color:FlxColor)
   {
     b = color;
-    shader.b.value = [color.redFloat, color.greenFloat, color.blueFloat];
+    shader.setFloatArray('b', [color.redFloat, color.greenFloat, color.blueFloat]);
     return color;
   }
 
   private function set_mult(value:Float)
   {
     mult = FlxMath.bound(value, 0, 1);
-    shader.mult.value = [mult];
+    shader.setFloat('mult', mult);
     return mult;
   }
 
   private function set_stealthGlow(value:Float)
   {
     stealthGlow = value;
-    shader._stealthGlow.value = [stealthGlow];
+    shader.setFloat('_stealthGlow', stealthGlow);
     return value;
   }
 
   private function set_stealthGlowRed(value:Float)
   {
     stealthGlowRed = value;
-    shader._stealthR.value = [stealthGlowRed];
+    shader.setFloat('_stealthR', stealthGlowRed);
     return value;
   }
 
   private function set_stealthGlowGreen(value:Float)
   {
     stealthGlowGreen = value;
-    shader._stealthG.value = [stealthGlowGreen];
+    shader.setFloat('_stealthG', stealthGlowGreen);
     return value;
   }
 
   private function set_stealthGlowBlue(value:Float)
   {
     stealthGlowBlue = value;
-    shader._stealthB.value = [stealthGlowBlue];
+    shader.setFloat('_stealthB', stealthGlowBlue);
     return value;
   }
 
   public function new()
   {
+    super('RGBPalette');
     r = 0xFFFF0000;
     g = 0xFF00FF00;
     b = 0xFF0000FF;
@@ -199,53 +199,5 @@ class RGBShaderReference
 
       _owner.shader = parent.shader;
     }
-  }
-}
-
-class RGBPaletteShader extends FlxShader
-{
-  @:glFragmentHeader('
-		#pragma header
-
-		uniform vec3 r;
-		uniform vec3 g;
-		uniform vec3 b;
-		uniform float mult;
-
-    uniform float _stealthGlow;
-		uniform float _stealthR;
-		uniform float _stealthG;
-		uniform float _stealthB;
-
-		vec4 flixel_texture2DCustom(sampler2D bitmap, vec2 coord) {
-			vec4 color = flixel_texture2D(bitmap, coord);
-			if (!hasTransform || color.a == 0.0 || mult == 0.0) {
-				return color;
-			}
-
-			vec4 newColor = color;
-			newColor.rgb = min(color.r * r + color.g * g + color.b * b, vec3(1.0));
-			newColor.a = color.a;
-
-			color = mix(color, newColor, mult);
-
-      vec4 glow = vec4(_stealthR,_stealthG,_stealthB,1.0);
-			glow *=  color.a;
-			color = mix(color, glow, _stealthGlow);
-
-			if(color.a > 0.0) {
-				return vec4(color.rgb, color.a);
-			}
-			return vec4(0.0, 0.0, 0.0, 0.0);
-		}')
-  @:glFragmentSource('
-		#pragma header
-
-		void main() {
-			gl_FragColor = flixel_texture2DCustom(bitmap, openfl_TextureCoordv);
-		}')
-  public function new()
-  {
-    super();
   }
 }
