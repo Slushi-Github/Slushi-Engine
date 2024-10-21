@@ -17,6 +17,9 @@
 ![GitHub repo size](https://img.shields.io/github/repo-size/Slushi-Github/Slushi-Engine)
 
 
+[Gamejolt](https://gamejolt.com/games/SlushiEngine/884361) - [GameBanana](https://gamebanana.com/tools/17953)
+
+
 Slushi Engine is an FNF' engine that allows you to make modcharts with [Modcharting Tools](https://github.com/EdwhakKB/FNF-Modcharting-Tools) and other [SC Engine](https://github.com/EdwhakKB/SC-SP-ENGINE) utilities, while also being able to make a unique kind of modchart that uses Windows functions!
 In addition, SLE takes some inspiration from [NotITG](https://www.noti.tg/) and [HITMANS: THE ANNIHILATE AND DESTROY PROJECT](https://gamebanana.com/mods/453997)
 
