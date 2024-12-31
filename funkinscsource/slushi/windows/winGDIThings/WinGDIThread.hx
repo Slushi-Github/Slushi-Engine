@@ -86,6 +86,6 @@ class WinGDIThread
 		gdiEffects.clear();
 		elapsedTime = 0;
 		SlushiWinGDI.setElapsedTime(elapsedTime);
+		#end
 	}
-	#end
 }
