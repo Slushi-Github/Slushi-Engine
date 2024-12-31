@@ -289,9 +289,11 @@ class SlushiFreeplayState extends MusicBeatState
 		intendedColor = bg.color;
 		lerpSelected = curSelected;
 
+		#if windows
 		// Set the window border color from the current song's color
 		// Idea from VS Camellia ALT (https://gamebanana.com/mods/413258) (They use my code to set the window border color XD)
 		WindowsFuncs.setWindowBorderColorFromInt(intendedColor);
+		#end
 
 		curDifficulty = Math.round(Math.max(0, Difficulty.list.indexOf(lastDifficultyName)));
 
@@ -1039,10 +1041,12 @@ class SlushiFreeplayState extends MusicBeatState
 			FlxTween.cancelTweensOf(bg);
 			FlxTween.color(bg, 1, bg.color, intendedColor);
 
+			#if windows
 			// Set the window border color with a tween from the current song's color
 			// Idea from VS Camellia ALT (https://gamebanana.com/mods/413258) (They use my code to set the window border color XD)
 			WindowsFuncs.cancelWindowBorderColorTween();
 			WindowsFuncs.tweenWindowBorderColor(CustomFuncs.colorIntToRGB(bg.color), CustomFuncs.colorIntToRGB(intendedColor), 1, "linear");
+			#end
 		}
 
 		for (num => item in grpSongs.members)

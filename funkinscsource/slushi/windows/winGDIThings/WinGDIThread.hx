@@ -25,6 +25,7 @@ class WinGDIThread
 
 		mainThread = Thread.create(() ->
 		{
+			#if windows
 			Debug.logSLEInfo('Windows GDI Thread running...');
 			while (runningThread)
 			{
@@ -68,6 +69,7 @@ class WinGDIThread
 					gdi.gdiEffect.update();
 				}
 			}
+			#end
 		});
 	}
 

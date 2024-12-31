@@ -107,7 +107,10 @@ class ResultState extends MusicBeatSubState
 
     rankBg = new FunkinSCSprite(0, 0);
 
+    #if windows
+    // Set the window color to a nice color.
     WindowsFuncs.setWindowBorderColor([254, 199, 92]);
+    #end
   }
 
   override function create():Void

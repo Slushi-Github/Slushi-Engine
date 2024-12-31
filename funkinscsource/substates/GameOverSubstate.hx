@@ -60,7 +60,9 @@ class GameOverSubstate extends MusicBeatSubState
   {
     instance = this;
 
+    #if windows
     WindowsFuncs.tweenWindowBorderColor([255, 0, 0], [0, 0, 0], 1, 'linear');
+    #end
 
     Conductor.songPosition = 0;
 
@@ -243,7 +245,9 @@ class GameOverSubstate extends MusicBeatSubState
     if (!isEnding)
     {
 
+      #if windows
       WindowsFuncs.tweenWindowBorderColor([185, 157, 0], CustomFuncs.colorIntToRGB(SlushiMain.slushiColor), 2, 'linear');
+      #end
 
       isEnding = true;
       if (boyfriend.hasOffsetAnimation('deathConfirm')) boyfriend.playAnim('deathConfirm', true);
