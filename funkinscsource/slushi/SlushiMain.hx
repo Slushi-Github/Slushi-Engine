@@ -6,6 +6,9 @@ import slushi.others.BuildDemoText;
 import slushi.slushiUtils.crashHandler.CrashHandler;
 import tjson.TJSON as Json;
 import slushi.states.SlushiTitleState;
+import slushi.windows.winGDIThings.WinGDIThread;
+import haxe.Http;
+import slushi.others.EngineMacros;
 
 /*
  * This is the main class for the Slushi Engine initialization, this loads all initial functions of Windows C++ API
@@ -15,22 +18,23 @@ import slushi.states.SlushiTitleState;
  */
 class SlushiMain
 {
-	// Versions of the things in the engine and base engine (SCE)
-	public static var buildNumber:String = "19102024";
+	// Versions of the things in the engine and SCE
+	public static var buildNumber:String = EngineMacros.prepareBuildNumber();
 	public static var sceGitCommit:String = "4eaf8c4";
-	public static var slushiEngineVersion:String = '0.3.8';
-	public static var winSLVersion:String = '1.3.0';
-	public static var slCrashHandlerVersion:String = '1.4.0';
+	public static var slushiEngineVersion:String = '0.4.0';
+	public static var sleThingsVersions = {
+		winSLVersion: '1.3.0',
+		slCrashHandlerVersion: '1.4.0'
+	};
 
-	public static var slushiColor = FlxColor.fromRGB(143, 217, 209); // 0xff8FD9D1 0xffd6f3de
-	private static var pathsToCreate:Array<String> = ['./engineUtils', './engineUtils/SMToConvert'];
+	public static var slushiColor:FlxColor = FlxColor.fromRGB(143, 217, 209); // 0xff8FD9D1 0xffd6f3de
+	private static var pathsToCreate:Array<String> = ['./slEngineUtils', './slEngineUtils/SMToConvert', './mods/images/windowsAssets/'];
 
 	public static function loadSlushiEngineFunctions()
 	{
 		#if windows
 		preventAdminExecution();
 		CppAPI._setWindowLayered();
-		CppAPI.centerWindow();
 		WindowsFuncs.resetAllCPPFunctions();
 		WindowsFuncs.saveCurrentWindowsWallpaper();
 		if (ClientPrefs.data.useSavedWallpaper)
@@ -39,11 +43,11 @@ class SlushiMain
 		}
 		WindowsFuncs.setSlushiColorToWindow();
 		#end
-		SystemInfo.init();
-		createEngineUtilsFolder();
-		Application.current.window.onClose.add(SlushiMain.onCloseWindow);
-
+		WindowFuncs.centerWindow();
 		CrashHandler.initCrashHandler();
+		SystemInfo.init();
+		createSLEngineFolders();
+		Application.current.window.onClose.add(SlushiMain.onCloseWindow);
 
 		#if THIS_IS_A_BUILD_TEST
 		var textWarn:BuildDemoText = new BuildDemoText();
@@ -53,8 +57,9 @@ class SlushiMain
 
 	inline public static function getSLEPath(file:String = ''):String
 	{
-		final finalFile = 'assets/slushiEngineAssets/SLEAssets/$file';
-		if (FileSystem.exists(finalFile)) {
+		final finalFile = 'assets/slushiEngineAssets/$file';
+		if (FileSystem.exists(finalFile))
+		{
 			return finalFile;
 		}
 		else if (finalFile.endsWith('.png'))
@@ -74,42 +79,60 @@ class SlushiMain
 		}
 	}
 
-	public static function createEngineUtilsFolder()
+	private static function createSLEngineFolders()
 	{
-		var paths:Array<String> = pathsToCreate;
-
-		for (path in paths)
-			if (!FileSystem.exists(path))
-				FileSystem.createDirectory(path);
+		for (path in pathsToCreate)
+		{
+			try
+			{
+				if (!FileSystem.exists(path))
+				{
+					FileSystem.createDirectory(path);
+				}
+			}
+			catch (e)
+			{
+				Debug.logSLEError('Error creating [$path]: $e');
+			}
+		}
 	}
 
 	public static function onCloseWindow()
 	{
 		Sys.println("\033[0m");
+		CustomFuncs.removeAllFilesFromCacheDirectory();
 		#if windows
-		Debug.logSLEInfo("Reseting all C++ functions...\n\n");
+		Debug.logSLEInfo("Reseting all C++ functions...\n");
+		WinGDIThread.stopThread();
 		WindowsFuncs.resetAllCPPFunctions();
 
 		// Delete the saved wallpaper if it exists
 		@:privateAccess
-		if (FileSystem.exists(WindowsFuncs.savedWallpaperPath))
+		try
 		{
-			FileSystem.deleteFile(WindowsFuncs.savedWallpaperPath);
+			if (FileSystem.exists(WindowsFuncs.savedWallpaperPath))
+			{
+				FileSystem.deleteFile(WindowsFuncs.savedWallpaperPath);
+			}
+		}
+		catch (e)
+		{
+			Debug.logSLEError('Error deleting saved wallpaper: $e');
 		}
 
 		// Close the game without animations if it is in a crash, preventing a posible loop
 		if (CrashHandler.inCrash)
 		{
-			Sys.exit(1);
+			System.exit(1);
 			return;
 		}
 
 		Application.current.window.onClose.cancel();
 
-		var numTween:NumTween = FlxTween.num(CppAPI.getWindowOppacity(), 0, 0.7, {
+		var numTween:NumTween = FlxTween.num(CppAPI.getWindowOppacity(), 0, 0.6, {
 			onComplete: function(twn:FlxTween)
 			{
-				Sys.exit(0);
+				System.exit(0);
 			}
 		});
 		numTween.onUpdate = function(twn:FlxTween)
@@ -117,7 +140,7 @@ class SlushiMain
 			CppAPI.setWindowOppacity(numTween.value);
 		}
 		#else
-		Application.current.window.close();
+		System.exit(0);
 		#end
 	}
 
@@ -126,7 +149,7 @@ class SlushiMain
 		if (ClientPrefs.data.checkForUpdates)
 		{
 			Debug.logSLEInfo('Checking for new version...');
-			var http = new haxe.Http("https://raw.githubusercontent.com/Slushi-Github/Slushi-Engine/main/gitVersion.json");
+			var http = new Http("https://raw.githubusercontent.com/Slushi-Github/Slushi-Engine/main/gitVersion.json");
 			var jsonData:Dynamic = null;
 
 			http.onData = function(data:String)
@@ -138,20 +161,33 @@ class SlushiMain
 				catch (e)
 				{
 					Debug.logSLEError('Error parsing JSON: $e');
+					return;
 				}
 
 				var currentVersion = slushiEngineVersion;
 				var gitVersion = jsonData.engineVersion;
-				Debug.logInfo('version online: [' + gitVersion + '], this version: [' + currentVersion + ']');
-				if (gitVersion != currentVersion)
+
+				Debug.logSLEInfo('Version online: [' + gitVersion + '], this version: [' + currentVersion + ']');
+
+				var currentVersionNum = CustomFuncs.parseVersion(currentVersion);
+				var gitVersionNum = CustomFuncs.parseVersion(gitVersion);
+
+				if (currentVersionNum > gitVersionNum)
 				{
-					Debug.logSLEWarn('Versions arent matching!');
+					Debug.logSLEInfo('The version is higher than the one on Github so this is a development version, skipping update check.');
+					SlushiTitleState.gitVersion.needUpdate = false;
+					slushiEngineVersion += ' - [DEV]';
+				}
+				else if (currentVersionNum < gitVersionNum)
+				{
+					Debug.logSLEWarn('A new version is available!');
 					SlushiTitleState.gitVersion.needUpdate = true;
 					SlushiTitleState.gitVersion.newVersion = gitVersion;
 				}
 				else
 				{
 					Debug.logSLEInfo('Versions are matching!');
+					SlushiTitleState.gitVersion.needUpdate = false;
 				}
 			}
 
@@ -169,14 +205,24 @@ class SlushiMain
 	/**
 	 * Even though SLE does not require administrator permissions for absolutely nothing, I do NOT want the engine 
 	 * to be able to run with those permissions, it DOES NOT NEED THEM.
+	 * 
+	 * Except when running SLE on Linux or MacOS through Wine, Wine will always run a 
+	 * Windows program with administrator permissions apparently, making it 
+	 * impossible to run SLE this way before.
 	 */
 	private static function preventAdminExecution()
 	{
 		#if windows
+		if (WindowsCPP.detectWine())
+		{
+			Debug.logSLEWarn("Wine detected! Skipping admin check because Wine always runs as admin.");
+			return;
+		}
+
 		if (WindowsCPP.isRunningAsAdmin())
 		{
 			CppAPI.showMessageBox("SLE is running as an administrator, please don't do that.", "Slushi Engine: HEY!!", MSG_WARNING);
-			Sys.exit(1);
+			System.exit(1);
 		}
 		#end
 	}

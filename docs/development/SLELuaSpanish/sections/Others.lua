@@ -1,4 +1,18 @@
--- Others.lua -- Version: 1.1.0 -- Ultima modificación: 2/9/2024
+-- Others.lua -- Version: 1.2.0 -- Ultima modificación: 19/12/2024
+
+-- retorna un string con el nombre de la cámara para Lua, pero puedes usarlo como una variable nativa de Lua
+camGame = "game"
+camHUD = "hud"
+camOther = "other"
+camNoteStuff = "notestuff"
+camSLEHUD = "slehud"
+camThings = "camthings"
+camThings2 = "camthings2"
+camThings3 = "camthings3"
+camThings4 = "camthings4"
+camThings5 = "camthings5"
+camWaterMark = "camwatermark"
+
 
 function printInGameplay(text, time)
     --[[
@@ -62,5 +76,20 @@ function tweenNumer(tag, startNum, endNum, duration, ease)
     endNum: El valor final del tween (float).
     duration: El tiempo del tween (float).
     ease: El tipo de easing a aplicar (por defecto "linear") (string).
+    ]]--
+end
+
+function getSLEVersion()
+    --[[
+    Obtiene la versión de Slushi Engine.
+    return: La versión de SLE (string).
+    ]]--
+end
+
+function getMTCurrentModifiers(equalizer)
+    --[[
+    Obtiene los modifiers actuales con sus valores del modchart hecho con Modcharting Tools.
+    equalizer: String para separar los modifiers, por defecto ":" (string).
+    return: Los modifiers actuales (string).
     ]]--
 end

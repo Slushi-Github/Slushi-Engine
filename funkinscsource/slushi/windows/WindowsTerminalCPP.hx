@@ -30,7 +30,7 @@ package slushi.windows;
 #pragma comment(lib, "gdi32.lib")
 ')
 #end
-class WinConsoleUtils
+class WindowsTerminalCPP
 {
 	#if windows
 	@:functionCode('

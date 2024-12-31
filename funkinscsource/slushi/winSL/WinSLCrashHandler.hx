@@ -67,6 +67,6 @@ class WinSLCrashHandler {
 			#end
 		}
 
-		Sys.exit(1);
+		System.exit(1);
     }
 }

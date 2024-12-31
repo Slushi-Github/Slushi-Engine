@@ -2,10 +2,10 @@ package slushi.slushiUtils.crashHandler;
 
 import flixel.system.scaleModes.*;
 import flixel.group.FlxGroup;
-
 import states.StoryMenuState;
 import states.freeplay.FreeplayState;
 import states.MainMenuState;
+import slushi.states.freeplay.SlushiFreeplayState;
 
 class GameplayCrashHandler
 {
@@ -23,7 +23,15 @@ class GameplayCrashHandler
 			return;
 		}
 
+		// Stop the PlayState, to avoid a loop if the crash occurred in an update function
+		if (Type.getClass(FlxG.state) == PlayState)
+			{
+				PlayState.instance.paused = true;
+			}
+
 		WindowFuncs.winTitle("Slushi Engine: Crash Handler Mode");
+		WindowFuncs.resetWindowParameters();
+		WindowsFuncs.setWindowBorderColor([0, 46, 114]);
 		if (Main.fpsVar != null)
 			Main.fpsVar.visible = false;
 		FlxG.mouse.useSystemCursor = false;
@@ -43,12 +51,12 @@ class GameplayCrashHandler
 
 		var split:Array<String> = contents.split("\n");
 
-		var bg:FlxSprite = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
+		var bg:FlxSprite = new FlxSprite().makeGraphic(FlxG.width + 100, FlxG.height + 100, FlxColor.BLACK);
 		bg.scrollFactor.set();
 		assetGrp.add(bg);
 		bg.alpha = 0.7;
 
-		var watermark = new FlxText(10, 0, 0, "Slushi Engine Crash Handler [v" + SlushiMain.slCrashHandlerVersion + "] by Slushi");
+		var watermark = new FlxText(10, 0, 0, "Slushi Engine Crash Handler [v" + SlushiMain.sleThingsVersions.slCrashHandlerVersion + "] by Slushi");
 		watermark.setFormat(Paths.font("vcr.ttf"), 20, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		watermark.scrollFactor.set();
 		watermark.borderSize = 1.25;
@@ -116,21 +124,24 @@ class GameplayCrashHandler
 					Main.fpsVar.visible = ClientPrefs.data.showFPS;
 				WindowFuncs.windowResizable(true);
 				WindowFuncs.winTitle("default");
+
 				if (Type.getClass(FlxG.state) == PlayState)
 				{
-					if (!PlayState.isStoryMode)
-					{
-						MainGame.crashHandlerAlredyOpen = false;
-						MusicBeatState.switchState(new FreeplayState());
-						CrashHandler.inCrash = false;
-						CrashHandler.createdCrashInGame = false;
-					}
-					else
+					if (PlayState.isStoryMode)
 					{
 						MainGame.crashHandlerAlredyOpen = false;
 						MusicBeatState.switchState(new StoryMenuState());
 						CrashHandler.inCrash = false;
 						CrashHandler.createdCrashInGame = false;
+						CrashHandler.crashes = 0;
+					}
+					else
+					{
+						MainGame.crashHandlerAlredyOpen = false;
+						MusicBeatState.switchState(new SlushiFreeplayState());
+						CrashHandler.inCrash = false;
+						CrashHandler.createdCrashInGame = false;
+						CrashHandler.crashes = 0;
 					}
 				}
 				else
@@ -139,7 +150,23 @@ class GameplayCrashHandler
 					FlxG.switchState(Type.createInstance(Type.getClass(MainGame.oldState), []));
 					CrashHandler.inCrash = false;
 					CrashHandler.createdCrashInGame = false;
+					CrashHandler.crashes = 0;
 				}
+
+				for (obj in assetGrp)
+				{
+					if (obj != null)
+					{
+						obj.destroy();
+					}
+				}
+
+				if (camCrashHandler != null)
+				{
+					camCrashHandler.destroy();
+				}
+
+				Paths.clearUnusedMemory();
 			});
 		});
 	}

@@ -43,7 +43,7 @@ import states.MusicBeatState.subStates;
 import states.freeplay.FreeplayState;
 import states.editors.ChartingState;
 import states.editors.CharacterEditorState;
-import substates.PauseSubState;
+import slushi.substates.SlushiPauseSubState;
 import substates.GameOverSubstate;
 import substates.ResultsScreenKadeSubstate;
 import openfl.filters.ShaderFilter;
@@ -237,11 +237,11 @@ class PlayState extends MusicBeatState
 
   // Slushi Engine cameras
   public var camSLEHUD:FlxCamera;
-  public var camFor3D:FlxCamera;
-  public var camFor3D2:FlxCamera;
-  public var camFor3D3:FlxCamera;
-  public var camFor3D4:FlxCamera;
-  public var camFor3D5:FlxCamera;
+  public var camThings:FlxCamera;
+  public var camThings2:FlxCamera;
+  public var camThings3:FlxCamera;
+  public var camThings4:FlxCamera;
+  public var camThings5:FlxCamera;
   public var camWaterMark:FlxCamera;
 
   public var cameraSpeed:Float = 1;
@@ -480,7 +480,7 @@ class PlayState extends MusicBeatState
     if (SONG == null)
     {
       Debug.displayAlert("PlayState Was Not Able To Load Any Songs!", "PlayState Error");
-      MusicBeatState.switchState(new FreeplayState());
+      MusicBeatState.switchState(new slushi.states.freeplay.SlushiFreeplayState());
       return;
     }
 
@@ -646,7 +646,7 @@ class PlayState extends MusicBeatState
 
     // for lua
     instance = this;
-    PauseSubState.songName = null; // Reset to default
+    SlushiPauseSubState.songName = null; // Reset to default
     playbackRate = ClientPrefs.getGameplaySetting('songspeed');
 
     swagHits = sickHits = goodHits = badHits = shitHits = songMisses = highestCombo = 0;
@@ -732,18 +732,18 @@ class PlayState extends MusicBeatState
     camPause.bgColor.alpha = 0;
 
     camSLEHUD = new FlxCamera();
-		camFor3D = new FlxCamera();
-		camFor3D2 = new FlxCamera();
-		camFor3D3 = new FlxCamera();
-		camFor3D4 = new FlxCamera();
-		camFor3D5 = new FlxCamera();
+		camThings = new FlxCamera();
+		camThings2 = new FlxCamera();
+		camThings3 = new FlxCamera();
+		camThings4 = new FlxCamera();
+		camThings5 = new FlxCamera();
 		camWaterMark = new FlxCamera();
 		camSLEHUD.bgColor.alpha = 0;
-		camFor3D.bgColor.alpha = 0;
-		camFor3D2.bgColor.alpha = 0;
-		camFor3D3.bgColor.alpha = 0;
-		camFor3D4.bgColor.alpha = 0;
-		camFor3D5.bgColor.alpha = 0;
+		camThings.bgColor.alpha = 0;
+		camThings2.bgColor.alpha = 0;
+		camThings3.bgColor.alpha = 0;
+		camThings4.bgColor.alpha = 0;
+		camThings5.bgColor.alpha = 0;
 		camWaterMark.bgColor.alpha = 0;
 
     // Video Camera if you put funni videos or smth
@@ -756,11 +756,11 @@ class PlayState extends MusicBeatState
     FlxG.cameras.add(camHUD, false);
 
     FlxG.cameras.add(camSLEHUD, false);
-		FlxG.cameras.add(camFor3D, false);
-		FlxG.cameras.add(camFor3D2, false);
-		FlxG.cameras.add(camFor3D3, false);
-		FlxG.cameras.add(camFor3D4, false);
-		FlxG.cameras.add(camFor3D5, false);
+		FlxG.cameras.add(camThings, false);
+		FlxG.cameras.add(camThings2, false);
+		FlxG.cameras.add(camThings3, false);
+		FlxG.cameras.add(camThings4, false);
+		FlxG.cameras.add(camThings5, false);
 
     // for jumescares and shit
     FlxG.cameras.add(camOther, false);
@@ -1420,7 +1420,7 @@ class PlayState extends MusicBeatState
     }
     Paths.image('alphabet');
 
-    if (PauseSubState.songName != null) Paths.music(PauseSubState.songName);
+    if (SlushiPauseSubState.songName != null) Paths.music(SlushiPauseSubState.songName);
     else if (Paths.formatToSongPath(ClientPrefs.data.pauseMusic) != 'none') Paths.music(Paths.formatToSongPath(ClientPrefs.data.pauseMusic));
 
     resetRPC();
@@ -3424,7 +3424,7 @@ class PlayState extends MusicBeatState
     {
       if (endCallback != null) endCallback();
       else
-        MusicBeatState.switchState(new FreeplayState());
+        MusicBeatState.switchState(new slushi.states.freeplay.SlushiFreeplayState());
       super.update(elapsed);
       return;
     }
@@ -4273,7 +4273,7 @@ class PlayState extends MusicBeatState
         }
     }
 
-    var pauseSubState = new PauseSubState();
+    var pauseSubState = new SlushiPauseSubState();
     openSubState(pauseSubState);
     pauseSubState.camera = camPause;
 
@@ -5344,7 +5344,7 @@ class PlayState extends MusicBeatState
         Debug.logTrace('WENT BACK TO FREEPLAY??');
         Mods.loadTopMod();
         #if DISCORD_ALLOWED DiscordClient.resetClientID(); #end
-        MusicBeatState.switchState(new FreeplayState());
+        MusicBeatState.switchState(new slushi.states.freeplay.SlushiFreeplayState());
         FlxG.sound.playMusic(SlushiMain.getSLEPath("Musics/SLE_HackNet_Resonance.ogg"));
         changedDifficulty = false;
       }
@@ -6678,19 +6678,8 @@ class PlayState extends MusicBeatState
 
     note.wasGoodHit = true;
 
-    if (useSLEHUD) {
-      SlushiEngineHUD.setRatingText(note.strumTime - Conductor.songPosition);
-      if(!isSus) {
-        SlushiEngineHUD.doComboAngle();
-      }
-    }
-    #if windows
-    if(ClientPrefs.data.changeWindowBorderColorWithNoteHit && SlushiEngineHUD.instance.canChangeWindowColorWithNoteHit && !isSus)
-      {
-        // var convertedColor = CustomFuncs.getRGBFromFlxColor(note.rgbShader.r, note.rgbShader.g, note.rgbShader.b);
-        SlushiEngineHUD.setWindowColorWithNoteHit(leData/*, convertedColor*/);
-      }
-    #end
+    // Simpler just leave this line for future times when you want to port SLE to another version of SCE.
+    SlushiEngineHUD.setParamsFromPlayerNote(note.strumTime, isSus, leData);
 
     if (note.hitsound != null && note.hitsoundVolume > 0 && !note.hitsoundDisabled) FlxG.sound.play(Paths.sound(note.hitsound), note.hitsoundVolume);
 
@@ -7082,6 +7071,8 @@ class PlayState extends MusicBeatState
         boyfriend.playAnim('hey', true);
       }
     }
+
+    SlushiEngineHUD.setNotITGNotesInSteps(curStep);
 
     if (bopOnStep)
     {

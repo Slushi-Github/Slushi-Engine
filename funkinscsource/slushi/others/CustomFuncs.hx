@@ -1,6 +1,7 @@
 package slushi.others;
 
 import haxe.io.Path;
+import slushi.others.systemUtils.HiddenProcess;
 
 /**
  * This class contains custom functions for the engine, but not usually used in the engine itself
@@ -31,56 +32,53 @@ class CustomFuncs
 		return all;
 	}
 
-	public static function getAllPath():String
+	public static function getProgramPath():String
 	{
 		var allPath:String = Path.directory(Sys.programPath()).replace("\\", "/");
 		return allPath;
 	}
 
-	public static function realResetGame(?arg:String):Void
+	public static function realResetGame(?args:Array<String> = null):Void
 	{
-		#if windows
-		new Process("SLE.exe", [arg]);
-		Sys.exit(0);
-		#else
-		Sys.exit(0);
-		#end
+		new HiddenProcess(Sys.programPath(), args);
+		System.exit(0);
 	}
 
-	public static function setWinBorderColorFromInt(color:Int):Void
+	public static function parseVersion(version:String):Int
 	{
-		#if windows
-		var red:Int = (color >> 16) & 0xFF;
-		var green:Int = (color >> 8) & 0xFF;
-		var blue:Int = color & 0xFF;
-		var rgb:Array<Int> = [red, green, blue];
-		WindowsFuncs.setWindowBorderColor(rgb);
-		#end
+		var parts = version.split(".");
+		var major = Std.parseInt(parts[0]);
+		var minor = parts.length > 1 ? Std.parseInt(parts[1]) : 0;
+		var patch = parts.length > 2 ? Std.parseInt(parts[2]) : 0;
+		return (major * 10000) + (minor * 100) + patch; // Ej: "1.2.3" -> 10203
 	}
 
-	// Thanks Glowsoony for this code
-	public static function getRGBFromFlxColor(red:FlxColor, green:FlxColor, blue:FlxColor):Array<Int>
+	public static function removeAllFilesFromCacheDirectory():Void
 	{
-		// Función para convertir el valor entero a componentes RGB
-		function getRGB(color:Int):Array<Int>
+		final path = "./assets/slushiEngineAssets/OthersAssets/SLCache";
+		try
 		{
-			var red = (color >> 16) & 0xFF;
-			var green = (color >> 8) & 0xFF;
-			var blue = color & 0xFF;
-			return [red, green, blue];
+			if (FileSystem.exists(path))
+			{
+				var directory = FileSystem.readDirectory(path);
+				for (file in directory)
+				{
+					FileSystem.deleteFile(Path.join([path, file]));
+				}
+			}
 		}
-
-		// Convertir cada FlxColor a su representación entera
-		var flxColorRed = cast red; // No es necesario volver a convertir desde RGB si ya tienes un FlxColor
-		var flxColorGreen = cast green;
-		var flxColorBlue = cast blue;
-
-		// Obtener los valores RGB de cada color
-		var redRGB = getRGB(flxColorRed);
-		var greenRGB = getRGB(flxColorGreen);
-		var blueRGB = getRGB(flxColorBlue);
-
-		// Devolver el arreglo con los componentes RGB
-		return [redRGB[0], greenRGB[1], blueRGB[2]];
+		catch (e:Dynamic)
+		{
+			Debug.logError('Error removing files from cache directory: $e');
+		}
 	}
+
+	public static function colorIntToRGB(color:Int):Array<Int>
+		{
+			var red:Int = (color >> 16) & 0xFF;
+			var green:Int = (color >> 8) & 0xFF;
+			var blue:Int = color & 0xFF;
+			var rgb:Array<Int> = [red, green, blue];
+			return rgb;
+		}
 }

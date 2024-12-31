@@ -3,8 +3,8 @@ package slushi;
 import flixel.FlxGame;
 import flixel.FlxState;
 import slushi.slushiUtils.crashHandler.CrashHandler;
-import slushi.winSL.WinSLCrashHandler;
 import slushi.substates.DebugSubState;
+import slushi.windows.winGDIThings.WinGDIThread;
 
 /*
  * This class is the base game, the FlxGame, modified to make the in-game crash handler that contains the Slushi Engine functional.
@@ -24,6 +24,7 @@ class MainGame extends FlxGame
 		#if windows
 		WindowsFuncs.resetAllCPPFunctions();
 		WindowFuncs.resetWindowParameters();
+		WinGDIThread.stopThread();
 		#end
 
 		try
@@ -38,7 +39,7 @@ class MainGame extends FlxGame
 		{
 			if (!crashHandlerAlredyOpen)
 			{
-				CrashHandler.symbolPrevent(error);
+				CrashHandler.symbolPrevent(error, 0);
 				crashHandlerAlredyOpen = true;
 			}
 		}
@@ -48,10 +49,12 @@ class MainGame extends FlxGame
 	{
 		if (FlxG.keys.justPressed.F3)
 		{
-			if (Type.getClass(FlxG.state) == PlayState) {
+			if (Type.getClass(FlxG.state) == PlayState)
+			{
 				DebugSubState.onPlayState = true;
 			}
-			else {
+			else
+			{
 				DebugSubState.onPlayState = false;
 			}
 			FlxG.state.openSubState(new DebugSubState());
@@ -69,7 +72,7 @@ class MainGame extends FlxGame
 		{
 			if (!crashHandlerAlredyOpen)
 			{
-				CrashHandler.symbolPrevent(error);
+				CrashHandler.symbolPrevent(error, 1);
 				crashHandlerAlredyOpen = true;
 			}
 		}
@@ -86,7 +89,7 @@ class MainGame extends FlxGame
 		{
 			if (!crashHandlerAlredyOpen)
 			{
-				CrashHandler.symbolPrevent(error);
+				CrashHandler.symbolPrevent(error, 2);
 				crashHandlerAlredyOpen = true;
 			}
 		}

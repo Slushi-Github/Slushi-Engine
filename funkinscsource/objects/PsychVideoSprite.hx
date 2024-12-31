@@ -53,25 +53,25 @@ class PsychVideoSprite #if (VIDEOS_ALLOWED && hxvlc) extends FlxVideoSprite #end
     return b;
   }
 
-  public override function pause()
-  {
-    super.pause();
-    if (FlxG.autoPause)
-    {
-      if (FlxG.signals.focusGained.has(bitmap.resume)) FlxG.signals.focusGained.remove(bitmap.resume);
-      if (FlxG.signals.focusLost.has(bitmap.pause)) FlxG.signals.focusLost.remove(bitmap.pause);
-    }
-  }
+  // public override function pause()
+  // {
+  //   super.pause();
+  //   if (FlxG.autoPause)
+  //   {
+  //     if (FlxG.signals.focusGained.has(bitmap.resume)) FlxG.signals.focusGained.remove(bitmap.resume);
+  //     if (FlxG.signals.focusLost.has(bitmap.pause)) FlxG.signals.focusLost.remove(bitmap.pause);
+  //   }
+  // }
 
-  public override function resume()
-  {
-    super.resume();
-    if (FlxG.autoPause)
-    {
-      if (!FlxG.signals.focusGained.has(bitmap.resume)) FlxG.signals.focusGained.add(bitmap.resume);
-      if (!FlxG.signals.focusLost.has(bitmap.pause)) FlxG.signals.focusLost.add(bitmap.pause);
-    }
-  }
+  // public override function resume()
+  // {
+  //   super.resume();
+  //   if (FlxG.autoPause)
+  //   {
+  //     if (!FlxG.signals.focusGained.has(bitmap.resume)) FlxG.signals.focusGained.add(bitmap.resume);
+  //     if (!FlxG.signals.focusLost.has(bitmap.pause)) FlxG.signals.focusLost.add(bitmap.pause);
+  //   }
+  // }
 
   // maybe temp?
   public function addCallback(vidCallBack:String, func:Void->Void)

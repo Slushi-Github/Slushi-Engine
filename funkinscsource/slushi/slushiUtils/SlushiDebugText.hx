@@ -46,8 +46,6 @@ class SlushiDebugText extends FlxSpriteGroup
 
         FlxTween.tween(text, {x: text.x + 15}, 0.4, {ease: FlxEase.linear});
 
-        logInfo("Text to print: " + textToPrint);
-
         new FlxTimer().start(timeToHide, function(tmr:FlxTimer)
         {
             FlxTween.tween(txtSpriteBG, {alpha: 0}, 0.4, {ease: FlxEase.linear});

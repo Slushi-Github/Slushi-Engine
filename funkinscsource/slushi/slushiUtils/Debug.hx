@@ -19,6 +19,7 @@ class Debug
 	static final LOG_STYLE_SLE_ERROR:LogStyle = new LogStyle('[ERROR] ', 'FF8888', 12, true, false, false, 'flixel/sounds/beep', true);
 	static final LOG_STYLE_SLE_WARN:LogStyle = new LogStyle('[WARN] ', 'D9F85C', 12, true, false, false, 'flixel/sounds/beep', true);
 	static final LOG_STYLE_SLE_INFO:LogStyle = new LogStyle('[INFO] ', '5CF878', 12, false);
+	static final LOG_STYLE_SLE_SUCCESS:LogStyle = new LogStyle('[TRACE] ', '5CF878', 12, false);
 	
 
 	static var logFileWriter:DebugLogWriter = null;
@@ -108,6 +109,16 @@ class Debug
 			var output = formatOutput(input, pos);
 			writeToFlxGLog(output,LOG_STYLE_SLE_ERROR);
 			writeToLogFile(output, 'SLEERROR');
+		}
+
+
+	public static inline function logSLESuccess(input:Dynamic, ?pos:haxe.PosInfos):Void
+		{
+			if (input == null)
+				return;
+			var output = formatOutput(input, pos);
+			writeToFlxGLog(output, LOG_STYLE_SLE_SUCCESS);
+			writeToLogFile(output, 'SLE_INFO');
 		}
 
 	/**
@@ -370,7 +381,7 @@ class Debug
 class DebugLogWriter
 {
 	static final LOG_FOLDER = "assets/debugLogs/logs";
-	public static final LOG_LEVELS = ['SLE_INFO', 'SLE_WARN', 'SLE_ERROR', 'ERROR', 'WARN', 'INFO', 'TRACE'];
+	public static final LOG_LEVELS = ['SLE_INFO', 'SLE_WARN', 'SLE_ERROR', 'SLE_SUCCESS', 'ERROR', 'WARN', 'INFO', 'TRACE'];
 
 	/**
 	 * Set this to the current timestamp that the game started.
@@ -462,6 +473,8 @@ class DebugLogWriter
 				return "\033[33;2m";
 			case 'SLE_ERROR':
 				return "\033[31;2m";
+			case 'SLE_SUCCESS':
+				return "\x1b[38;5;70m";
 			case 'ERROR':
 				return "\033[31m";
 			case 'WARN':

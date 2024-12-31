@@ -38,7 +38,8 @@ class SlushiTitleState extends MusicBeatState
 
 	public static var gitVersion = {
 		needUpdate: false,
-		newVersion: ""
+		newVersion: "",
+		alreadyChecked: false
 	};
 
 	override public function create()
@@ -69,7 +70,12 @@ class SlushiTitleState extends MusicBeatState
 
 		Highscore.load();
 		Assets.cache.enabled = true;
-		SlushiMain.getBuildVer();
+
+		if (!gitVersion.alreadyChecked)
+		{
+			SlushiMain.getBuildVer();
+			gitVersion.alreadyChecked = true;
+		}
 
 		if(gitVersion.needUpdate) {
 			var finalText:FlxText = new FlxText(0, 0, 0, "Hey! You are using an old version of Slushi Engine\n\nVersion: " + gitVersion.newVersion + " > " + SlushiMain.slushiEngineVersion + "\n\nPlease download the latest version\nThanks for use SLE :3", 12);
@@ -78,7 +84,6 @@ class SlushiTitleState extends MusicBeatState
 			finalText.screenCenter();
 			finalText.y -= 20;
 			add(finalText);
-			// finalText.alpha = 0;
 			FlxTween.tween(finalText, {alpha: 1}, 0.3, {ease: FlxEase.quadOut});
 			FlxTween.tween(finalText, {y: finalText.y + 20}, 0.3, {ease: FlxEase.quadOut, onComplete: function(twn:FlxTween) {
 				new FlxTimer().start(3, function(twn:FlxTimer)
@@ -290,7 +295,7 @@ class SlushiTitleState extends MusicBeatState
 	{
 		super.stepHit();
 
-		if (curStep == 15 && curStep != 266)
+		if (curStep >= 15 && curStep <= 266)
 		{
 			if (curStep % 16 == 0)
 			{

@@ -1,7 +1,8 @@
 package slushi.slushiLua;
 
 import psychlua.FunkinLua;
-import slushi.windows.WindowsGDIEffects;
+import slushi.windows.winGDIThings.SlushiWinGDI;
+import slushi.windows.winGDIThings.WinGDIThread;
 
 class WindowsLua
 {
@@ -31,20 +32,19 @@ class WindowsLua
 		funkLua.set("setWallpaper", function(image:String)
 		{
 			#if (windows && SLUSHI_CPP_CODE)
-			var allPath:String = CustomFuncs.getAllPath() + 'mods/images/winAssets/' + image + '.png';
+			var allPath:String = CustomFuncs.getProgramPath() + 'mods/images/windowsAssets/' + image + '.png';
 
 			if (ClientPrefs.data.changeWallPaper)
 			{
 				if (image == "default")
 				{
 					WindowsFuncs.setOldWindowsWallpaper();
+					return;
 				}
-				else
-				{
-					WindowsFuncs.changedWallpaper = true;
-					CppAPI.setWallpaper(allPath);
-					Debug.logSLEInfo("Wallpaper changed to: " + allPath);
-				}
+
+				WindowsFuncs.changedWallpaper = true;
+				CppAPI.setWallpaper(allPath);
+				Debug.logSLEInfo("Wallpaper changed to: " + allPath);
 			}
 			#else
 			printInDisplay("setWallpaper: Function disabled in this build!", FlxColor.RED);
@@ -54,18 +54,18 @@ class WindowsLua
 		funkLua.set("winScreenCapture", function(nameToSave:String)
 		{
 			#if (windows)
-			var allPath:String = CustomFuncs.getAllPath() + 'mods/images/winAssets/' + nameToSave + '.png';
+			var allPath:String = CustomFuncs.getProgramPath() + 'mods/images/windowsAssets/' + nameToSave + '.png';
 			if (ClientPrefs.data.winScreenShots)
 			{
 				CppAPI.screenCapture(allPath);
 				Debug.logSLEInfo("Screenshot saved to: " + allPath);
 			}
 			#else
-			printInDisplay("setWallpaper: Function disabled in this build!", FlxColor.RED);
+			printInDisplay("winScreenCapture: Function disabled in this build!", FlxColor.RED);
 			#end
 		});
 
-		funkLua.set("moveDesktopWindows", function(mode:String, value:Int)
+		funkLua.set("setDesktopWindowsPos", function(mode:String, value:Int)
 		{
 			#if (windows && SLUSHI_CPP_CODE)
 			if (ClientPrefs.data.winDesktopIcons)
@@ -79,21 +79,21 @@ class WindowsLua
 					case "XY":
 						CppAPI.moveDesktopWindowsInXY(value, value);
 					default:
-						printInDisplay("moveDesktopWindows: Invalid value!", FlxColor.RED);
+						printInDisplay("setDesktopWindowsPos: Invalid value!", FlxColor.RED);
 				}
 			}
 			#else
-			printInDisplay("moveDesktopWindows: Platform unsupported for this function!", FlxColor.RED);
+			printInDisplay("setDesktopWindowsPos: Platform unsupported for this function!", FlxColor.RED);
 			#end
 		});
 
-		funkLua.set("doTweenDesktopWindows", function(mode:String, toValue:Float, duration:Float, ease:String = "linear")
+		funkLua.set("doTweenDesktopWindowsPos", function(mode:String, toValue:Float, duration:Float, ease:String = "linear")
 		{
 			#if (windows && SLUSHI_CPP_CODE)
 			if (ClientPrefs.data.winDesktopIcons)
 				WindowsFuncs.doTweenDesktopWindows(mode, toValue, duration, ease);
 			#else
-			printInDisplay("doTweenDesktopWindows: Platform unsupported for this function!", FlxColor.RED);
+			printInDisplay("doTweenDesktopWindowsPos: Platform unsupported for this function!", FlxColor.RED);
 			#end
 		});
 
@@ -103,7 +103,7 @@ class WindowsLua
 			if (ClientPrefs.data.winDesktopIcons)
 				WindowsFuncs.doTweenDesktopWindowsAlpha(fromValue, toValue, duration, ease);
 			#else
-			printInDisplay("setDesktopWindowsAlpha: Platform unsupported for this function!", FlxColor.RED);
+			printInDisplay("doTweenDesktopWindowsAlpha: Platform unsupported for this function!", FlxColor.RED);
 			#end
 		});
 
@@ -113,7 +113,7 @@ class WindowsLua
 			if (ClientPrefs.data.winDesktopIcons)
 				WindowsFuncs.doTweenTaskBarAlpha(fromValue, toValue, duration, ease);
 			#else
-			printInDisplay("setDesktopWindowsAlpha: Platform unsupported for this function!", FlxColor.RED);
+			printInDisplay("doTweenTaskBarAlpha: Platform unsupported for this function!", FlxColor.RED);
 			#end
 		});
 
@@ -147,13 +147,13 @@ class WindowsLua
 			#end
 		});
 
-		funkLua.set("sendNoti", function(desc:String, title:String)
+		funkLua.set("sendNotification", function(desc:String, title:String)
 		{
 			#if windows
 			if (ClientPrefs.data.windowsNotifications)
 				WindowsFuncs.sendWindowsNotification(desc, title);
 			#else
-			printInDisplay("sendNoti: Platform unsupported for this function!", FlxColor.RED);
+			printInDisplay("sendNotification: Platform unsupported for this function!", FlxColor.RED);
 			#end
 		});
 
@@ -221,23 +221,55 @@ class WindowsGDI
 	{
 		Debug.logSLEInfo("Loaded Slushi Windows GDI Lua functions!");
 
-		funkLua.set("windowsEffectModifier", function(tag:String = "", gdiEffect:String, activeEffect:Bool)
+		funkLua.set("startGDIThread", function()
 		{
 			#if windows
 			if (ClientPrefs.data.gdiEffects)
-				WindowsGDIEffects.checkEffect(tag, gdiEffect, activeEffect);
+			{
+				WinGDIThread.initThread();
+			}
 			#else
-			printInDisplay("windowsEffectModifier: Platform unsupported for this function", FlxColor.RED);
+			printInDisplay("startThread: Platform unsupported for this function", FlxColor.RED);
 			#end
 		});
 
-		funkLua.set("setWinEffectProperty", function(tag:String, prop:String, value:Dynamic)
+		funkLua.set("prepareGDIEffect", function(effect:String, wait:Float = 0)
 		{
 			#if windows
 			if (ClientPrefs.data.gdiEffects)
-				WindowsGDIEffects.setWinEffectProperty(tag, prop, value);
+				SlushiWinGDI.prepareGDIEffect(effect, wait);
 			#else
-			printInDisplay("setWinEffectProperty: Platform unsupported for this function", FlxColor.RED);
+			printInDisplay("prepareGDIEffect: Platform unsupported for this function", FlxColor.RED);
+			#end
+		});
+
+		funkLua.set("setGDIEffectWaitTime", function(effect:String, wait:Float = 0)
+		{
+			#if windows
+			if (ClientPrefs.data.gdiEffects)
+				SlushiWinGDI.setGDIEffectWaitTime(effect, wait);
+			#else
+			printInDisplay("setGDIEffectWaitTime: Platform unsupported for this function", FlxColor.RED);
+			#end
+		});
+
+		funkLua.set("enableGDIEffect", function(effect:String, enabled:Bool)
+		{
+			#if windows
+			if (ClientPrefs.data.gdiEffects)
+				SlushiWinGDI.enableGDIEffect(effect, enabled);
+			#else
+			printInDisplay("enableGDIEffect: Platform unsupported for this function", FlxColor.RED);
+			#end
+		});
+
+		funkLua.set("removeGDIEffect", function(effect:String)
+		{
+			#if windows
+			if (ClientPrefs.data.gdiEffects)
+				SlushiWinGDI.removeGDIEffect(effect);
+			#else
+			printInDisplay("removeGDIEffect: Platform unsupported for this function", FlxColor.RED);
 			#end
 		});
 
@@ -245,7 +277,7 @@ class WindowsGDI
 		{
 			#if windows
 			if (ClientPrefs.data.gdiEffects)
-				WindowsGDIEffects._setCustomTitleTextToWindows(titleText);
+				SlushiWinGDI._setCustomTitleTextToWindows(titleText);
 			#else
 			printInDisplay("setTitleTextToWindows: Platform unsupported for this function", FlxColor.RED);
 			#end

@@ -1,21 +1,23 @@
 package slushi.slushiLua;
 
+import psychlua.FunkinLua;
+
 /*
  * This class contains ALL Lua functions for Slushi Engine, it is one of the most important files since it 
  * is what allows to make modcharts using the features of the engine through Lua, and more.
  * 
  * Author: Slushi
-*/
-
-import psychlua.FunkinLua;
-
+ */
 class SlushiLua
 {
 	public static var apliedWindowTransparent:Bool = false;
-	public static var slushi_InternalSprites:Map<String, FlxSprite> = new Map<String, FlxSprite>();
+	public static var slushi_InternalObjects:Map<String, Dynamic> = new Map<String, Dynamic>();
 
 	public static function loadSlushiLua(funkLua:FunkinLua)
-	{
+	{	
+		if (slushi_InternalObjects != null)
+			slushi_InternalObjects.clear();
+
 		Debug.logSLEInfo("Loading Slushi Lua functions...");
 		#if (SLUSHI_LUA && LUA_ALLOWED)
 		WindowsLua.loadWindowsLua(funkLua);

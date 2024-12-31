@@ -115,6 +115,12 @@ class WindowFuncs
 		#end
 	}
 
+	public static function centerWindow()
+	{
+		setWinPositionInX(Std.int((getScreenSizeInWidth() - getWindowSizeInWidth()) / 2));
+		setWinPositionInY(Std.int((getScreenSizeInHeight() - getWindowSizeInHeight()) / 2));
+	}
+
 	public static function doTweenWindowAlpha(toValue:Float, duration:Float, ease:String = "linear")
 	{
 		#if windows
@@ -145,6 +151,17 @@ class WindowFuncs
 		}
 	}
 
+	// public static function doubleWindowTweenX(offset:Float, duration:Float, ease:String):Void
+	// {
+	// 	var startX:Int = getWindowPositionInX();
+
+	// 	var numTween:NumTween = FlxTween.num(startX + offset, startX, duration, {ease: psychlua.LuaUtils.getTweenEaseByString(ease)});
+	// 	numTween.onUpdate = function(twn:FlxTween)
+	// 	{
+	// 		Application.current.window.x -= Std.int(numTween.value);
+	// 	}
+	// }
+
 	public static function resetWindowParameters()
 	{
 		#if windows
@@ -153,12 +170,7 @@ class WindowFuncs
 
 		if (!Application.current.window.maximized || !Application.current.window.fullscreen)
 		{
-			#if windows
-			CppAPI.centerWindow();
-			#else
-			setWinPositionInX(Std.int((getScreenSizeInWidth() - getWindowSizeInWidth()) / 2));
-			setWinPositionInY(Std.int((getScreenSizeInHeight() - getWindowSizeInHeight()) / 2));
-			#end
+			centerWindow();
 		}
 
 		if (!Application.current.window.resizable)

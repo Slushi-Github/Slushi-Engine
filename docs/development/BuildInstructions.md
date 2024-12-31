@@ -11,7 +11,8 @@ Set up [Visual Studio](https://aka.ms/vs/17/release/vs_BuildTools.exe) dependenc
 
 select "Individual Components" and make sure to download the following: 
 
-    "MSVC v143 VS 2022 C++ x64/x86" and "Windows 10/11 SDK"
+    - MSVC v143 VS 2022 C++ x64/x86 
+    - Windows 10/11 SDK
 
 Set up Haxe libs of the engine:
 

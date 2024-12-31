@@ -4,7 +4,7 @@ import tjson.TJSON as Json;
 import psychlua.LuaUtils;
 
 /*
- * This class is used to display lyrics on the gameplay, using a json file
+ * This class is used to display lyrics on the gameplay, using a JSON file
  * 
  * Author: Slushi
  */
@@ -59,7 +59,7 @@ class LyricsUtils extends FlxSprite
 			if (lyricsJsonData.textConfig.textColor == null)
 				mainText.color = FlxColor.WHITE;
 			if (lyricsJsonData.textConfig.camera == null)
-				mainText.camera = LuaUtils.cameraFromString("camfor3d");
+				mainText.camera = LuaUtils.cameraFromString("camthings");
 		}
 		catch (e)
 		{
@@ -117,6 +117,7 @@ class LyricsUtils extends FlxSprite
 		catch (e)
 		{
 			Debug.logSLEError('Failed to load lyrics file data: $e');
+			stop = true;
 		}
 	}
 

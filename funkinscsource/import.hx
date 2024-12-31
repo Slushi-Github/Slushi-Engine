@@ -2,13 +2,14 @@
 
 import lime.app.Application;
 import openfl.Lib;
+import lime.system.System;
 // Windows things
 #if windows
 import slushi.windows.CppAPI;
 import slushi.windows.WindowsCPP;
 import slushi.windows.WindowsCPP.MessageBoxIcon;
 import slushi.windows.WindowsFuncs;
-import slushi.windows.WinConsoleUtils;
+import slushi.windows.WindowsTerminalCPP;
 #end
 // Window, main class of the engine and other things
 import slushi.windowThings.WindowFuncs;

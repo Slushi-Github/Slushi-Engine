@@ -21,6 +21,8 @@ class DebugSubState extends MusicBeatSubState
 		'[In Gameplay] F3 + P: Active Practice mode',
 		'F3 + C: Center the window',
 		'F3 + F: Force crash',
+		'F3 + S: Show a terminal',
+		'F3 + W: Enter WinSL mode'
 	];
 
 	public static var onPlayState:Bool = false;
@@ -51,7 +53,6 @@ class DebugSubState extends MusicBeatSubState
 		buildNumber.setFormat("VCR OSD Mono", 25, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		buildNumber.scrollFactor.set();
 		buildNumber.screenCenter(X);
-		// buildNumber.x -= 200;
 		buildNumber.alpha = 0.6;
 		add(buildNumber);
 
@@ -150,13 +151,23 @@ class DebugSubState extends MusicBeatSubState
 			});
 		}
 
-		if (FlxG.keys.pressed.F3 && FlxG.keys.pressed.C && !Application.current.window.maximized && !Application.current.window.fullscreen)
+		if (FlxG.keys.pressed.F3
+			&& FlxG.keys.justPressed.C
+			&& !Application.current.window.maximized
+			&& !Application.current.window.fullscreen)
 		{
-			#if windows
-			CppAPI.centerWindow();
-			#else
 			WindowFuncs.setWinPositionInX(Std.int((WindowFuncs.getScreenSizeInWidth() - WindowFuncs.getWindowSizeInWidth()) / 2));
 			WindowFuncs.setWinPositionInY(Std.int((WindowFuncs.getScreenSizeInHeight() - WindowFuncs.getWindowSizeInHeight()) / 2));
+		}
+
+		if (FlxG.keys.pressed.F3 && FlxG.keys.justPressed.S)
+		{
+			#if windows
+			WindowsTerminalCPP.allocConsole();
+			WindowsTerminalCPP.setConsoleTitle('WinSL [${SlushiMain.sleThingsVersions.winSLVersion}] - Viewing SlushiEngine_${SlushiMain.buildNumber}.vm terminal');
+			WindowsTerminalCPP.setConsoleWindowIcon(SlushiMain.getSLEPath("WinSL_Assets/windowIcon.ico"));
+			WindowsTerminalCPP.setWinConsoleColor();
+			WindowsTerminalCPP.disableCloseWindow();
 			#end
 		}
 

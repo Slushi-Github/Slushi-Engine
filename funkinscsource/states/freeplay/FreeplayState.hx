@@ -271,7 +271,7 @@ class FreeplayState extends MusicBeatState
 
     // Set the window border color from the current song's color
 		// Idea from VS Camellia ALT (https://gamebanana.com/mods/413258) (They use my code to set the window border color XD)
-    CustomFuncs.setWinBorderColorFromInt(intendedColor);
+    WindowsFuncs.setWindowBorderColorFromInt(intendedColor);
 
     curDifficulty = Math.round(Math.max(0, Difficulty.list.indexOf(lastDifficultyName)));
 
@@ -999,7 +999,7 @@ class FreeplayState extends MusicBeatState
 
       // Set the window border color from the current song's color
 		  // Idea from VS Camellia ALT (https://gamebanana.com/mods/413258) (They use my code to set the window border color XD)
-      CustomFuncs.setWinBorderColorFromInt(intendedColor);
+      WindowsFuncs.setWindowBorderColorFromInt(intendedColor);
 
       FlxTween.cancelTweensOf(bg);
       FlxTween.color(bg, 1, bg.color, intendedColor);

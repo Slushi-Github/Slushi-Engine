@@ -106,6 +106,8 @@ class ResultState extends MusicBeatSubState
     score = new ResultScore(35, 305, 10, params.scoreData.mainData.score);
 
     rankBg = new FunkinSCSprite(0, 0);
+
+    WindowsFuncs.setWindowBorderColor([254, 199, 92]);
   }
 
   override function create():Void
@@ -895,7 +897,7 @@ class ResultState extends MusicBeatSubState
                 Debug.logInfo('WENT BACK TO FREEPLAY?? - HIGH SCORE');
                 Mods.loadTopMod();
                 #if DISCORD_ALLOWED DiscordClient.resetClientID(); #end
-                MusicBeatState.switchState(new FreeplayState());
+                MusicBeatState.switchState(new slushi.states.freeplay.SlushiFreeplayState());
                 FlxG.sound.playMusic(SlushiMain.getSLEPath("Musics/SLE_HackNet_Resonance.ogg"));
               }
             });
@@ -905,7 +907,7 @@ class ResultState extends MusicBeatSubState
           Debug.logInfo('rank is lower...... and/or equal');
           Debug.logInfo('WENT BACK TO FREEPLAY?? - LOW SCORE');
           Mods.loadTopMod();
-          openSubState(new vslice.transition.StickerSubState(null, (sticker) -> new FreeplayState(sticker)));
+          openSubState(new vslice.transition.StickerSubState(null, (sticker) -> new slushi.states.freeplay.SlushiFreeplayState(sticker)));
           FlxG.sound.playMusic(SlushiMain.getSLEPath("Musics/SLE_HackNet_Resonance.ogg"));
         }
       }

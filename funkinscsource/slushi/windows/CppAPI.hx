@@ -6,15 +6,9 @@ package slushi.windows;
  * 
  * Author: Slushi
  */
-
 class CppAPI
 {
 	#if (windows && cpp)
-	public static function screenCapture(path:String)
-	{
-		WindowsCPP.windowsScreenShot(path);
-	}
-
 	public static function showMessageBox(message:String, caption:String, icon:MessageBoxIcon = MSG_WARNING)
 	{
 		WindowsCPP.showMessageBox(caption, message, icon);
@@ -50,11 +44,6 @@ class CppAPI
 		WindowsCPP._setWindowLayered();
 	}
 
-	public static function centerWindow()
-	{
-		WindowsCPP.centerWindow();
-	}
-
 	public static function setSlushiColorToWindow()
 	{
 		return WindowsCPP.setSlushiWindowColor();
@@ -66,6 +55,11 @@ class CppAPI
 	}
 
 	#if SLUSHI_CPP_CODE
+	public static function screenCapture(path:String)
+	{
+		WindowsCPP.windowsScreenShot(path);
+	}
+
 	public static function hideTaskbar(hide:Bool)
 	{
 		WindowsCPP.hideTaskbar(hide);

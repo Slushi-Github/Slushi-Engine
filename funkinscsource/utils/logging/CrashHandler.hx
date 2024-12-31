@@ -84,7 +84,7 @@ class CrashHandler
       #if DISCORD_ALLOWED
       DiscordClient.shutdown();
       #end
-      Sys.exit(1);
+      System.exit(1);
     }
     catch (e:Dynamic)
     {

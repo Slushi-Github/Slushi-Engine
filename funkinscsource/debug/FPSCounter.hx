@@ -30,8 +30,6 @@ class FPSCounter extends TextField
 
   public var taskMemoryMegas:Dynamic = 0;
 
-  public static var currentTotalMemory:Dynamic = 0;
-
   public var memoryUsage:String = '';
 
   @:noCompletion private var cacheCount:Int;
@@ -114,8 +112,6 @@ class FPSCounter extends TextField
 			{
 				FlxTween.tween(this, {x: 0, y: 0}, 0.1, {ease: FlxEase.quadOut});	
 			}
-
-      currentTotalMemory = memoryMegas;
 
     text = 'FPS: $currentFPS'
       + (ClientPrefs.data.memoryDisplay ? ' | Memory: ${CoolUtil.getSizeString(memoryMegas)} / ${CoolUtil.getSizeString(taskMemoryMegas)}' : '')

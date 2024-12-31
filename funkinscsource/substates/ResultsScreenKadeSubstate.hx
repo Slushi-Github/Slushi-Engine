@@ -264,7 +264,7 @@ class ResultsScreenKadeSubstate extends substates.MusicBeatSubState
                 close();
                 if (PlayState.isStoryMode) MusicBeatState.switchState(new StoryMenuState());
                 else
-                  MusicBeatState.switchState(new states.freeplay.FreeplayState());
+                  MusicBeatState.switchState(new slushi.states.freeplay.SlushiFreeplayState());
               }, true);
             }
           });

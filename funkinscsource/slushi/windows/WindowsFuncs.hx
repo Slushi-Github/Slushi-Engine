@@ -1,10 +1,9 @@
 package slushi.windows;
 
-import sys.io.Process;
+import slushi.others.systemUtils.HiddenProcess;
 import sys.io.File;
 import lime.system.System;
 import psychlua.LuaUtils;
-import slushi.windows.ProgramRespondingUtil;
 
 /*
  * This file is one that facilitates the use of Windows functions that come from WindowsCPP.hx within SLE. 
@@ -17,13 +16,14 @@ class WindowsFuncs
 	private static var _windowsWallpaperPath:String = null;
 
 	public static var changedWallpaper:Bool = false;
-	private static final savedWallpaperPath:String = "assets/slushiEngineAssets/SLEAssets/OthersAssets/Cache/savedWindowswallpaper.png";
+	private static final savedWallpaperPath:String = "assets/slushiEngineAssets/OthersAssets/Cache/savedWindowswallpaper.png";
+
+	private static var windowBorderColorTween:NumTween;
 
 	public static function changeWindowsWallpaper(path:String)
 	{
 		#if windows
-		var allPath:String = CustomFuncs.getAllPath() + 'assets/' + path;
-		allPath = allPath.split("\\").join("/");
+		var allPath:String = CustomFuncs.getProgramPath() + 'assets/' + path;
 		CppAPI.setWallpaper(allPath);
 		changedWallpaper = true;
 		Debug.logSLEInfo("Wallpaper changed to: " + allPath);
@@ -33,8 +33,7 @@ class WindowsFuncs
 	public static function screenCapture(path:String)
 	{
 		#if windows
-		var allPath:String = CustomFuncs.getAllPath() + 'assets/images/SLEAssets/Cache/' + path;
-		allPath = allPath.split("\\").join("/");
+		var allPath:String = CustomFuncs.getProgramPath() + 'assets/slushiEngineAssets/OthersAssets/Cache/' + path;
 		CppAPI.screenCapture(allPath);
 		Debug.logSLEInfo("Screenshot saved to: " + allPath);
 		#end
@@ -64,10 +63,8 @@ class WindowsFuncs
 		var finalPath = savedWallpaperPath;
 		try
 		{
-			if (!FileSystem.exists('assets/slushiEngineAssets/SLEAssets/OthersAssets/Cache'))
-				FileSystem.createDirectory('assets/slushiEngineAssets/SLEAssets/OthersAssets/Cache');
-
 			File.copy(_windowsWallpaperPath, finalPath);
+			Debug.logSLEInfo("Saved a copy of the wallpaper");
 		}
 		catch (e)
 		{
@@ -79,7 +76,7 @@ class WindowsFuncs
 	public static function setOldWindowsWallpaper()
 	{
 		#if windows
-		if (changedWallpaper == false)
+		if (!changedWallpaper)
 			return;
 
 		changedWallpaper = false;
@@ -120,7 +117,7 @@ class WindowsFuncs
 			+ "$notifier.Show($toast);}\"";
 
 		if (title != null && title != "" && desc != null && desc != "" && getWindowsVersion() != 7)
-			new Process(powershellCommand);
+			new HiddenProcess(powershellCommand);
 		#end
 	}
 
@@ -191,21 +188,83 @@ class WindowsFuncs
 		#end
 	}
 
-	public static function getCursorPos():{x:Int, y:Int}
+	public static function setWindowBorderColorFromInt(color:Int):Void
 	{
-		var mousePos = {x: 0, y: 0};
 		#if windows
-		mousePos = {x: WindowsCPP.getCursorPositionX(), y: WindowsCPP.getCursorPositionY()};
+		if (getWindowsVersion() != 11)
+			return;
+
+		var red:Int = (color >> 16) & 0xFF;
+		var green:Int = (color >> 8) & 0xFF;
+		var blue:Int = color & 0xFF;
+		var rgb:Array<Int> = [red, green, blue];
+		WindowsFuncs.setWindowBorderColor(rgb);
 		#end
-		return mousePos;
 	}
 
-	public static function initThreadForWindowRespondingHandler()
+	public static function tweenWindowBorderColor(fromColor:Array<Int>, toColor:Array<Int>, duration:Float, ease:String):Void
 	{
 		#if windows
-		Sys.println("[slushi.windows.WindowsFuncs.initThreadForWindowRespondingHandler] - Starting thread for window responding handler...");
-		ProgramRespondingUtil.initThread();
+		if (getWindowsVersion() != 11)
+			return;
+
+		windowBorderColorTween = FlxTween.num(0, 1, duration, {
+			ease: LuaUtils.getTweenEaseByString(ease)
+		});
+
+		var startColor:Array<Int> = fromColor;
+		var targetColor:Array<Int> = toColor;
+
+		windowBorderColorTween.onUpdate = function(tween:FlxTween)
+		{
+			var interpolatedColor:Array<Int> = [];
+			for (i in 0...3)
+			{
+				var newValue:Int = startColor[i] + Std.int((targetColor[i] - startColor[i]) * windowBorderColorTween.value);
+				newValue = Std.int(Math.max(0, Math.min(255, newValue)));
+				interpolatedColor.push(newValue);
+			}
+			WindowsFuncs.setWindowBorderColor(interpolatedColor);
+		};
 		#end
+	}
+
+	// public static function tweenWindowBorderColorFromActualColor(toColor:Array<Int>, duration:Float, ease:String):Void
+	// {
+	// 	#if windows
+	// 	if (getWindowsVersion() != 11)
+	// 		return;
+
+	// 	var fromColor:Array<Int> = WindowsCPP.getWindowBorderColor();
+
+	// 	windowBorderColorTween = FlxTween.num(0, 1, duration, {
+	// 		ease: LuaUtils.getTweenEaseByString(ease)
+	// 	});
+
+	// 	var startColor:Array<Int> = fromColor;
+	// 	var targetColor:Array<Int> = toColor;
+
+	// 	windowBorderColorTween.onUpdate = function(tween:FlxTween)
+	// 	{
+	// 		var interpolatedColor:Array<Int> = [];
+	// 		for (i in 0...3)
+	// 		{
+	// 			var newValue:Int = startColor[i] + Std.int((targetColor[i] - startColor[i]) * windowBorderColorTween.value);
+	// 			newValue = Std.int(Math.max(0, Math.min(255, newValue)));
+	// 			interpolatedColor.push(newValue);
+	// 		}
+	// 		WindowsFuncs.setWindowBorderColor(interpolatedColor);
+	// 	};
+	// 	#end
+	// }
+
+	public static function cancelWindowBorderColorTween():Void
+	{
+		if (windowBorderColorTween != null)
+		{
+			windowBorderColorTween.cancel();
+			windowBorderColorTween = null;
+		}
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////
@@ -246,29 +305,6 @@ class WindowsFuncs
 		numTween.onUpdate = function(twn:FlxTween)
 		{
 			CppAPI.setTaskBarAlpha(numTween.value);
-		}
-	}
-	#end
-}
-
-class DeprecatedFuncs
-{
-	#if windows
-	public static function doTweenDesktopWindowsInX(fromValue:Float, toValue:Float, duration:Float, ease:String = "linear")
-	{
-		var numTween:NumTween = FlxTween.num(fromValue, toValue, duration, {ease: LuaUtils.getTweenEaseByString(ease)});
-		numTween.onUpdate = function(twn:FlxTween)
-		{
-			CppAPI.moveDesktopWindowsInX(Std.int(numTween.value));
-		}
-	}
-
-	public static function doTweenDesktopWindowsInY(fromValue:Float, toValue:Float, duration:Float, ease:String = "linear")
-	{
-		var numTween:NumTween = FlxTween.num(fromValue, toValue, duration, {ease: LuaUtils.getTweenEaseByString(ease)});
-		numTween.onUpdate = function(twn:FlxTween)
-		{
-			CppAPI.moveDesktopWindowsInY(Std.int(numTween.value));
 		}
 	}
 	#end

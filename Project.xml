@@ -3,7 +3,7 @@
 xsi:schemaLocation="http://lime.openfl.org/project/1.0.4 http://lime.openfl.org/xsd/project-1.0.4.xsd">
 	<!-- _________________________ Application Settings _________________________ -->
 
-	<app title="SC Engine - Slushi Engine" file="SLE" packageName="com.SCTeam.SCEE" package="com.SCTeam.SCE" main="Main" version="0.3.8" company="SlushiAndSCTeam" />
+	<app title="SC Engine - Slushi Engine" file="SLE" packageName="com.SlushiAndSCTeam.SCSLE" package="com.SlushiAndSCTeam.SCSLE" main="Main" version="0.4.0" company="SlushiAndSCTeam" />
 
 	<!--Switch Export with Unique ApplicationID and Icon-->
 	<set name="APP_ID" value="0x0100f6c013bbc000" />
@@ -52,7 +52,7 @@ xsi:schemaLocation="http://lime.openfl.org/project/1.0.4 http://lime.openfl.org/
 	<source path="funkinscsource" />
 
 	<!-- _____________________________ SLUSHI ENGINE CUSTOMIZATION ______________________________-->
-	<haxeflag name="--macro" value="slushi.others.EngineMacros.initialize_compilation()"/>
+	<haxeflag name="--macro" value="slushi.others.EngineMacros.showBuildInfo()"/>
 	<!-- ____________________________ Features _______________________________ -->
 	<define name="SLUSHI_LUA"/> <!-- Defines whether if Lua of SLE is allowed. -->
 	<define name="SLUSHI_CPP_CODE" if="windows"/> <!-- Defines whether if C++ code is allowed. -->
@@ -62,10 +62,10 @@ xsi:schemaLocation="http://lime.openfl.org/project/1.0.4 http://lime.openfl.org/
 	<!-- ____________________________ EXPERIMENTAL _______________________________ -->
 	<!-- ____________________________ Assets - Paths _______________________________ -->
 	<assets path="assets/slushiEngineAssets" rename="assets/slushiEngineAssets" include="*"/>
-	<assets path="assets/slushiEngineAssets/SLEAssets" rename="assets/slushiEngineAssets/SLEAssets" include="*"/>
+	<assets path="assets/slushiEngineAssets" rename="assets/slushiEngineAssets" include="*"/>
 	<!-- ____________________________ Libs _______________________________ -->
-	<!-- <haxelib name="flxgif"/> -->
 	<haxelib name="fuzzaldrin" if="WINSL_SUGGEST_COMMAND"/>
+	<haxelib name="compiletime"/>
 	<!-- ____________________________ Libs versions and settings _______________________________ -->
 	<!-- ____________________________ Others _______________________________ -->
 

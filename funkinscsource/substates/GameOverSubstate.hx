@@ -60,6 +60,8 @@ class GameOverSubstate extends MusicBeatSubState
   {
     instance = this;
 
+    WindowsFuncs.tweenWindowBorderColor([255, 0, 0], [0, 0, 0], 1, 'linear');
+
     Conductor.songPosition = 0;
 
     if (boyfriend == null)
@@ -170,7 +172,7 @@ class GameOverSubstate extends MusicBeatSubState
         {
           if (PlayState.isStoryMode) MusicBeatState.switchState(new StoryMenuState());
           else
-            MusicBeatState.switchState(new states.freeplay.FreeplayState());
+            MusicBeatState.switchState(new slushi.states.freeplay.SlushiFreeplayState());
         }
         #if BASE_GAME_FILES
         else
@@ -181,7 +183,7 @@ class GameOverSubstate extends MusicBeatSubState
             openSubState(new vslice.transition.StickerSubState(null, (sticker) -> new StoryMenuState(sticker)));
           }
           else
-            openSubState(new vslice.transition.StickerSubState(null, (sticker) -> new states.freeplay.FreeplayState(sticker)));
+            openSubState(new vslice.transition.StickerSubState(null, (sticker) -> new slushi.states.freeplay.SlushiFreeplayState(sticker)));
         }
         #end
 
@@ -240,6 +242,9 @@ class GameOverSubstate extends MusicBeatSubState
   {
     if (!isEnding)
     {
+
+      WindowsFuncs.tweenWindowBorderColor([185, 157, 0], CustomFuncs.colorIntToRGB(SlushiMain.slushiColor), 2, 'linear');
+
       isEnding = true;
       if (boyfriend.hasOffsetAnimation('deathConfirm')) boyfriend.playAnim('deathConfirm', true);
 

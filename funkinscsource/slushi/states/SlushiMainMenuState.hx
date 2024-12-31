@@ -4,7 +4,6 @@ import flixel.effects.FlxFlicker;
 import flixel.graphics.frames.FlxFilterFrames;
 import flash.filters.GlowFilter;
 import slushi.substates.ConsoleSubState;
-
 import states.CreditsState;
 import states.MainMenuState;
 import states.editors.MasterEditorMenu;
@@ -12,16 +11,15 @@ import states.freeplay.FreeplayState;
 import states.StoryMenuState;
 import options.OptionsState;
 import states.ModsMenuState;
+import slushi.states.freeplay.SlushiFreeplayState;
 
 /**
  * The main menu state for Slushi Engine
  * 
  * Author: Slushi
  */
-
 class SlushiMainMenuState extends MusicBeatState
 {
-	public static final psychEngineVersion:String = MainMenuState.psychEngineVersion;
 	public static var SCEVersion:String = MainMenuState.SCEVersion;
 	public static var slushiEngineVersion:String = SlushiMain.slushiEngineVersion;
 
@@ -39,12 +37,17 @@ class SlushiMainMenuState extends MusicBeatState
 
 	var sleLogoCamShader:ThreeDEffect;
 
+	var curOption:Int = 0;
+
 	var finishedIntro:Bool = false;
 	var clickedOption:Bool = false;
-	var danceIntro:Bool = false;
 	var shaderSpeed:Int = 4;
 	var sineElap:Float = 0;
 	var numTween:NumTween;
+	var tweenOptionAlphaData = {
+		tween: null,
+		currentOption: 0
+	};
 
 	var camOther:FlxCamera;
 	var camSLELogo:FlxCamera;
@@ -69,7 +72,7 @@ class SlushiMainMenuState extends MusicBeatState
 		super.create();
 
 		persistentUpdate = true;
-		
+
 		camOther = new FlxCamera();
 		camOptions = new FlxCamera();
 		camSLELogo = new FlxCamera();
@@ -146,6 +149,14 @@ class SlushiMainMenuState extends MusicBeatState
 		glowFilter2 = new GlowFilter(SlushiMain.slushiColor, 1, 40, 40, 1.5, 1);
 		glowFilter3 = new GlowFilter(SlushiMain.slushiColor, 1, 40, 40, 1.5, 1);
 		glowFilter4 = new GlowFilter(SlushiMain.slushiColor, 1, 40, 40, 1.5, 1);
+
+		// for (glowFilter in [glowFilter0, glowFilter1, glowFilter2, glowFilter3, glowFilter4])
+		// {
+		// 	glowFilter = new GlowFilter(SlushiMain.slushiColor, 1, 40, 40, 1.5, 1);
+		// 	glowFilter.blurX = 0;
+		// 	glowFilter.blurY = 0;
+		// }
+
 		sprFilter0 = createFilterFrames(freeplaySprite, glowFilter0);
 		sprFilter1 = createFilterFrames(storyModeSprite, glowFilter1);
 		sprFilter2 = createFilterFrames(modsSprite, glowFilter2);
@@ -237,15 +248,16 @@ class SlushiMainMenuState extends MusicBeatState
 					ease: FlxEase.elasticInOut,
 					onComplete: function(twn:FlxTween)
 					{
-						MusicBeatState.switchState(new FreeplayState());
+						MusicBeatState.switchState(new SlushiFreeplayState());
 					}
 				});
 			}
 			FlxTween.tween(camOther, {alpha: 1}, time, {ease: FlxEase.linear});
 			FlxG.sound.play(Paths.sound('confirmMenu'));
 			FlxFlicker.flicker(freeplaySprite, 1.2, 0.06, false, false);
-			FlxTween.tween(freeplaySprite, {x: (FlxG.width - freeplaySprite.width) / 2, y: (FlxG.height - freeplaySprite.height) / 2}, time,
+			FlxTween.tween(freeplaySprite, {x: (FlxG.width - freeplaySprite.width) / 2, y: (FlxG.height - freeplaySprite.height) / 2, alpha: 0}, time,
 				{ease: FlxEase.elasticInOut});
+			FlxTween.tween(freeplaySprite.scale, {x: 1.3, y: 1.3}, time, {ease: FlxEase.linear});
 			clickedOption = true;
 			numTween = FlxTween.num(0, shaderValue, 1.2);
 			numTween.onUpdate = function(twn:FlxTween)
@@ -267,8 +279,9 @@ class SlushiMainMenuState extends MusicBeatState
 			}
 			FlxTween.tween(camOther, {alpha: 1}, time, {ease: FlxEase.linear});
 			FlxG.sound.play(Paths.sound('confirmMenu'));
-			FlxTween.tween(storyModeSprite, {x: (FlxG.width - storyModeSprite.width) / 2, y: (FlxG.height - storyModeSprite.height) / 2}, time,
+			FlxTween.tween(storyModeSprite, {x: (FlxG.width - storyModeSprite.width) / 2, y: (FlxG.height - storyModeSprite.height) / 2, alpha: 0}, time,
 				{ease: FlxEase.elasticInOut});
+			FlxTween.tween(storyModeSprite.scale, {x: 1.3, y: 1.3}, time, {ease: FlxEase.linear});
 			FlxFlicker.flicker(storyModeSprite, 1.2, 0.06, false, false);
 			clickedOption = true;
 			numTween = FlxTween.num(0, shaderValue, 1.2);
@@ -291,7 +304,8 @@ class SlushiMainMenuState extends MusicBeatState
 			}
 			FlxTween.tween(camOther, {alpha: 1}, time, {ease: FlxEase.linear});
 			FlxG.sound.play(Paths.sound('confirmMenu'));
-			FlxTween.tween(modsSprite, {x: (FlxG.width - modsSprite.width) / 2, y: (FlxG.height - modsSprite.height) / 2}, time, {ease: FlxEase.linear});
+			FlxTween.tween(modsSprite, {x: (FlxG.width - modsSprite.width) / 2, y: (FlxG.height - modsSprite.height) / 2, alpha: 0}, time, {ease: FlxEase.elasticInOut});
+			FlxTween.tween(modsSprite.scale, {x: 1.3, y: 1.3}, time, {ease: FlxEase.linear});
 			FlxFlicker.flicker(modsSprite, 1.2, 0.06, false, false);
 			clickedOption = true;
 			numTween = FlxTween.num(0, shaderValue, 1.2);
@@ -314,8 +328,9 @@ class SlushiMainMenuState extends MusicBeatState
 			}
 			FlxTween.tween(camOther, {alpha: 1}, time, {ease: FlxEase.linear});
 			FlxG.sound.play(Paths.sound('confirmMenu'));
-			FlxTween.tween(creditsSprite, {x: (FlxG.width - creditsSprite.width) / 2, y: (FlxG.height - creditsSprite.height) / 2}, time,
+			FlxTween.tween(creditsSprite, {x: (FlxG.width - creditsSprite.width) / 2, y: (FlxG.height - creditsSprite.height) / 2, alpha: 0}, time,
 				{ease: FlxEase.elasticInOut});
+			FlxTween.tween(creditsSprite.scale, {x: 1.3, y: 1.3}, time, {ease: FlxEase.linear});
 			FlxFlicker.flicker(creditsSprite, 1.2, 0.06, false, false);
 			clickedOption = true;
 			numTween = FlxTween.num(0, shaderValue, 1.2);
@@ -345,8 +360,9 @@ class SlushiMainMenuState extends MusicBeatState
 			}
 			FlxTween.tween(camOther, {alpha: 1}, time, {ease: FlxEase.linear});
 			FlxG.sound.play(Paths.sound('confirmMenu'));
-			FlxTween.tween(optionsSprite, {x: (FlxG.width - optionsSprite.width) / 2, y: (FlxG.height - optionsSprite.height) / 2}, time,
+			FlxTween.tween(optionsSprite, {x: (FlxG.width - optionsSprite.width) / 2, y: (FlxG.height - optionsSprite.height) / 2, alpha: 0}, time,
 				{ease: FlxEase.elasticInOut});
+			FlxTween.tween(optionsSprite.scale, {x: 1.3, y: 1.3}, time, {ease: FlxEase.linear});
 			FlxFlicker.flicker(optionsSprite, 1.2, 0.06, false, false);
 			clickedOption = true;
 			numTween = FlxTween.num(0, shaderValue, 1.2);

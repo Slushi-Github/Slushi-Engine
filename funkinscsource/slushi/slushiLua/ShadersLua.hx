@@ -14,11 +14,11 @@ class ShadersLua
 		Debug.logSLEInfo('Loaded Slushi Shaders Lua functions!');
 
 		FunkinLua.lua_Cameras.set("camSLEHUD", {cam: PlayState.instance.camSLEHUD, shaders: [], shaderNames: []});
-		FunkinLua.lua_Cameras.set("camFor3D", {cam: PlayState.instance.camFor3D, shaders: [], shaderNames: []});
-		FunkinLua.lua_Cameras.set("camFor3D2", {cam: PlayState.instance.camFor3D2, shaders: [], shaderNames: []});
-		FunkinLua.lua_Cameras.set("camFor3D3", {cam: PlayState.instance.camFor3D3, shaders: [], shaderNames: []});
-		FunkinLua.lua_Cameras.set("camFor3D4", {cam: PlayState.instance.camFor3D4, shaders: [], shaderNames: []});
-		FunkinLua.lua_Cameras.set("camFor3D5", {cam: PlayState.instance.camFor3D5, shaders: [], shaderNames: []});
+		FunkinLua.lua_Cameras.set("camThings", {cam: PlayState.instance.camThings, shaders: [], shaderNames: []});
+		FunkinLua.lua_Cameras.set("camThings2", {cam: PlayState.instance.camThings2, shaders: [], shaderNames: []});
+		FunkinLua.lua_Cameras.set("camThings3", {cam: PlayState.instance.camThings3, shaders: [], shaderNames: []});
+		FunkinLua.lua_Cameras.set("camThings4", {cam: PlayState.instance.camThings4, shaders: [], shaderNames: []});
+		FunkinLua.lua_Cameras.set("camThings5", {cam: PlayState.instance.camThings5, shaders: [], shaderNames: []});
 		FunkinLua.lua_Cameras.set("camWaterWark", {cam: PlayState.instance.camWaterMark, shaders: [], shaderNames: []});
 
 		funkLua.set("addShader3DToCamStrumsAndCamNotes", function()

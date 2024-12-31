@@ -105,7 +105,7 @@ class SCScript extends flixel.FlxBasic
       "TitleState" => states.TitleState,
       // SubStates
       "GameOverSubstate" => substates.GameOverSubstate,
-      "PauseSubState" => substates.PauseSubState,
+      "PauseSubState" => slushi.substates.SlushiPauseSubState,
 
       // External Usages For Engine
       "Countdown" => backend.Countdown,

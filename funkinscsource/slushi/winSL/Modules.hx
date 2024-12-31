@@ -4,396 +4,459 @@ import slushi.winSL.termvm.Terminal;
 import slushi.winSL.termvm.CommandModule;
 
 /**
- * Custom modules for the WinSL terminal.
+ * Custom sourced modules for the WinSL terminal.
  * 
  * Author: Slushi
  */
+class Modules
+{
+	public static var modules:Array<CommandModule> = [];
 
-class Modules {
-    public static var modules:Array<CommandModule> = [];
-
-    public static function getModules():Array<CommandModule> {
-            modules = [
-            new CommandModule(["soy"], SoyModule.soy),
-            new CommandModule(["itsthisforthat", "ittft"], ItsThisForThatModule.itsthisforthat),
-            new CommandModule(["WriteTheWord", "writetheword"], WriteTheWordModule.writeTheWord),
-            new CommandModule(["convertSM", "convertsm"], ConvertToFNFModule.main)
-        ];
-        return modules;
-    }
+	public static function getModules():Array<CommandModule>
+	{
+		modules = [
+			new CommandModule(["soy"], SoyModule.soy),
+			new CommandModule(["itsthisforthat", "ittft"], ItsThisForThatModule.itsthisforthat),
+			new CommandModule(["WriteTheWord", "writetheword"], WriteTheWordModule.writeTheWord),
+			new CommandModule(["convertSM", "convertsm"], ConvertToFNFModule.main)
+		];
+		return modules;
+	}
 }
 
-class ModuleUtils {
-    public static function clearConsole():Void {
-        #if windows
-        return WinConsoleUtils.clearTerminal();
-        #else
-        Sys.print("\033[3J\033[H\033[2J");
-        #end
-    }
+class ModuleUtils
+{
+	public static function clearConsole():Void
+	{
+		#if windows
+		return WindowsTerminalCPP.clearTerminal();
+		#else
+		Sys.print("\033[3J\033[H\033[2J");
+		#end
+	}
 
-    public static function getSandboxPath():String {
-        return SlushiMain.getSLEPath("WinSL_Assets/sandbox/");
-    }
-    
-    public static function getWinSLVersion():String {
-        return SlushiMain.winSLVersion;
-    }
+	public static function getSandboxPath():String
+	{
+		return SlushiMain.getSLEPath("WinSL_Assets/sandbox/");
+	}
 
-    public static function printAlert(text:String, alertType:String):Void {
-        switch(alertType) {
-            case "error":
-                Sys.println("\033[31m" + text + "\033[0m");
-            case "warning":
-                Sys.println("\033[33m" + text + "\033[0m");
-            case "success":
-                Sys.println("\033[32m" + text + "\033[0m");
-            case "info":
-                Sys.println("\033[34m" + text + "\033[0m");
-            default:
-                Sys.println(text);
-        }
-    }
+	public static function getWinSLVersion():String
+	{
+		return SlushiMain.sleThingsVersions.winSLVersion;
+	}
 
-    public static function wait(time:Float):Void {
-        Sys.sleep(time);
-    }
+	public static function printAlert(text:String, alertType:String):Void
+	{
+		switch (alertType)
+		{
+			case "error":
+				Sys.println("\033[31m[ERROR]\033[0m " + text);
+			case "warning":
+				Sys.println("\033[33m[WARNING]\033[0m " + text);
+			case "success":
+				Sys.println("\033[32m[SUCCESS]\033[0m " + text);
+			case "info":
+				Sys.println("\033[34m[INFO]\033[0m " + text);
+			default:
+				Sys.println(text);
+		}
+	}
+
+	public static function wait(time:Float):Void
+	{
+		Sys.sleep(time);
+	}
 }
 
-class SoyModule {
-    public static function soy(terminal:Terminal, command:String, args:Array<String>, metadata:Dynamic):Void {
-        if(args[0] != null){
-            terminal.stdout.writeString("hola " + args[0] + "!\n");
-        }
-        else{
-            terminal.stdout.writeString("Necesitas introducir un argumento.\n");
-        }
-    }
+class SoyModule
+{
+	public static function soy(terminal:Terminal, command:String, args:Array<String>, metadata:Dynamic):Void
+	{
+		if (args[0] != null)
+		{
+			terminal.stdout.writeString("hola " + args[0] + "!\n");
+		}
+		else
+		{
+			terminal.stdout.writeString("Necesitas introducir un argumento.\n");
+		}
+	}
 }
 
-class ItsThisForThatModule extends ModuleUtils {
-    public static function itsthisforthat(terminal:Terminal, command:String, args:Array<String>, metadata:Dynamic):Void {
-        var urlToRequest:String = "https://itsthisforthat.com/api.php?text";
-        var http = new Http(urlToRequest);
+class ItsThisForThatModule extends ModuleUtils
+{
+	public static function itsthisforthat(terminal:Terminal, command:String, args:Array<String>, metadata:Dynamic):Void
+	{
+		var urlToRequest:String = "https://itsthisforthat.com/api.php?text";
+		var http = new Http(urlToRequest);
 
-        http.onData = function(response:String) {
-            terminal.stdout.writeString(response + "\n");
-        }
-        
-        http.onError = function(error:String) {
-            printAlert('Error while getting [itsthisforthat.com] API data: ' + error, 'error');
-        }
+		http.onData = function(response:String)
+		{
+			terminal.stdout.writeString(response + "\n");
+		}
 
-        http.request();
-    }
+		http.onError = function(error:String)
+		{
+			printAlert('Error while getting [itsthisforthat.com] API data: ' + error, 'error');
+		}
+
+		http.request();
+	}
 }
 
-class WriteTheWordModule extends ModuleUtils {
+class WriteTheWordModule extends ModuleUtils
+{
+	static var points = 0;
 
-    static var points = 0;
+	static var terminalForGame:Terminal;
 
-    static var terminalForGame:Terminal;
+	public static function writeTheWord(terminal:Terminal, command:String, args:Array<String>, metadata:Dynamic):Void
+	{
+		terminalForGame = terminal;
 
-    public static function writeTheWord(terminal:Terminal, command:String, args:Array<String>, metadata:Dynamic):Void {
+		terminal.stdout.writeString("Welcome to Write The Word!\n");
+		terminal.stdout.writeString("Type the word as fast as you can, and accumulate as many points as possible.\n");
 
-        terminalForGame = terminal;
+		wait(3);
 
-        terminal.stdout.writeString("Welcome to Write The Word!\n");
-        terminal.stdout.writeString("Type the word as fast as you can, and accumulate as many points as possible.\n");
+		clearConsole();
 
-        wait(3);
+		game();
 
-        clearConsole();
+		wait(0.8);
 
-        game();
+		terminal.stdout.writeString('You want to continue? (y/n) ');
 
-        wait(0.8);
+		if (terminal.stdin.readLine().toString() == 'y')
+		{
+			game();
+		}
+		else
+		{
+			terminal.stdout.writeString("Your total points: " + points + "\n");
+			terminal.stdout.writeString('Bye!\n\n');
+		}
+	}
 
-        terminal.stdout.writeString('You want to continue? (y/n) ');
+	static function game():Void
+	{
+		var startTime:Float;
+		var endTime:Float;
+		var input:String;
 
-        if (terminal.stdin.readLine().toString() == 'y') {
-            game();
-        }
-        else {
-            terminal.stdout.writeString("Your total points: " + points + "\n");
-            terminal.stdout.writeString('Bye!\n\n');
-        }
-    }
+		var word = getWord();
 
-    static function game():Void {
-        var startTime:Float;
-        var endTime:Float;
-        var input:String;
+		terminalForGame.stdout.writeString("Press Enter to start\n");
 
-        var word = getWord();
+		terminalForGame.stdin.readLine();
 
-        terminalForGame.stdout.writeString("Press Enter to start\n");
+		wait(1);
 
-        terminalForGame.stdin.readLine();
+		terminalForGame.stdout.writeString("Go!\n");
 
-        wait(1);
+		terminalForGame.stdout.writeString("Type the word!: " + word + "\n--> ");
 
-        terminalForGame.stdout.writeString("Go!\n");
+		startTime = Date.now().getTime();
 
-        terminalForGame.stdout.writeString("Type the word!: " + word + "\n--> ");
+		input = terminalForGame.stdin.readLine();
 
-        startTime = Date.now().getTime();
+		endTime = Date.now().getTime();
 
-        input = terminalForGame.stdin.readLine();
+		var elapsedTime = endTime - startTime;
 
-        endTime = Date.now().getTime();
+		var finalTime = Math.floor(elapsedTime / 1000);
 
-        var elapsedTime = endTime - startTime;
+		if (input == word)
+		{
+			if (elapsedTime < 1000)
+			{
+				terminalForGame.stdout.writeString('Great job! you took ' + finalTime + ' seconds, +10 points\n');
+				points += 10;
+			}
+			else if (elapsedTime < 2000)
+			{
+				terminalForGame.stdout.writeString('Good! you took ' + finalTime + ' seconds, +7 points\n');
+				points += 7;
+			}
+			else if (elapsedTime < 3000)
+			{
+				terminalForGame.stdout.writeString('Well done! you took ' + finalTime + ' seconds, +5 points\n');
+				points += 5;
+			}
+			else
+			{
+				terminalForGame.stdout.writeString('You took ' + finalTime + ' seconds, +2 points\n');
+			}
+		}
+		else
+		{
+			terminalForGame.stdout.writeString('Wrong! The word was ' + word + ', you took ' + finalTime + ' seconds, -5 points\n');
+			points -= 5;
+		}
+	}
 
-        var finalTime = Math.floor(elapsedTime / 1000);
+	static function getWord():String
+	{
+		var urlToRequest:String = "https://random-word-api.herokuapp.com/word";
+		var http = new Http(urlToRequest);
+		var word:String = null;
 
-        if (input == word) {
-            if (elapsedTime < 1000) {
-                terminalForGame.stdout.writeString('Great job! you took ' + finalTime + ' seconds, +10 points\n');
-                points += 10;
-            } else if (elapsedTime < 2000) {
-                terminalForGame.stdout.writeString('Good! you took ' + finalTime + ' seconds, +7 points\n');
-                points += 7;
-            } else if (elapsedTime < 3000) {
-                terminalForGame.stdout.writeString('Well done! you took ' + finalTime + ' seconds, +5 points\n');
-                points += 5;
-            }
-            else {
-                terminalForGame.stdout.writeString('You took ' + finalTime + ' seconds, +2 points\n');
-            }
-        } else {
-            terminalForGame.stdout.writeString('Wrong! The word was ' + word + ', you took ' + finalTime + ' seconds, -5 points\n');
-            points -= 5;	
-        }
-    }
+		http.onData = function(response:String)
+		{
+			word = response;
+		}
 
-    static function getWord():String {
-        var urlToRequest:String = "https://random-word-api.herokuapp.com/word";
-        var http = new Http(urlToRequest);
-        var word:String = null;
+		http.onError = function(error:String)
+		{
+			printAlert('Error while getting [random-word-api.herokuapp.com] API data: ' + error, 'error');
+		}
 
-        http.onData = function(response:String) {
-            word = response;
-        }
-        
-        http.onError = function(error:String) {
-            printAlert('Error while getting [random-word-api.herokuapp.com] API data: ' + error, 'error');
-        }
+		http.request();
 
-        http.request();
+		final finalWord = word.replace('["', '').replace('"]', '');
 
-        final finalWord =  word.replace('["', '').replace('"]', '');
-
-        return finalWord;
-    }
+		return finalWord;
+	}
 }
 
-class ConvertToFNFModule {
-    static var curSMFile:SMFile;
-    static var finalFNFFile:String = '';
-    static var finalFNFFileName:String = '';
-    static var finalFNFFileNameLowerCase:String = '';
-    static var finalDifficulty:String = '';
-    static var finalSpeed:Float = 1.0;
+typedef WeekJSONFile =
+{
+	// JSON variables
+	var songs:Array<Dynamic>;
 
-    public static function main(terminal:Terminal, command:String, args:Array<String>, metadata:Dynamic):Void {
-        if (args[0] == null) {
-            return terminal.stdout.writeString("You need to specify the path to an SM file.\n");
-        }
+	var weekBefore:String;
+	var storyName:String;
+	var weekName:String;
+	var freeplayColor:Array<Int>;
+	var startUnlocked:Bool;
+	var hideStoryMode:Bool;
+	var hideFreeplay:Bool;
+	var difficulties:String;
+	var blockOpponentMode:Null<Bool>;
+}
 
-        var smFilePath:String = "./engineUtils/SMToConvert/" + args[0];
+class ConvertToFNFModule
+{
+	static var converterVersion = "1.3.5";
+	static var curSMFile:SMFile;
+	static var finalFNFFile:String = "";
+	static var finalFNFFileName:String = "";
+	static var finalFNFFileNameLowerCase:String = "";
+	static var finalDifficulty:String = "";
+	static var finalSpeed:Float = 3.0;
+	static var smFilePath:String = "./slEngineUtils/SMToConvert/";
 
-        if (!smFilePath.endsWith(".sm")) {
-            return terminal.stdout.writeString("You need to specify a .sm file.\n");
-        }
+	public static function main(terminal:Terminal, command:String, args:Array<String>, metadata:Dynamic):Void
+	{
+		if (args[0] == null)
+		{
+			return terminal.stdout.writeString("You need to specify the path to an SM file.\n");
+		}
 
-        if (!FileSystem.exists(smFilePath)) {
-            terminal.stdout.writeString("File not found: [" + args[0] + "]\n");
-            terminal.stdout.writeString('You can put it in "engineUtils/SMToConvert"\n');
-            return;
-        }
+		smFilePath += args[0];
 
-        terminal.stdout.writeString("Welcome to StepMania to FNF converter v1.3!\n");
+		if (!smFilePath.endsWith(".sm"))
+		{
+			return terminal.stdout.writeString("You need to specify a .sm file.\n");
+		}
 
-        terminal.stdout.writeString("Loading SM file...\n");
-        Sys.sleep(1.2);
+		if (!FileSystem.exists(smFilePath))
+		{
+			terminal.stdout.writeString("File not found: [" + args[0] + "]\n");
+			terminal.stdout.writeString('You can put it in "slEngineUtils/SMToConvert"\n');
+			return;
+		}
 
-        try {
-            parseSMFile(smFilePath);
-        }
-        catch (e) {
-            terminal.stdout.writeString("Error: " + e.toString() + "\n");
-            return;
-        }
+		terminal.stdout.writeString("Welcome to StepMania to FNF converter v" + converterVersion + "!\n");
 
-        terminal.stdout.writeString("Enter the desired song name (press Enter to use SM file name): ");
-        var songName:String = terminal.stdin.readLine().toString();
-        if (songName == "") {
-            songName = curSMFile.title;
-        }
+		terminal.stdout.writeString("Loading SM file...\n");
+		wait(1.2);
 
-        while (true) {
-            terminal.stdout.writeString("Enter the desired difficulty: ");
-            var difficulty:String = terminal.stdin.readLine().toString();
-            if (difficulty == "") {
-                return terminal.stdout.writeString("You need to specify a difficulty.\n");
-            }
-            else{
-                finalDifficulty = difficulty;
-                break;
-            }
-        }
+		try
+		{
+			parseSMFile(smFilePath);
+		}
+		catch (e)
+		{
+			terminal.stdout.writeString("Error: " + e.toString() + "\n");
+			return;
+		}
 
-        terminal.stdout.writeString("Enter the desired speed (press Enter to use 3.0): ");
-        var speed:String = terminal.stdin.readLine().toString();
-        if (speed == "") {
-            finalSpeed = 3.0;
-        }
-        else{
-            finalSpeed = Std.parseFloat(speed);
-        }
+		terminal.stdout.writeString("Enter the desired song name (press Enter to use SM file name): ");
+		var songName:String = terminal.stdin.readLine().toString();
+		if (songName == "")
+		{
+			songName = curSMFile.title;
+		}
 
-        Sys.sleep(1.2);
+		while (true)
+		{
+			terminal.stdout.writeString("Enter the desired difficulty: ");
+			var difficulty:String = terminal.stdin.readLine().toString().toLowerCase();
+			if (difficulty != "")
+			{
+				finalDifficulty = difficulty;
+				break;
+			}
+		}
 
-        terminal.stdout.writeString("Generating FNF chart...\n");
-        generateChart(songName);
+		terminal.stdout.writeString("Enter the desired speed (press Enter to use 3.0): ");
+		var speed:String = terminal.stdin.readLine().toString();
+		if (speed != "")
+		{
+			finalSpeed = Std.parseFloat(speed);
+		}
 
-        while (true) {
-            terminal.stdout.writeString("Do you like delete the original SM file? (y/n): ");
-            if (terminal.stdin.readLine().toString() == "y") {
-                if(FileSystem.exists(smFilePath))
-                    FileSystem.deleteFile(smFilePath);
-                terminal.stdout.writeString("Done!\n");
-                break;
-            }
-            else {
-                break;
-            }
-        } 
-        
-        while (true) {
-            terminal.stdout.writeString("Do you want create the rest of the files for the FNF Song (like week JSON)? (y/n): ");
-            if (terminal.stdin.readLine().toString() == "y") {
-                createMoreFiles();
-                terminal.stdout.writeString("Done!\n");
-                break;
-            }
-            else {
-                break;
-            }
-        }
-    }
+		wait(1.2);
 
-    static function parseSMFile(smFilePath:String):Void {
-        var smContent:String = File.getContent(smFilePath);
-        smContent = smContent.replace('\r\n', '\n');
-        curSMFile = new SMFile(smContent);
+		terminal.stdout.writeString("Generating FNF chart...\n");
+		generateChart(songName);
 
-        Sys.println("Song name: " + curSMFile.title);
-        Sys.println("Song BPMS: " + curSMFile.bpms);
-        Sys.println("Song offset: " + curSMFile.chartOffset + "\n");
-    }
+		while (true)
+		{
+			terminal.stdout.writeString("Do you want create the rest of the files for the FNF Song (like week JSON)? (y/n): ");
+			if (terminal.stdin.readLine().toString() == "y")
+			{
+				createMoreFiles();
+				terminal.stdout.writeString("Done!\n");
+				break;
+			}
+			if (terminal.stdin.readLine().toString() == "n")
+			{
+                terminal.stdout.writeString("Finished!\n");
+				break;
+			}
+		}
+	}
 
-    static function generateChart(songName:String):Void {
-        var cfg: SongConfig = {
-            song: (songName != '') ? songName : 'SMSong',
-            speed: finalSpeed, // You can set the default speed or ask the user for input
-            player1: 'bf',
-            player2: 'gf',
-            gfVersion: 'gf'
-        };
+	static function parseSMFile(smFilePath:String):Void
+	{
+		var smContent:String = File.getContent(smFilePath);
+		smContent = smContent.replace('\r\n', '\n');
+		curSMFile = new SMFile(smContent);
 
-        var fnfchart:Dynamic = curSMFile.makeFNFChart(0, cfg, true);
-        
-        var jsonContent:String = haxe.Json.stringify(fnfchart, null, '\t');
+		Sys.println("SM name: " + curSMFile.title);
+		Sys.println("SM BPMS: " + curSMFile.bpms.join(', '));
+		Sys.println("SM offset: " + curSMFile.chartOffset + "\n");
+	}
 
-        var outputFileName:String = cfg.song;
-        var outputFilePath:String = "./engineUtils/SMToConvert/" + outputFileName.toLowerCase() + ".json";
+	static function generateChart(songName:String):Void
+	{
+		var cfg:SongConfig = {
+			song: (songName != '') ? songName : 'SMSong',
+			speed: finalSpeed,
+			player1: 'bf',
+			player2: 'gf',
+			gfVersion: 'gf'
+		};
 
-        if (FileSystem.exists(outputFilePath)) {
-            FileSystem.deleteFile(outputFilePath);
-            Sys.println("Deleted existing file: " + outputFilePath + "\n");
-        }
+		var fnfchart:Dynamic = curSMFile.makeFNFChart(0, cfg, true);
+		var jsonContent:String = Json.stringify(fnfchart, null, '\t');
 
-        File.saveContent(outputFilePath, jsonContent);
+		var outputFileName:String = cfg.song;
+		var outputFilePath:String = "./slEngineUtils/SMToConvert/converted/" + outputFileName.toLowerCase() + ".json";
 
-        finalFNFFileNameLowerCase = outputFileName.toLowerCase().replace(' ', '-');
-        finalFNFFileName = outputFileName;
-        finalFNFFile = outputFilePath;
+		if (FileSystem.exists(outputFilePath))
+		{
+			FileSystem.deleteFile(outputFilePath);
+			Sys.println("Deleted existing file [" + outputFilePath + "]");
+		}
 
-        Sys.println("Conversion complete! Check the output file\n");
-        Sys.sleep(1.4);
-    }
-
-    static function createMoreFiles() {
-        var modsChartsFolder:String = './mods/data/songs/';
-        var modsWeeksFolder:String = './mods/data/weeks/';
-        var modsSongOGGFolder:String = './mods/songs/';
-        var modsLuaFolder:String = './mods/scripts/songs/';
-        var finalPath:String = '';
-
-        var oggFile = "";
-
-        var directory = FileSystem.readDirectory("./engineUtils/SMToConvert");
-
-        for (file in directory) {
-            if(file.endsWith(".ogg")) {
-                oggFile = file;
-                break;
-            }
-        }
-
-        if(FileSystem.exists(finalFNFFile)) {
-            if(!FileSystem.exists('$modsChartsFolder$finalFNFFileNameLowerCase')){
-                FileSystem.createDirectory('$modsChartsFolder$finalFNFFileNameLowerCase');
-            }
-            finalPath = '$modsChartsFolder$finalFNFFileNameLowerCase/';
-            File.copy(finalFNFFile, '$finalPath$finalFNFFileNameLowerCase-$finalDifficulty.json');
-            Sys.println("Copied " + finalFNFFile + " to " + finalPath + finalFNFFileNameLowerCase + "-" + finalDifficulty + ".json");
-            Sys.sleep(0.8);
-        }
-
-        if(FileSystem.exists("./engineUtils/SMToConvert/" + oggFile)) {
-            {
-                if(!FileSystem.exists('$modsSongOGGFolder$finalFNFFileNameLowerCase')){
-                    FileSystem.createDirectory('$modsSongOGGFolder$finalFNFFileNameLowerCase');
-                }
-                finalPath = '$modsSongOGGFolder$finalFNFFileNameLowerCase/';
-                File.copy("./engineUtils/SMToConvert/" + oggFile, '$finalPath' + 'Inst.ogg');
-                Sys.println("Copied " + "./engineUtils/SMToConvert/" + oggFile + " to " + finalPath + 'Inst.ogg');
-                Sys.sleep(0.8);
-            }
-        }
-        else {
-            Sys.println("File not found: [" + oggFile + "]\n");
-            return;
-        }
-
-        var weekStructure:String = '
+        if (!FileSystem.exists("./slEngineUtils/SMToConvert/converted"))
         {
-            "songs": [
-                ["$finalFNFFileName", "gf", [0, 0, 0]]
-            ],
-        
-            "difficulties": "$finalDifficulty",
-
-            "storyName": "",
-            "weekBefore": "none",
-            "weekName": "",
-            "startUnlocked": true,
-            "hideStoryMode": true,
-            "hideFreeplay": false,
-        }';
-
-        File.saveContent('$modsWeeksFolder$finalFNFFileNameLowerCase.json', weekStructure);
-        Sys.println('Created $modsWeeksFolder$finalFNFFileNameLowerCase.json file');
-        Sys.sleep(0.8);
-
-        var luaStructure:String = '-- Generated by StepMania to FNF Converter v1.3 (By Slushi) --\n\nfunction onCreatePost()\nend\n\nfunction onBeatHit()\nend\n\nfunction onUpdatePost(elapsed)\nend';
-        if(!FileSystem.exists('$modsLuaFolder$finalFNFFileNameLowerCase')) {
-            FileSystem.createDirectory('$modsLuaFolder$finalFNFFileNameLowerCase');
+            FileSystem.createDirectory("./slEngineUtils/SMToConvert/converted");
         }
-        File.saveContent('$modsLuaFolder$finalFNFFileNameLowerCase/modchart.lua', luaStructure);
-        Sys.println('Created $modsLuaFolder$finalFNFFileNameLowerCase/modchart.lua file');
-    }
+
+		File.saveContent(outputFilePath, jsonContent);
+
+		finalFNFFileNameLowerCase = outputFileName.toLowerCase().replace(' ', '-');
+		finalFNFFileName = outputFileName;
+		finalFNFFile = outputFilePath;
+
+		Sys.println("Conversion complete in [" + outputFilePath + "]!\n");
+		wait(1.4);
+	}
+
+	static function createMoreFiles()
+	{
+		var modsChartsFolder:String = "./mods/data/songs/";
+		var modsWeeksFolder:String = "./mods/data/weeks/";
+		var modsSongOGGFolder:String = "./mods/songs/";
+		var modsLuaFolder:String = "./mods/scripts/songs/";
+		var finalPath:String = "";
+		var oggFile = "";
+
+		var directory = FileSystem.readDirectory("./slEngineUtils/SMToConvert");
+
+		for (file in directory)
+		{
+			if (file.endsWith(".ogg"))
+			{
+				oggFile = file;
+				break;
+			}
+		}
+
+		if (FileSystem.exists(finalFNFFile))
+		{
+			if (!FileSystem.exists('$modsChartsFolder$finalFNFFileNameLowerCase'))
+			{
+				FileSystem.createDirectory('$modsChartsFolder$finalFNFFileNameLowerCase');
+			}
+			finalPath = '$modsChartsFolder$finalFNFFileNameLowerCase/';
+			File.copy(finalFNFFile, '$finalPath$finalFNFFileNameLowerCase-$finalDifficulty.json');
+			Sys.println("Copied [" + finalFNFFile + "] to [" + finalPath + finalFNFFileNameLowerCase + "-" + finalDifficulty + ".json]");
+			wait(0.8);
+		}
+
+		if (FileSystem.exists("./slEngineUtils/SMToConvert/" + oggFile))
+		{
+			{
+				if (!FileSystem.exists('$modsSongOGGFolder$finalFNFFileNameLowerCase'))
+				{
+					FileSystem.createDirectory('$modsSongOGGFolder$finalFNFFileNameLowerCase');
+				}
+				finalPath = '$modsSongOGGFolder$finalFNFFileNameLowerCase/';
+				File.copy("./slEngineUtils/SMToConvert/" + oggFile, '$finalPath' + 'Inst.ogg');
+				Sys.println("Copied " + "[./slEngineUtils/SMToConvert/" + oggFile + "] to [" + finalPath + "Inst.ogg]");
+				wait(0.8);
+			}
+		}
+		else
+		{
+			Sys.println("OGG file not found: [" + oggFile + "]");
+			Sys.println('You can put it in [$modsSongOGGFolder$finalFNFFileNameLowerCase/] and rename it to "Inst.ogg"');
+			Sys.println("Continuing...\n");
+		}
+
+		/**
+		 * All this is just to be able to format the JSON 
+         * file correctly, instead of being a string that is stored in a JSON file.
+		 */
+		var weekJsonStructure:WeekJSONFile = {
+			songs: [[finalFNFFileName, "gf", [0, 0, 0]]],
+
+			difficulties: finalDifficulty,
+			storyName: "",
+			weekBefore: "none",
+			weekName: finalFNFFileNameLowerCase + "-week",
+			startUnlocked: true,
+			hideStoryMode: true,
+			hideFreeplay: false,
+            freeplayColor: [0, 0, 0],
+            blockOpponentMode: true
+		}
+
+		File.saveContent('$modsWeeksFolder$finalFNFFileNameLowerCase.json', Json.stringify(weekJsonStructure));
+		Sys.println('Created [$modsWeeksFolder$finalFNFFileNameLowerCase.json] file');
+		wait(0.8);
+
+		var luaStructure:String = '-- Generated by StepMania to FNF Converter v${converterVersion} (By Slushi) --\n\nfunction onCreatePost()\nend\n\nfunction onBeatHit()\nend\n\nfunction onStepHit()\nend\n\nfunction onUpdatePost(elapsed)\nend';
+		if (!FileSystem.exists('$modsLuaFolder$finalFNFFileNameLowerCase'))
+		{
+			FileSystem.createDirectory('$modsLuaFolder$finalFNFFileNameLowerCase');
+		}
+		File.saveContent('$modsLuaFolder$finalFNFFileNameLowerCase/modchart.lua', luaStructure);
+		Sys.println('Created [$modsLuaFolder$finalFNFFileNameLowerCase/modchart.lua] file');
+	}
 }

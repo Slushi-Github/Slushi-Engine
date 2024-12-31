@@ -16,12 +16,12 @@ class WinSLConsoleUtils
             FlxG.sound.music.stop();
         }
         Sys.println("\033[0m");	
-        WinConsoleUtils.allocConsole();
-        WinConsoleUtils.setConsoleTitle('WinSL ${SlushiMain.winSLVersion}');
-        WinConsoleUtils.setConsoleWindowIcon(SlushiMain.getSLEPath("WinSL_Assets/windowIcon.ico"));
-        WinConsoleUtils.centerConsoleWindow();
-        WinConsoleUtils.setWinConsoleColor();
-        WinConsoleUtils.hideMainWindow();
+        WindowsTerminalCPP.allocConsole();
+        WindowsTerminalCPP.setConsoleTitle('WinSL [${SlushiMain.sleThingsVersions.winSLVersion}]');
+        WindowsTerminalCPP.setConsoleWindowIcon(SlushiMain.getSLEPath("WinSL_Assets/windowIcon.ico"));
+        WindowsTerminalCPP.centerConsoleWindow();
+        WindowsTerminalCPP.setWinConsoleColor();
+        WindowsTerminalCPP.hideMainWindow();
         Main.main();
         #end
     }

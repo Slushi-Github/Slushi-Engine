@@ -1,4 +1,4 @@
--- WinSL.lua -- Version 1.0 -- Ultima modificación: 23/08/2024
+-- WinSL.lua -- Version 1.0.0 -- Ultima modificación: 23/08/2024
 
 function winSL_console_getVersion()
     --[[

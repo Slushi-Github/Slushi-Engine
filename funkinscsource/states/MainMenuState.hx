@@ -310,7 +310,7 @@ class MainMenuState extends MusicBeatState
           }
 
         case RIGHT:
-          if (controls.UI_LEFT_P)
+        if (controls.UI_LEFT_P)
           {
             curColumn = CENTER;
             changeItem();
@@ -370,7 +370,7 @@ class MainMenuState extends MusicBeatState
               case 'story_mode':
                 MusicBeatState.switchState(new StoryMenuState());
               case 'freeplay':
-                MusicBeatState.switchState(new states.freeplay.FreeplayState());
+                MusicBeatState.switchState(new slushi.states.freeplay.SlushiFreeplayState());
               #if MODS_ALLOWED
               case 'mods':
                 MusicBeatState.switchState(new ModsMenuState());

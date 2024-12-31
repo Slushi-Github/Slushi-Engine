@@ -14,7 +14,7 @@ class WinSLLua
 
 		funkLua.set("winSL_console_getVersion", function()
 		{
-			return SlushiMain.winSLVersion;
+			return SlushiMain.sleThingsVersions.winSLVersion;
 		});
 
 		funkLua.set("winSL_console_printLetterByLetter", function(text:String, time:Float)
@@ -27,28 +27,28 @@ class WinSLLua
 			switch (mode)
 			{
 				case true:
-					WinConsoleUtils.allocConsole();
-					WinConsoleUtils.setConsoleTitle('WinSL ${SlushiMain.winSLVersion}');
-					WinConsoleUtils.setConsoleWindowIcon(SlushiMain.getSLEPath("WinSL_Assets/windowIcon.ico"));
-					WinConsoleUtils.setWinConsoleColor();
+					WindowsTerminalCPP.allocConsole();
+					WindowsTerminalCPP.setConsoleTitle('WinSL ${SlushiMain.sleThingsVersions.winSLVersion}');
+					WindowsTerminalCPP.setConsoleWindowIcon(SlushiMain.getSLEPath("WinSL_Assets/windowIcon.ico"));
+					WindowsTerminalCPP.setWinConsoleColor();
 				case false:
-					WinConsoleUtils.hideConsoleWindow();
+					WindowsTerminalCPP.hideConsoleWindow();
 			}
 		});
 
 		funkLua.set("winSL_console_disableResize", function()
 		{
-			WinConsoleUtils.disableResizeWindow();
+			WindowsTerminalCPP.disableResizeWindow();
 		});
 
 		funkLua.set("winSL_console_disableClose", function()
 		{
-			WinConsoleUtils.disableCloseWindow();
+			WindowsTerminalCPP.disableCloseWindow();
 		});
 
 		funkLua.set("winSL_console_setTitle", function(title:String)
 		{
-			WinConsoleUtils.setConsoleTitle(title);
+			WindowsTerminalCPP.setConsoleTitle(title);
 		});
 
 		funkLua.set("winSL_console_setWinPos", function(mode:String, value:Int)
@@ -56,9 +56,9 @@ class WinSLLua
 			switch (mode)
 			{
 				case "X":
-					WinConsoleUtils.setConsoleWindowPositionX(value);
+					WindowsTerminalCPP.setConsoleWindowPositionX(value);
 				case "Y" :
-					WinConsoleUtils.setConsoleWindowPositionY(value);
+					WindowsTerminalCPP.setConsoleWindowPositionY(value);
 				default:
 					printInDisplay("winSL_console_setWinPos: Invalid mode!", FlxColor.RED);
 			}
@@ -69,20 +69,20 @@ class WinSLLua
 			switch (mode)
 			{
 				case "X":
-					var numTween:NumTween = FlxTween.num(WinConsoleUtils.returnConsolePositionX(), value, time, {
+					var numTween:NumTween = FlxTween.num(WindowsTerminalCPP.returnConsolePositionX(), value, time, {
 						ease: LuaUtils.getTweenEaseByString(ease),
 					});
 					numTween.onUpdate = function(twn:FlxTween)
 					{
-						WinConsoleUtils.setConsoleWindowPositionX(Std.int(numTween.value));
+						WindowsTerminalCPP.setConsoleWindowPositionX(Std.int(numTween.value));
 					}
 				case "Y":
-					var numTween:NumTween = FlxTween.num(WinConsoleUtils.returnConsolePositionY(), value, time, {
+					var numTween:NumTween = FlxTween.num(WindowsTerminalCPP.returnConsolePositionY(), value, time, {
 						ease: LuaUtils.getTweenEaseByString(ease),
 					});
 					numTween.onUpdate = function(twn:FlxTween)
 					{
-						WinConsoleUtils.setConsoleWindowPositionY(Std.int(numTween.value));
+						WindowsTerminalCPP.setConsoleWindowPositionY(Std.int(numTween.value));
 					}
 				default:
 					printInDisplay("winSL_console_tweenWinPos: Invalid mode!", FlxColor.RED);
@@ -94,9 +94,9 @@ class WinSLLua
 			switch (mode)
 			{
 				case "X":
-					return WinConsoleUtils.returnConsolePositionX();
+					return WindowsTerminalCPP.returnConsolePositionX();
 				case "Y":
-					return WinConsoleUtils.returnConsolePositionY();
+					return WindowsTerminalCPP.returnConsolePositionY();
 				default:
 					printInDisplay("winSL_console_getWinPos: Invalid mode!", FlxColor.RED);
 					return 0;
@@ -105,7 +105,7 @@ class WinSLLua
 
 		funkLua.set("winSL_console_centerWindow", function()
 		{
-			WinConsoleUtils.centerConsoleWindow();
+			WindowsTerminalCPP.centerConsoleWindow();
 		});
 		#end
 	}

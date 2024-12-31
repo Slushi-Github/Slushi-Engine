@@ -857,16 +857,16 @@ class LuaUtils
 
           case 'camslehud' | 'slehud':
             return PlayState.instance.camSLEHUD;
-          case 'camfor3d':
-            return PlayState.instance.camFor3D;
-          case 'camfor3d2':
-            return PlayState.instance.camFor3D2;
-          case 'camfor3d3':
-            return PlayState.instance.camFor3D3;
-          case 'camfor3d4':
-            return PlayState.instance.camFor3D4;
-          case 'camfor3d5':
-            return PlayState.instance.camFor3D5;
+          case 'camthings':
+            return PlayState.instance.camThings;
+          case 'camthings2':
+            return PlayState.instance.camThings2;
+          case 'camthings3':
+            return PlayState.instance.camThings3;
+          case 'camthings4':
+            return PlayState.instance.camThings4;
+          case 'camthings5':
+            return PlayState.instance.camThings5;
           case 'camwatermark' | 'watermark':
             return PlayState.instance.camWaterMark;
         }
@@ -900,16 +900,16 @@ class LuaUtils
         camera = 'mainCam';
       case 'camslehud' | 'slehud':
         camera = 'camSLEHUD';
-      case 'camfor3d':
-        camera = 'camFor3D';
-      case 'camfor3d2':
-        camera = 'camFor3D2';
-      case 'camfor3d3':
-        camera = 'camFor3D3';
-      case 'camfor3d4':
-        camera = 'camFor3D4';
-      case 'camfor3d5':
-        camera = 'camFor3D5';
+      case 'camthings':
+        camera = 'camThings';
+      case 'camthings2':
+        camera = 'camThings2';
+      case 'camthings3':
+        camera = 'camThings3';
+      case 'camthings4':
+        camera = 'camThings4';
+      case 'camthings5':
+        camera = 'camThings5';
       case 'camwatermark' | 'watermark':
         camera = 'camWaterMark';
       default:
@@ -1338,19 +1338,19 @@ class LuaUtils
         return FunkinLua.lua_Cameras.get("main");
 
       case 'camslehud' | 'slehud':
-        return FunkinLua.lua_Cameras.get("slehud");
-      case 'camfor3d':
-        return FunkinLua.lua_Cameras.get("camFor3D");
-      case 'camfor3d2':
-        return FunkinLua.lua_Cameras.get("camFor3D2");
-      case 'camfor3d3':
-        return FunkinLua.lua_Cameras.get("camFor3D3");
-      case 'camfor3d4':
-        return FunkinLua.lua_Cameras.get("camFor3D4");
-      case 'camfor3d5':
-        return FunkinLua.lua_Cameras.get("camFor3D5");
+        return FunkinLua.lua_Cameras.get("camSLEHUD");
+      case 'camthings':
+        return FunkinLua.lua_Cameras.get("camThings");
+      case 'camthings2':
+        return FunkinLua.lua_Cameras.get("camThings2");
+      case 'camthings3':
+        return FunkinLua.lua_Cameras.get("camThings3");
+      case 'camthings4':
+        return FunkinLua.lua_Cameras.get("camThings4");
+      case 'camthings5':
+        return FunkinLua.lua_Cameras.get("camThings5");
       case 'camwatermark' | 'watermark':
-        return FunkinLua.lua_Cameras.get("camWatermark");
+        return FunkinLua.lua_Cameras.get("camWaterWark");
     }
 
     return FunkinLua.lua_Cameras.get("game");

@@ -10,7 +10,7 @@ class WindowLua
 	{
 		Debug.logSLEInfo("Loaded Slushi Window Lua functions!");
 
-		funkLua.set("windowTrans", function(trans:Bool, camToApply:String = 'game')
+		funkLua.set("windowTransparent", function(transparent:Bool, camToApply:String = 'game')
 		{
 			#if windows
 			var blackSprite:FlxSprite = null;
@@ -24,7 +24,7 @@ class WindowLua
 				PlayState.instance.add(blackSprite);
 			}
 
-			if (trans)
+			if (transparent)
 			{
 				CppAPI.getWindowsTransparent();
 				SlushiLua.apliedWindowTransparent = true;
@@ -40,25 +40,25 @@ class WindowLua
 				}
 			}
 			#else
-			printInDisplay("windowTrans: Platform unsupported for Window transparent!", FlxColor.RED);
+			printInDisplay("windowTransparent: Platform unsupported for Window transparent!", FlxColor.RED);
 			#end
 		});
 
-		funkLua.set("windowAlpha", function(alpha:Float)
+		funkLua.set("setWindowAlpha", function(alpha:Float)
 		{
 			#if windows
 			if (ClientPrefs.data.windowAlpha)
 				WindowFuncs.windowAlpha(alpha);
 			#else
-			printInDisplay("WindowAlpha: Platform unsupported for this function", FlxColor.RED);
+			printInDisplay("setWindowAlpha: Platform unsupported for this function", FlxColor.RED);
 			#end
 		});
 
-		funkLua.set("doTweenWinAlpha", function(toValue:Float, duration:Float, ease:String = "linear")
+		funkLua.set("doTweenWinAlpha", function(value:Float, duration:Float, ease:String = "linear")
 		{
 			#if windows
 			if (ClientPrefs.data.windowAlpha)
-				WindowFuncs.doTweenWindowAlpha(toValue, duration, ease);
+				WindowFuncs.doTweenWindowAlpha(value, duration, ease);
 			#else
 			printInDisplay("doTweenWinAlpha: Platform unsupported for this function", FlxColor.RED);
 			#end
@@ -66,29 +66,24 @@ class WindowLua
 
 		funkLua.set("centerWindow", function()
 		{
-			#if windows
-			CppAPI.centerWindow();
-			#else
-			printInDisplay("centerWindow: Platform unsupported for this function", FlxColor.RED);
-			#end
+			WindowFuncs.centerWindow();
 		});
 
-		funkLua.set("setWindowVisible", function(visible:Bool)
+		funkLua.set("setMainWindowVisible", function(visible:Bool)
 		{
 			#if windows
 			CppAPI.setWindowVisible(visible);
 			#else
-			printInDisplay("setWindowVisible: Platform unsupported for this function", FlxColor.RED);
+			printInDisplay("setMainWindowVisible: Platform unsupported for this function", FlxColor.RED);
 			#end
 		});
 
-		#if desktop
 		funkLua.set("windowAlert", function(text:String, title:String)
 		{
 			WindowFuncs.windowAlert(text, title);
 		});
 
-		funkLua.set("canResizableWindow", function(mode:Bool)
+		funkLua.set("resizableWindow", function(mode:Bool)
 		{
 			WindowFuncs.windowResizable(mode);
 		});
@@ -96,14 +91,6 @@ class WindowLua
 		funkLua.set("windowMaximized", function(mode:Bool)
 		{
 			WindowFuncs.windowMaximized(mode);
-		});
-
-		funkLua.set("DisableCloseButton", function(mode:Bool)
-		{
-			if (mode)
-			{
-				Application.current.window.onClose.cancel();
-			}
 		});
 
 		funkLua.set("doTweenWinPos", function(mode:String, tag:String, value:Int, duration:Float, ease:String)
@@ -141,6 +128,28 @@ class WindowLua
 			}
 		});
 
+		// funkLua.set("doubleWindowTweenX", function(offset:Float, duration:Float, ease:String)
+		// {
+		// 	WindowFuncs.doubleWindowTweenX(offset, duration, ease);
+		// });
+
+		funkLua.set("centerWindowTween", function(tag:String, duration:Float, ease:String)
+		{
+			var variables = MusicBeatState.getVariables("Tween");
+			var valueX = Std.int((WindowFuncs.getScreenSizeInWidth() - WindowFuncs.getWindowSizeInWidth()) / 2);
+			var valueY = Std.int((WindowFuncs.getScreenSizeInHeight() - WindowFuncs.getWindowSizeInHeight()) / 2);
+			tag = LuaUtils.formatVariable('tween_$tag');
+
+			variables.set(tag, FlxTween.tween(Application.current.window, {x: valueX, y: valueY}, duration, {
+				ease: LuaUtils.getTweenEaseByString(ease),
+				onComplete: function(twn:FlxTween)
+				{
+					PlayState.instance.callOnLuas('onTweenCompleted', [tag]);
+					variables.remove(tag);
+				}
+			}));
+		});
+
 		funkLua.set("resetWindowParameters", function()
 		{
 			WindowFuncs.resetWindowParameters();
@@ -159,9 +168,14 @@ class WindowLua
 			}
 		});
 
-		funkLua.set("winTitle", function(text:String)
+		funkLua.set("setWindowTitle", function(text:String)
 		{
 			WindowFuncs.winTitle(text);
+		});
+
+		funkLua.set("getWindowTitle", function():String
+		{
+			return Application.current.window.title;
 		});
 
 		funkLua.set("setWindowPos", function(mode:String, value:Int)
@@ -231,24 +245,28 @@ class WindowLua
 					printInDisplay("setWindowSize: Invalid mode!", FlxColor.RED);
 			}
 		});
-		#end
 
-		funkLua.set("setWindowBorderColor", function(r:Int = 0, g:Int = 0, b:Int = 0, mode:Bool = true)
+		funkLua.set("setWindowBorderColor", function(rgb:Array<Int>, mode:Bool = true)
 		{
 			#if windows
-			if (WindowsFuncs.getWindowsVersion() != 0 && WindowsFuncs.getWindowsVersion() == 11)
+			if (SlushiEngineHUD.instance != null)
 			{
-				if (SlushiEngineHUD.instance != null)
-				{
-					SlushiEngineHUD.instance.canChangeWindowColorWithNoteHit = mode;
-				}
-				CppAPI.setWindowBorderColor(r, g, b);
+				SlushiEngineHUD.instance.canChangeWindowColorWithNoteHit = mode;
 			}
-			else
-			{
-				printInDisplay("setWindowBorderColor: You no are in Windows 11, sorry", FlxColor.RED);
-			}
+			WindowsFuncs.setWindowBorderColor(rgb);
 			#end
 		});
+
+		funkLua.set("tweenWindowBorderColor", function(fromColor:Array<Int>, toColor:Array<Int>, duration:Float, ease:String = "linear", mode:Bool = true)
+		{
+			#if windows
+			if (SlushiEngineHUD.instance != null)
+			{
+				SlushiEngineHUD.instance.canChangeWindowColorWithNoteHit = mode;
+			}
+
+			WindowsFuncs.tweenWindowBorderColor(fromColor, toColor, duration, ease);
+			#end
+			});
 	}
 }

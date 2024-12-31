@@ -1,4 +1,47 @@
--- Shaders.lua -- Versión 1.0 -- Ultima modificación: 23/08/2024
+-- Shaders.lua -- Versión 1.1.0 -- Ultima modificación: 23/12/2024
+
+function addShader3DToCamStrumsAndCamNotes()
+    --[[
+    Añade un shader 3D a la camara de los strums y las notas.
+    ]]--
+end
+
+function addShader3DToNotes()
+    --[[
+    Añade un shader 3D a las notas. (acortacion de addShader3DToCamStrumsAndCamNotes)
+    ]]--
+end
+
+function removeShader3DFromCamStrumsAndCamNotes()
+    --[[
+    Elimina el shader 3D de la camara de los strums y las notas.
+    ]]--
+end
+
+function removeShader3DFromNotes()
+    --[[
+    Elimina el shader 3D de las notas (acortacion de removeShader3DFromCamStrumsAndCamNotes).
+    ]]--
+end
+
+function setNotesShader3DProperty(prop, value)
+    --[[
+    Establece una propiedad del shader 3D de las notas.
+    prop: La propiedad a establecer (string).
+    value: El valor de la propiedad (Dynamic).
+    ]]--
+end
+
+function doTweenNotesShader3D(prop, tag, value, time, ease)
+    --[[
+    Realiza un tween en una propiedad del shader 3D de las notas.
+    prop: La propiedad a establecer (string).
+    tag: La etiqueta de la interpolación (string).
+    value: El valor final del tween (Dynamic).
+    time: El tiempo de la interpolación (float).
+    ease: El tipo de easing a aplicar (por defecto "linear") (string).
+    ]]--
+end
 
 function addWhiteShaderToNotes()
     --[[

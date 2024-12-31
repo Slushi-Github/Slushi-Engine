@@ -9,6 +9,7 @@ package slushi.windows;
  * Author: Slushi
  */
 // Windows API for Haxe v1.0.0
+
 @:buildXml('
 <compilerflag value="/DelayLoad:ComCtl32.dll"/>
 
@@ -171,9 +172,32 @@ class WindowsCPP
 {
 	#if windows
 	@:functionCode('
+		HMODULE ntdll = GetModuleHandleA("ntdll.dll");
+		if (ntdll) {
+			void* wine_get_version = GetProcAddress(ntdll, "wine_get_version");
+			if (wine_get_version) {
+				return true;
+			}
+		}
+		return false;
+	')
+	public static function detectWine():Bool
+	{
+		return false;
+	}
+
+	@:functionCode('
 		MessageBox(GET_ENGINE_WINDOW(), message, caption, icon | MB_SETFOREGROUND);
 	')
 	public static function showMessageBox(caption:String, message:String, icon:MessageBoxIcon = MSG_WARNING)
+	{
+	}
+
+	@:functionCode('
+		// Play a Beep sound, in the computer default sound device (not the motherboard speaker), with the given frequency and duration
+		Beep(freq, duration);
+	')
+	public static function beep(freq:Int, duration:Int)
 	{
 	}
 
@@ -261,9 +285,37 @@ class WindowsCPP
 	{
 	}
 
+	// @:functionCode('
+	// 	HWND window = GET_ENGINE_WINDOW();
+
+	// 	COLORREF color = 0;
+
+	// 	// Obtener el color del borde de la ventana (atributo 34)
+	// 	if (S_OK == DwmGetWindowAttribute(window, 34, &color, sizeof(COLORREF))) {
+	// 		std::vector<int> rgb;
+	// 		rgb.emplace_back(GetRValue(color));  // Red
+	// 		rgb.emplace_back(GetGValue(color));  // Green
+	// 		rgb.emplace_back(GetBValue(color));  // Blue
+
+	// 		Array_obj<int>* hxRGB = new Array_obj<int>(rgb.size(), rgb.size());
+	// 		for (int i = 0; i < rgb.size(); i++) {
+	// 			hxRGB->Item(i) = rgb[i];
+	// 		}
+	// 		return hxRGB;
+	// 	} else {
+	// 		// Devolver un array vacío si falla
+	// 		std::cerr << "[C++ Function - getWindowBorderColor] Error getting window border color. Error code: " << GetLastError() << std::endl;
+	// 		return new Array_obj<int>(0, 0);
+	// 	}
+	// ')
+	// public static function getWindowBorderColor():Array<Int>
+	// {
+	// 	return [];
+	// }
+
 	@:functionCode('
-	HWND window = GET_ENGINE_WINDOW();
-	SetWindowLong(window, GWL_EXSTYLE, GetWindowLong(window, GWL_EXSTYLE) ^ WS_EX_LAYERED);
+		HWND window = GET_ENGINE_WINDOW();
+		SetWindowLong(window, GWL_EXSTYLE, GetWindowLong(window, GWL_EXSTYLE) ^ WS_EX_LAYERED);
 	')
 	public static function _setWindowLayered()
 	{
@@ -309,48 +361,6 @@ class WindowsCPP
 	}
 
 	@:functionCode('
-        HWND hwnd = GET_ENGINE_WINDOW();
-        int screenWidth = GetSystemMetrics(SM_CXSCREEN);
-        int screenHeight = GetSystemMetrics(SM_CYSCREEN);
-        
-        RECT windowRect;
-        GetWindowRect(hwnd, &windowRect);
-        int windowWidth = windowRect.right - windowRect.left;
-        int windowHeight = windowRect.bottom - windowRect.top;
-        
-        int centerX = (screenWidth - windowWidth) / 2;
-        int centerY = (screenHeight - windowHeight) / 2;
-        
-        SetWindowPos(hwnd, NULL, centerX, centerY, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
-    ')
-	@:noCompletion
-	public static function centerWindow()
-	{
-	}
-
-	@:functionCode('
-	POINT MousePoint;
-	GetCursorPos(&MousePoint);
-
-	return MousePoint.x;
-    ')
-	static public function getCursorPositionX()
-	{
-		return 0;
-	}
-
-	@:functionCode('
-	POINT MousePoint;
-	GetCursorPos(&MousePoint);
-
-	return MousePoint.y;
-    ')
-	static public function getCursorPositionY()
-	{
-		return 0;
-	}
-
-	@:functionCode('
 		BOOL isAdmin = FALSE;
 		SID_IDENTIFIER_AUTHORITY ntAuthority = SECURITY_NT_AUTHORITY;
 		PSID adminGroup = nullptr;
@@ -374,6 +384,7 @@ class WindowsCPP
 	}
 
 	// thx Trock for this
+
 	@:functionCode('
 		int screenWidth = GetSystemMetrics(SM_CXSCREEN);
 		int screenHeight = GetSystemMetrics(SM_CYSCREEN);
@@ -549,25 +560,25 @@ class WindowsCPP
 	}
 
 	@:functionCode('
-	HWND window;
-	HWND window2;
+		HWND window;
+		HWND window2;
 
-	switch (numberMode) {
-		case 0:
-			window = FindWindowW(L"Progman", L"Program Manager");
-			window = GetWindow(window, GW_CHILD);
-		case 1:
-			window = FindWindowA("Shell_traywnd", nullptr);
-			window2 = FindWindowA("Shell_SecondaryTrayWnd", nullptr);
-	}
+		switch (numberMode) {
+			case 0:
+				window = FindWindowW(L"Progman", L"Program Manager");
+				window = GetWindow(window, GW_CHILD);
+			case 1:
+				window = FindWindowA("Shell_traywnd", nullptr);
+				window2 = FindWindowA("Shell_SecondaryTrayWnd", nullptr);
+		}
 
-	if (numberMode != 1) {
-		SetWindowLong(window, GWL_EXSTYLE, GetWindowLong(window, GWL_EXSTYLE) ^ WS_EX_LAYERED);
-	}
-	else {
-		SetWindowLong(window, GWL_EXSTYLE, GetWindowLong(window, GWL_EXSTYLE) ^ WS_EX_LAYERED);
-		SetWindowLong(window2, GWL_EXSTYLE, GetWindowLong(window2, GWL_EXSTYLE) ^ WS_EX_LAYERED);
-	}
+		if (numberMode != 1) {
+			SetWindowLong(window, GWL_EXSTYLE, GetWindowLong(window, GWL_EXSTYLE) ^ WS_EX_LAYERED);
+		}
+		else {
+			SetWindowLong(window, GWL_EXSTYLE, GetWindowLong(window, GWL_EXSTYLE) ^ WS_EX_LAYERED);
+			SetWindowLong(window2, GWL_EXSTYLE, GetWindowLong(window2, GWL_EXSTYLE) ^ WS_EX_LAYERED);
+		}
 	')
 	public static function _setWindowLayeredMode(numberMode:Int)
 	{

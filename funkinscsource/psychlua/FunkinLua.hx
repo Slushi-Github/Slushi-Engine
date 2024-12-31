@@ -19,7 +19,7 @@ import objects.Character;
 import objects.HealthIcon;
 import states.MainMenuState;
 import states.StoryMenuState;
-import substates.PauseSubState;
+import slushi.substates.SlushiPauseSubState;
 import substates.GameOverSubstate;
 import psychlua.LuaUtils;
 import psychlua.LuaUtils.LuaTweenOptions;
@@ -1082,7 +1082,7 @@ class FunkinLua
       set("restartSong", function(?skipTransition:Bool = false) {
         game.persistentUpdate = false;
         FlxG.camera.followLerp = 0;
-        PauseSubState.restartSong(skipTransition);
+        SlushiPauseSubState.restartSong(skipTransition);
         return true;
       });
       set("exitSong", function(?skipTransition:Bool = false) {
@@ -1096,7 +1096,7 @@ class FunkinLua
         {
           if (PlayState.isStoryMode) MusicBeatState.switchState(new StoryMenuState());
           else
-            MusicBeatState.switchState(new states.freeplay.FreeplayState());
+            MusicBeatState.switchState(new slushi.states.freeplay.SlushiFreeplayState());
         }
         #if BASE_GAME_FILES
         else
@@ -1107,7 +1107,7 @@ class FunkinLua
             game.openSubState(new vslice.transition.StickerSubState(null, (sticker) -> new StoryMenuState(sticker)));
           }
           else
-            game.openSubState(new vslice.transition.StickerSubState(null, (sticker) -> new states.freeplay.FreeplayState(sticker)));
+            game.openSubState(new vslice.transition.StickerSubState(null, (sticker) -> new slushi.states.freeplay.SlushiFreeplayState(sticker)));
         }
         #end
 
