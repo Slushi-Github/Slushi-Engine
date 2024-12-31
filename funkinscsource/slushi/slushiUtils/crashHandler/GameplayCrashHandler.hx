@@ -31,7 +31,9 @@ class GameplayCrashHandler
 
 		WindowFuncs.winTitle("Slushi Engine: Crash Handler Mode");
 		WindowFuncs.resetWindowParameters();
+		#if windows
 		WindowsFuncs.setWindowBorderColor([0, 46, 114]);
+		#end
 		if (Main.fpsVar != null)
 			Main.fpsVar.visible = false;
 		FlxG.mouse.useSystemCursor = false;

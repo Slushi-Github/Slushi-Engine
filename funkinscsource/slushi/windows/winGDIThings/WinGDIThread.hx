@@ -18,6 +18,7 @@ class WinGDIThread
 
 	public static function initThread()
 	{
+		#if windows
 		if (mainThread != null)
 			return;
 
@@ -25,7 +26,6 @@ class WinGDIThread
 
 		mainThread = Thread.create(() ->
 		{
-			#if windows
 			Debug.logSLEInfo('Windows GDI Thread running...');
 			while (runningThread)
 			{
@@ -69,12 +69,13 @@ class WinGDIThread
 					gdi.gdiEffect.update();
 				}
 			}
-			#end
 		});
+		#end
 	}
 
 	public static function stopThread()
 	{
+		#if windows
 		if (mainThread != null)
 		{
 			Debug.logSLEInfo('Stopping Windows GDI Thread...');
@@ -86,4 +87,5 @@ class WinGDIThread
 		elapsedTime = 0;
 		SlushiWinGDI.setElapsedTime(elapsedTime);
 	}
+	#end
 }
