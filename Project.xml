@@ -3,7 +3,7 @@
 xsi:schemaLocation="http://lime.openfl.org/project/1.0.4 http://lime.openfl.org/xsd/project-1.0.4.xsd">
 	<!-- _________________________ Application Settings _________________________ -->
 
-	<app title="SC Engine - Slushi Engine" file="SLE" packageName="com.SlushiAndSCTeam.SCSLE" package="com.SlushiAndSCTeam.SCSLE" main="Main" version="0.4.0" company="SlushiAndSCTeam" />
+	<app title="SC Engine - Slushi Engine" file="SLE" packageName="com.SlushiAndSCTeam.SCSLE" package="com.SlushiAndSCTeam.SCSLE" main="Main" version="0.5.0" company="SlushiAndSCTeam" />
 
 	<!--Switch Export with Unique ApplicationID and Icon-->
 	<set name="APP_ID" value="0x0100f6c013bbc000" />

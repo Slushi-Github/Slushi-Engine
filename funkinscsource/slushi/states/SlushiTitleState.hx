@@ -4,6 +4,9 @@ import flixel.util.FlxGradient;
 import flixel.effects.particles.FlxEmitter;
 import openfl.Assets;
 import backend.Highscore;
+import states.MainMenuState;
+
+import slushi.states.SlushiMainMenuState;
 
 /**
  * The first state of the game, the title state of SLE.
@@ -48,7 +51,7 @@ class SlushiTitleState extends MusicBeatState
 		
 		FlxG.sound.playMusic(SlushiMain.getSLEPath("Musics/SLE_HackNet_Resonance.ogg"), 0);
 		FlxG.sound.music.fadeIn(4, 0, 0.7);
-		states.MainMenuState.freakyPlaying = true;
+		MainMenuState.freakyPlaying = true;
 		Conductor.bpm = songBPM;
 
 		persistentUpdate = true;
@@ -59,8 +62,6 @@ class SlushiTitleState extends MusicBeatState
 		Mods.pushGlobalMods();
 		#end
 		Mods.loadTopMod();
-
-		// new slushi.wiiUGamepad.MiisendUServer(); // ?
 
 		if (Main.checkGJKeysAndId())
 		{
@@ -239,7 +240,7 @@ class SlushiTitleState extends MusicBeatState
 			{
 				gitVersion.needUpdate = false;
 				gitVersion.newVersion = "";
-				MusicBeatState.switchState(new slushi.states.SlushiMainMenuState());
+				MusicBeatState.switchState(new SlushiMainMenuState());
 			}
 		}
 	}

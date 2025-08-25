@@ -21,7 +21,7 @@ class SlushiMain
 	// Versions of the things in the engine and SCE
 	public static var buildNumber:String = EngineMacros.prepareBuildNumber();
 	public static var sceGitCommit:String = "4eaf8c4";
-	public static var slushiEngineVersion:String = '0.4.0';
+	public static var slushiEngineVersion:String = '0.5.0';
 	public static var sleThingsVersions = {
 		winSLVersion: '1.3.0',
 		slCrashHandlerVersion: '1.4.0'

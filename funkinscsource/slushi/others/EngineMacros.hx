@@ -10,7 +10,7 @@ import CompileTime;
 class EngineMacros
 {
 	#if macro
-	static var ENGINE_VERSION = "0.4.0";
+	static var ENGINE_VERSION = "0.5.0 -- THE FINAL VERSION";
 	static var CUSTOM_BUILD_NAME = "not defined";
 
 	public static function showBuildInfo()

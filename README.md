@@ -10,6 +10,17 @@
 
 ![Slushi Engine Logo](https://github.com/Slushi-Github/Slushi-Engine/blob/main/docs/readmeImages/SlushiEngineLogo.png)
 
+# ¡IMPORTANT!
+**I consider this project finally finished and in a state that I like. I don't plan to provide any further support or updates. I apologize if the engine is somewhat poorly optimized.**
+
+Thank you so much to everyone who liked or supported this project! This was actually my first programming project..
+
+I currently have new projects that I am working on, namely [HxCompileU](https://github.com/Slushi-Github/hxCompileU) and [Leafy Engine](https://github.com/Slushi-Github/leafyEngine), my overall project to bring Haxe to the Nintendo Wii U. I would recommend you take a look at them, hehe.
+
+Finally, I include here the ``.haxelib`` folder in a ZIP file on the releases page for those who wish to compile SLE even though some libraries change or no longer exist.
+
+----
+
 ![Windows Workflow Status](https://img.shields.io/github/actions/workflow/status/Slushi-Github/Slushi-Engine/.github%2Fworkflows%2Fwindows.yml?label=Windows)
 ![Linux Workflow Status](https://img.shields.io/github/actions/workflow/status/Slushi-Github/Slushi-Engine/.github%2Fworkflows%2Flinux.yml?label=Linux)
 ![MacOS Workflow Status](https://img.shields.io/github/actions/workflow/status/Slushi-Github/Slushi-Engine/.github%2Fworkflows%2Fmacos.yml?label=MacOS)
@@ -19,8 +30,7 @@
 
 [GameBanana](https://gamebanana.com/tools/17953) - [Gamejolt](https://gamejolt.com/games/SlushiEngine/884361)
 
-
-Slushi Engine is an FNF' engine that allows you to make modcharts with [Modcharting Tools](https://github.com/EdwhakKB/FNF-Modcharting-Tools) and other [SC Engine](https://github.com/EdwhakKB/SC-SP-ENGINE) utilities, while also being able to make a unique kind of modchart that uses Windows functions!
+Slushi Engine is an FNF' engine that allows you to make modcharts with [Modcharting Tools](https://github.com/EdwhakKB/FNF-Modcharting-Tools) and other [SC Engine](https://github.com/glowsoony/SC-Engine) utilities, while also being able to make a unique kind of modchart that uses Windows functions!
 In addition, SLE takes some inspiration from [NotITG](https://www.noti.tg/) and [HITMANS: THE ANNIHILATE AND DESTROY PROJECT](https://gamebanana.com/mods/453997)
 
 You can do things like this, or even better things!
@@ -37,8 +47,8 @@ Oh, wait, NMI doesn't have public source code right? And neither does Friday Nig
 
 Well, you are looking at the FNF' engine that will let you obtain your full potential in relation to certain mechanics of these mods mentioned, through its large amount of Lua functions to make your songs with all of this.
 
-SLE, is created by me, Andrés, better known on the internet as Slushi, I'm the one who made EVERYTHING, between arts, most of the code and that, but of course, most of the C++ code has been taken from [StackOverflow](https://stackoverflow.com/), or with the help of AIs (like [ChatGPT](https://chatgpt.com/), [Google Gemini](https://gemini.google.com/app), etc...), but also with the help of my friends, like [Glowsoony](https://github.com/glowsoony), or [EdwhakKB](https://github.com/EdwhakKB), like lending me code or helping me in this, that these are the ones who developed SCE, the base of SLE.
-and last but not least, I have also received help from my good friend, [Trock](https://github.com/Gametrock), he is the one who made WinSL a reality!
+SLE, is created by me, Andrés, better known on the internet as Slushi, I'm the one who made EVERYTHING, between arts, most of the code and that, but of course, most of the C++ code has been taken from [StackOverflow](https://stackoverflow.com), or with the help of AIs (like [ChatGPT](https://chatgpt.com), [Google Gemini](https://gemini.google.com/app), etc...), but also with the help of my friends, like [Glowsoony](https://github.com/glowsoony), or [EdwhakKB](https://github.com/EdwhakKB), like lending me code or helping me in this, that these are the ones who developed SCE, the base of SLE.
+and last but not least, I have also received help from my good friend, [Trock](https://github.com/Gametrock), he is the one who made WinSL a reality! My CLI interface for SLE.
 Without more to say, this IS Slushi Engine. an engine that not only uses FNF as a base, but also the beautiful Slushi, from [Chikn Nuggit](https://twitter.com/chikn_nuggit?t=YohD2quSHtamaiJyzT-FOA&s=09).
 
 SLE has a [wiki](https://github.com/Slushi-Github/Slushi-Engine/tree/main/docs/development/SLELuaSpanish) in Spanish detailing its added Lua functionality, so you can see everything that this engine can do through such a simple language hehe
@@ -58,11 +68,11 @@ I don't want the engine to be able to modify things on my system!:
 > Ok, you can disable the Windows related effects of the engine in options.
 
 Can SLE be for other systems?:
-> Mm, yes and no, it depends, as SLE is an engine that is heavily reliant on Windows APIs for its functionality, its functionality may be limited when used in systems running Linux or macOS where these specific APIs aren't available. In such cases, I would recommend using SCE directly, but at least you can compile it on Linux ([Ubuntu 23.10](https://ubuntu.com/)).
+> Mm, yes and no, it depends, as SLE is an engine that is heavily reliant on Windows APIs for its functionality, its functionality may be limited when used in systems running Linux or macOS where these specific APIs aren't available. In such cases, I would recommend using SCE directly, but at least you can compile it on Linux ([Ubuntu 23.10](https://ubuntu.com)).
 ![](https://github.com/Slushi-Github/Slushi-Engine/blob/main/docs/readmeImages/SLEInUbuntu.png)
 
-On Linux or macOS, is SLE usable through [Wine](https://www.winehq.org/)?:
-> As far as I've tested on my own, yes, but Wine doesn't get along with things like moving the window a lot, at least I've tested on [Ubuntu 22.04](https://ubuntu.com/), I don't know on other distros, Debian based or not.
+On Linux or macOS, is SLE usable through [Wine](https://www.winehq.org)?:
+> As far as I've tested on my own, yes, but Wine doesn't get along with things like moving the window a lot, at least I've tested on [Ubuntu 22.04](https://ubuntu.com), I don't know on other distros, Debian based or not.
 
 Can I use SLE for my mod?:
 > Sure! I would love to see SLE as a base for a mod, but keep in mind that even though it uses SCE as a foundation, SLE has been heavily modified. This might not make it the best choice for typical FNF mods. However, if you're looking to create mods that leverage what the engine can do, feel free to experiment! Just remember to give me credits where you upload the mod.\
@@ -71,11 +81,11 @@ Can I use SLE for my mod?:
 > - In the creation or distribution of malware or malicious software
 
 ----
-SLE is not made to compete with other engines such as [Psych Engine](https://github.com/ShadowMario/FNF-PsychEngine), [SB Engine](https://github.com/Stefan2008Git/FNF-SB-Engine), [Codename Engine](https://github.com/FNF-CNE-Devs/CodenameEngine) (I wonder why CNE developers decompiled SLE; they had no reason to do that?), or any other existing engines. Instead, SLE is designed to facilitate tasks that might otherwise be challenging and enable you to create modcharts like the ones made in NotITG or Hitmans AD with features beyond simply moving notes or the window.
+SLE is not made to compete with other engines such as [Psych Engine](https://github.com/ShadowMario/FNF-PsychEngine), ~~[SB Engine](https://github.com/Stefan2008Git/FNF-SB-Engine)~~, [Codename Engine](https://github.com/FNF-CNE-Devs/CodenameEngine) (I wonder why CNE developers decompiled SLE; they had no reason to do that?), or any other existing engines. Instead, SLE is designed to facilitate tasks that might otherwise be challenging and enable you to create modcharts like the ones made in NotITG or Hitmans AD with features beyond simply moving notes or the window.
 
 In the near future, you can expect to find all C++ code from SLE available as a Haxe library on Haxelib. This will allow you to use it in your projects unrelated to FNF. The same goes for WinSL. :3:
 
-[SL-Windows-API](https://lib.haxe.org/p/sl-windows-api/) (usable Windows API functions in Haxe).
+[SL-Windows-API](https://lib.haxe.org/p/sl-windows-api) (usable Windows API functions in Haxe).
 
 ### Credits:
 
@@ -83,9 +93,9 @@ Slushi, is neither my original character (OC) nor a character owned by me. She i
 
 Slushi Engine uses code from [Codename Engine](https://github.com/FNF-CNE-Devs/CodenameEngine) (SC Engine too, but I only want to refer to the code I used in SLE) and [HITMANS: THE ANNIHILATE AND DESTROY PROJECT](https://gamebanana.com/mods/453997).
 
-For more credit details, [PLEASE check this from SCE README!](https://github.com/EdwhakKB/SC-SP-ENGINE?tab=readme-ov-file#credits-to-other-engine--most-engine-features-and-where-they-come-from-sorry-if-only-now-the-credits-exist-extermely-sorry)
+For more credit details, [PLEASE check this from SCE README!](https://github.com/glowsoony/SC-Engine?tab=readme-ov-file#credits-to-other-engine--most-engine-features-and-where-they-come-from-sorry-if-only-now-the-credits-exist-extermely-sorry)
 
-[SC Engine](https://github.com/EdwhakKB/SC-SP-ENGINE), is only the base of SLE, it is not mine, it is from [EdwhakKB](https://github.com/EdwhakKB), I have his full permission to use SLE on this wonderful engine.
+[SC Engine](https://github.com/glowsoony/SC-Engine), is only the base of SLE, it is not mine, it is from ~~[EdwhakKB](https://github.com/EdwhakKB)~~ [Glowsoony](https://github.com/glowsoony), I have his full permission to use SLE on this wonderful engine.
 
 ----
 
@@ -94,6 +104,8 @@ For more credit details, [PLEASE check this from SCE README!](https://github.com
 "Gracias [...] por siempre apoyarme en este proyecto desde que se me ocurrio la idea de iniciarlo, y tambien a ti [...], incluso si ya no estas en este mundo." 
 - Andrés.
 </details>
+
+----
 
 ## Features of Slushi Engine:
 - A HUD specifically made for songs using the NotITG mode, to make it look like the one behind this game, making it easy to get rid of the normal FNF' look.

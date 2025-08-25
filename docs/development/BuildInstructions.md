@@ -6,7 +6,6 @@
 2. Install [Git](https://git-scm.com/)
 3. Clone the repository, create a folder for it, and navigate to it, then run the following command: ```git clone https://github.com/Slushi-Github/Slushi-Engine.git```
 
-
 Set up [Visual Studio](https://aka.ms/vs/17/release/vs_BuildTools.exe) dependencies:
 
 select "Individual Components" and make sure to download the following: 
@@ -15,6 +14,8 @@ select "Individual Components" and make sure to download the following:
     - Windows 10/11 SDK
 
 Set up Haxe libs of the engine:
+
+**In the latest version, get the ``.haxelib`` folder from the releases page, unzip that file and just skip to the compilation step.**
 
 In you project folder first run the following commands: 
 
@@ -45,8 +46,9 @@ Build the engine with the following command: ``lime test windows``
 2. Install Git (they are already installed by default on Linux distros usually)
 3. Clone the repository, create a folder for it, and navigate to it, then run the following command: ```git clone https://github.com/Slushi-Github/Slushi-Engine.git```
 
-
 Set up Haxe libs of the engine:
+
+**In the latest version, get the ``.haxelib`` folder from the releases page, unzip that file and just skip to the compilation step.**
 
 In you project folder first run the following commands: 
 
